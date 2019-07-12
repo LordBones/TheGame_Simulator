@@ -1,0 +1,251 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Diagnostics;
+using System.IO;
+using TheGameNet.Core.Players;
+
+namespace TheGameNet.Core
+{
+    class TheGameSimulator
+    {
+
+        private GameBoard _gameBoard;
+
+        private System.IO.StreamWriter _gameRunLog = null;
+
+        public Player [] Players => _gameBoard.Players;
+
+        public TheGameSimulator(System.IO.StreamWriter gameRunLog)
+        {
+            this._gameBoard = new GameBoard();
+            this._gameRunLog = gameRunLog ?? StreamWriter.Null;
+        }
+
+        public void SetPlayers(ICollection<Player> players)
+        {
+            this._gameBoard.InitPlayers(players);
+        }
+
+        public GameResult Simulate(byte [] deckCards)
+        {
+            Log_StartGame();
+            Log_StartDeckCards(deckCards);
+
+            InitGame(deckCards);
+
+            Run();
+
+            // ValidateStacks();
+
+            GameResult gameResult = ResultGame();
+
+            Log_EndGame();
+
+            return gameResult;
+
+            
+        }
+
+        private GameResult ResultGame()
+        {
+            GameResult result = new GameResult();
+
+            int gameResult = 0;
+            foreach(var item in this._gameBoard.Players_Cards)
+            {
+                gameResult += item.Count;
+            }
+
+            gameResult += this._gameBoard.AvailableCards.Count;
+
+            result.Rest_Cards = gameResult;
+
+            return result;
+        }
+
+        private void Run()
+        {
+            
+
+            Player player = this._gameBoard.Player_Order.Current;
+
+            player.StartPlay(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id));
+
+            while (player!=null && this._gameBoard.Can_PlayerPlay(player.Id))
+            {
+                
+                Log_CurrentDecksState();
+                Log_PlayerCards();
+
+                this._gameBoard.Get_PlayerBoardData(player.Id).CountNeedPlayCard = (sbyte)this._gameBoard.MinCardForPlay;
+
+
+                bool playerNotEndGame = Process_PlayerMoves_Mandatory(player);
+                if (!playerNotEndGame)
+                {
+                    break;
+                }
+
+                Process_PlayerMoves_Optional(player);
+
+                this._gameBoard.Refill_PlayerCards(player.Id);
+                this._gameBoard.UpdatePlayersHints();
+
+                player = MoveTo_NextPlayer(player);
+                player.StartPlay(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id));
+            }
+
+            foreach(var p in this.Players)
+            {
+                p.EndGame(this._gameBoard, this._gameBoard.Get_PlayerHand(p.Id));
+            }
+        }
+
+        private bool Process_PlayerMoves_Mandatory(Player player)
+        {
+            bool playerNotEndGame = true;
+
+            for (int m = 0; m < this._gameBoard.Get_CurrentMinCardForPlay; m++)
+            {
+                if (!this._gameBoard.Can_PlayerPlay(player.Id))
+                {
+                    playerNotEndGame = false;
+                    break;
+                }
+
+                MoveToPlay move = player.Decision_CardToPlay(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id));
+
+                this._gameBoard.Apply_PlayerMove(player, move);
+
+                player.AfterCardPlay_ResultMove(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id),false);
+
+                this._gameBoard.UpdatePlayersHints();
+            }
+            
+            return playerNotEndGame;
+        }
+
+        private void Process_PlayerMoves_Optional(Player player)
+        {
+            while (!this._gameBoard.PlayerHand_IsEmpty(player.Id))
+            {
+                MoveToPlay move = player.Decision_CardToPlay_Optional(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id));
+
+                if (move.IsNotMove)
+                {
+                    player.AfterCardPlay_ResultMove(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id), false);
+                    return;
+                }
+
+                this._gameBoard.Apply_PlayerMove(player, move);
+                player.AfterCardPlay_ResultMove(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id), false);
+                this._gameBoard.UpdatePlayersHints();
+            }
+        }
+
+        private Player MoveTo_NextPlayer(Player player)
+        {
+            bool discardPlayer = this._gameBoard.PlayerHand_IsEmpty(player.Id);
+
+            this._gameBoard.Player_Order.MoveToNext(discardPlayer);
+
+            return this._gameBoard.Player_Order.Current;
+        }
+
+        private void InitGame(byte[] deckCards)
+        {
+            this._gameBoard.Clear();
+            this._gameBoard.Set_AvailableCardsDeck(deckCards);
+            this._gameBoard.InitPlayerStartCards();
+            this._gameBoard.Init_PlayerOrder();
+            this._gameBoard.UpdatePlayersHints();
+        }
+
+        private void ValidateStacks()
+        {
+            foreach(var item in this._gameBoard.CardPlaceholders)
+            {
+                item.ValidateStack();
+            }
+        }
+
+        #region Helper Log
+
+        private void Log_StartGame()
+        {
+            if (_gameRunLog == StreamWriter.Null) return;
+
+            _gameRunLog.WriteLine($"############ Simulation start for { this._gameBoard.Players.Length} players");
+        }
+
+        private void Log_EndGame()
+        {
+            if (_gameRunLog == StreamWriter.Null) return;
+
+            _gameRunLog.WriteLine($"############ Simulation end ");
+        }
+
+        private void Log_StartDeckCards( byte [] deckCards)
+        {
+            if (_gameRunLog == StreamWriter.Null) return;
+
+            string cards = string.Join(", ", deckCards);
+            _gameRunLog.WriteLine($"DeckCards: {cards}");
+        }
+
+        private void Log_CurrentDecksState()
+        {
+            if (_gameRunLog == StreamWriter.Null) return;
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append($"{_gameBoard.CardPlaceholders[0].Get_TopCard(),3} ");
+            sb.Append($"{_gameBoard.CardPlaceholders[1].Get_TopCard(),3} ");
+            sb.Append($"{_gameBoard.CardPlaceholders[2].Get_TopCard(),3} ");
+            sb.Append($"{_gameBoard.CardPlaceholders[3].Get_TopCard(),3} ");
+
+            _gameRunLog.WriteLine($"DeckCards: {sb.ToString()}");
+        }
+
+        private void Log_PlayerCards()
+        {
+            if (_gameRunLog == StreamWriter.Null) return;
+
+            StringBuilder sb = new StringBuilder();
+
+            Player[] players = this._gameBoard.Players;
+            List<byte>[] playersCards = this._gameBoard.Players_Cards;
+
+            Player currentPlayer = this._gameBoard.Player_Order.Current;
+
+            for (int i=0;i< players.Length; i++)
+            {
+                string markPlayNow = (players[i] == currentPlayer) ? "*" : string.Empty;
+                string markNewLine = (players[i] == currentPlayer) ? "\n" : string.Empty;
+
+                string playerName = players[i].Name;
+                
+                sb.Append($"{markNewLine}{markPlayNow,1} P{i} {playerName,15}: ");
+
+                List<byte> cards = playersCards[i];
+
+                for(int c = 0; c < cards.Count; c++)
+                {
+                    sb.Append($"{cards[c],3}, ");
+                }
+
+
+                sb.AppendLine(markNewLine);
+            }
+
+            _gameRunLog.WriteLine(sb.ToString());
+        }
+        #endregion
+    }
+
+    public class GameResult
+    {
+        public int Rest_Cards;
+    }
+}
