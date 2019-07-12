@@ -68,7 +68,7 @@ namespace TheGameNet
 
         public static void Run_QLearning_Teach()
         {
-            int countRounds = 180000;
+            int countRounds = 40000;
 
             List<GamePlayGroup> gpg = new List<GamePlayGroup>();
             string groupName = "QLearning";

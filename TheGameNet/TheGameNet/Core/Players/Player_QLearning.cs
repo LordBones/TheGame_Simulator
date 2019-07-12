@@ -14,7 +14,7 @@ namespace TheGameNet.Core.Players
     {
         private QTable _qTable;
         private QNode _lastQNode;
-        private QLearningCompute _qLearningCompute = new QLearningCompute(0.1f, 0.9f);
+        private QLearningCompute _qLearningCompute = new QLearningCompute(0.3f, 0.5f);
 
 
         struct QNode

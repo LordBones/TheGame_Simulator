@@ -15,7 +15,7 @@ namespace TheGameNet.Core.Players
         private QTable _qTableB;
         private int _switchCounter = 0;
         private QNode _lastQNode;
-        private QLearningCompute _qLearningCompute = new QLearningCompute(0.01f, 0.5f);
+        private QLearningCompute _qLearningCompute = new QLearningCompute(0.3f, 0.5f);
 
 
         struct QNode

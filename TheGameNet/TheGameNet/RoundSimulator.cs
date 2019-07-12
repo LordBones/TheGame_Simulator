@@ -30,9 +30,10 @@ namespace TheGameNet
 
         public static void SimulateGameRounds(GamePlayGroup[] gamePlayes, int rounds)
         {
+            byte[] newGameDeck = GameBoard.Get_CreatedSuffledDeck();
             for (int r = 0; r < rounds; r++)
             {
-                byte[] newGameDeck = GameBoard.Get_CreatedSuffledDeck();
+                
                 SimulateGameplays(gamePlayes, newGameDeck);
             }
 
@@ -56,6 +57,7 @@ namespace TheGameNet
                 GameResult gameResult = gamePlay.tgs.Simulate(deckCards);
 
                 gamePlay.GameStat.UpdateStats(gameResult);
+                gamePlay.GameProgress.Update((byte)gameResult.Rest_Cards);
             }
         }
 
@@ -81,6 +83,12 @@ namespace TheGameNet
                 {
 
                     item.GameStat.computeMedian.PrintDataGroup(tw);
+                }
+
+                using (TextWriter tw = File.CreateText(groupTitle + "_" + item.Title + "_GameProgress_log.txt"))
+                {
+
+                    item.GameProgress.PrintProgress(tw);
                 }
 
 
@@ -148,6 +156,8 @@ namespace TheGameNet
             public TheGameSimulator tgs;
 
             public GameStat GameStat = new GameStat();
+
+            public GameProgress GameProgress = new GameProgress(100);
 
             public GamePlay(List<Player> players, string title, StreamWriter playLog)
             {

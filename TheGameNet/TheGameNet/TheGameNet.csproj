@@ -82,6 +82,7 @@
     <Compile Include="Core\BoardMini.cs" />
     <Compile Include="Core\GameBoardMini\CardPlaceholderLight.cs" />
     <Compile Include="Core\GameBoardMini\DeepSearch_BoardMini.cs" />
+    <Compile Include="Core\GameProgress.cs" />
     <Compile Include="Core\PlayedCards.cs" />
     <Compile Include="Core\Player.cs" />
     <Compile Include="Core\Players\Player.cs" />
