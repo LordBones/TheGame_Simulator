@@ -18,7 +18,7 @@ namespace TheGameNet.Core
 
         private readonly PlayedCards _playedCards;
         public CardPlaceholder[] CardPlaceholders = new CardPlaceholder[4];
-        public PlayersHintsPlaceholder[] CardPlaceholdersHints = new PlayersHintsPlaceholder[4];
+        //public PlayersHintsPlaceholder[] CardPlaceholdersHints = new PlayersHintsPlaceholder[4];
 
 
         public Player[] Players = new Player[0];
@@ -44,11 +44,7 @@ namespace TheGameNet.Core
             this.CardPlaceholders[3] = new CardPlaceholder_UpDirection_Smart(_playedCards);
 
 
-            this.CardPlaceholdersHints[0] = new PlayersHintsPlaceholder();
-            this.CardPlaceholdersHints[1] = new PlayersHintsPlaceholder();
-            this.CardPlaceholdersHints[2] = new PlayersHintsPlaceholder();
-            this.CardPlaceholdersHints[3] = new PlayersHintsPlaceholder();
-
+           
             
         }
 
@@ -117,9 +113,9 @@ namespace TheGameNet.Core
 
         public static byte [] Get_CreatedSuffledDeck()
         {
-            List<byte> result = new List<byte>();
+            List<byte> result = new List<byte>(98);
 
-            List<byte> forSuffle = new List<byte>();
+            List<byte> forSuffle = new List<byte>(98);
             for(byte i = 2; i < 100; i++)
             {
                 forSuffle.Add(i);
@@ -157,8 +153,16 @@ namespace TheGameNet.Core
         }
 
 
-        public void UpdatePlayersHints()
+        public PlayersHintsPlaceholder[] GetPlayersHints()
         {
+            PlayersHintsPlaceholder[] result = new PlayersHintsPlaceholder[4];
+            result[0] = new PlayersHintsPlaceholder();
+            result[1] = new PlayersHintsPlaceholder();
+            result[2] = new PlayersHintsPlaceholder();
+            result[3] = new PlayersHintsPlaceholder();
+
+
+
             //this.CardPlaceholdersHints[0].Hints.Clear();
             //this.CardPlaceholdersHints[1].Hints.Clear();
             //this.CardPlaceholdersHints[2].Hints.Clear();
@@ -168,7 +172,7 @@ namespace TheGameNet.Core
             {
 
                 CardPlaceholder placeholder = this.CardPlaceholders[ch];
-                List<CardHint> placeholderHints = this.CardPlaceholdersHints[ch].Hints;
+                List<CardHint> placeholderHints = result[ch].Hints;
                 placeholderHints.Clear();
 
                 for (int p =0; p < this.Players.Length; p++)
@@ -185,6 +189,8 @@ namespace TheGameNet.Core
                     }
                 }
             }
+
+            return result;
         }
 
         public static RangeHint DiffToRangeHint(int diff)

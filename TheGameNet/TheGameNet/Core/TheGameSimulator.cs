@@ -90,10 +90,9 @@ namespace TheGameNet.Core
                 Process_PlayerMoves_Optional(player);
 
                 this._gameBoard.Refill_PlayerCards(player.Id);
-                this._gameBoard.UpdatePlayersHints();
-
+               
                 player = MoveTo_NextPlayer(player);
-                player.StartPlay(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id));
+                player?.StartPlay(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id));
             }
 
             foreach(var p in this.Players)
@@ -120,7 +119,6 @@ namespace TheGameNet.Core
 
                 player.AfterCardPlay_ResultMove(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id),false);
 
-                this._gameBoard.UpdatePlayersHints();
             }
             
             return playerNotEndGame;
@@ -140,7 +138,6 @@ namespace TheGameNet.Core
 
                 this._gameBoard.Apply_PlayerMove(player, move);
                 player.AfterCardPlay_ResultMove(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id), false);
-                this._gameBoard.UpdatePlayersHints();
             }
         }
 
@@ -159,7 +156,6 @@ namespace TheGameNet.Core
             this._gameBoard.Set_AvailableCardsDeck(deckCards);
             this._gameBoard.InitPlayerStartCards();
             this._gameBoard.Init_PlayerOrder();
-            this._gameBoard.UpdatePlayersHints();
         }
 
         private void ValidateStacks()
@@ -176,7 +172,7 @@ namespace TheGameNet.Core
         {
             if (_gameRunLog == StreamWriter.Null) return;
 
-            _gameRunLog.WriteLine($"############ Simulation start for { this._gameBoard.Players.Length} players");
+            _gameRunLog.WriteLine($"############ Simulation start for { this._gameBoard.Players.Length.ToString()} players");
         }
 
         private void Log_EndGame()

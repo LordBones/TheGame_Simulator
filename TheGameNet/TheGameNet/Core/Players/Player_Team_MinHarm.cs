@@ -82,12 +82,12 @@ namespace TheGameNet.Core.Players
 
         private MoveToPlay GetMinHarm_Move(List<MoveToPlay> moves, GameBoard board)
         {
+            PlayersHintsPlaceholder[] placeholderPlayerHints = board.GetPlayersHints();
 
-
-            deckBestHints[0] = board.CardPlaceholdersHints[0].FindNearestDiff(this.Id);
-            deckBestHints[1] = board.CardPlaceholdersHints[1].FindNearestDiff(this.Id);
-            deckBestHints[2] = board.CardPlaceholdersHints[2].FindNearestDiff(this.Id);
-            deckBestHints[3] = board.CardPlaceholdersHints[3].FindNearestDiff(this.Id);
+            deckBestHints[0] = placeholderPlayerHints[0].FindNearestDiff(this.Id);
+            deckBestHints[1] = placeholderPlayerHints[1].FindNearestDiff(this.Id);
+            deckBestHints[2] = placeholderPlayerHints[2].FindNearestDiff(this.Id);
+            deckBestHints[3] = placeholderPlayerHints[3].FindNearestDiff(this.Id);
 
             int bestDiff = int.MaxValue;
             MoveToPlay bestMove = new MoveToPlay(0, -1);
@@ -226,12 +226,12 @@ namespace TheGameNet.Core.Players
 
         private MoveToPlay GetMinHarm_Move(List<MoveToPlay> moves, GameBoard board)
         {
+            PlayersHintsPlaceholder[] placeholderPlayerHints = board.GetPlayersHints();
 
-
-            deckBestHints[0] = board.CardPlaceholdersHints[0].FindNearest(this.Id);
-            deckBestHints[1] = board.CardPlaceholdersHints[1].FindNearest(this.Id);
-            deckBestHints[2] = board.CardPlaceholdersHints[2].FindNearest(this.Id);
-            deckBestHints[3] = board.CardPlaceholdersHints[3].FindNearest(this.Id);
+            deckBestHints[0] = placeholderPlayerHints[0].FindNearest(this.Id);
+            deckBestHints[1] = placeholderPlayerHints[1].FindNearest(this.Id);
+            deckBestHints[2] = placeholderPlayerHints[2].FindNearest(this.Id);
+            deckBestHints[3] = placeholderPlayerHints[3].FindNearest(this.Id);
 
             int bestDiff = int.MaxValue;
             MoveToPlay bestMove = new MoveToPlay(0, -1);

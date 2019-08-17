@@ -46,6 +46,17 @@ namespace TheGameNet.Core.QLearning
             return (int) tmp % _HashQTable.Length;
         }
 
+        public int CreateKey_IndexAction(Span<byte> action)
+        {
+
+
+            uint tmp = (uint)HashDepot.XXHash.Hash64(action);
+            //uint tmp = HashDepot.XXHash.Hash32(state.Array.AsSpan(state.Offset, state.Count));
+            tmp &= 0x7fffffff;
+
+            return (int)tmp % _hashActionSize;
+        }
+
         public int CreateKey_IndexAction(ArraySegmentEx_Struct<byte> action)
         {
             
@@ -57,6 +68,11 @@ namespace TheGameNet.Core.QLearning
             return (int)tmp % _hashActionSize;
         }
 
+
+        public bool HasValue(int indexState, int actionState)
+        {
+            return _HashQTable[indexState].Keys.Contains(actionState);
+        }
 
         public float Get(int indexState, int actionState)
         {
@@ -86,26 +102,44 @@ namespace TheGameNet.Core.QLearning
 
         public void PrintTable(TextWriter tw)
         {
-            var header = GetAllRows();
-            PrintTableHeader(tw, header);
-            PrintTableData(tw, header);
+            var forHeader = GetAllRows().OrderBy(x => x).ToArray();
+
+            int skip = 0;
+            int take = 20;
+
+            do
+            {
+                if (skip + take > forHeader.Length)
+                {
+                    take = forHeader.Length - skip;
+                }
+
+                Span<int> header = forHeader.AsSpan(skip, take);
+                skip += take;
+
+
+                PrintTableHeader(tw, header);
+                PrintTableData(tw, header);
+
+                tw.WriteLine();
+            } while (skip < forHeader.Length);
         }
 
 
 
-        private void PrintTableHeader(TextWriter tw, HashSet<int> rows)
+        private void PrintTableHeader(TextWriter tw, Span<int> rows)
         {
             tw.Write($"{"",10};");
 
             foreach(var row in rows)
             {
-                tw.Write($"{row.ToString("x"), 8};");
+                tw.Write($"{row.ToString("x"), 10};");
             }
 
             tw.WriteLine();
         }
 
-        private  void PrintTableData(TextWriter tw, HashSet<int> rows)
+        private  void PrintTableData(TextWriter tw, Span<int> rows)
         {
             HashSet<int> result = new HashSet<int>();
             for(int i = 0;i < _HashQTable.Length;i++ )
@@ -117,11 +151,11 @@ namespace TheGameNet.Core.QLearning
                 {
                     if (data.ContainsKey(col))
                     {
-                        tw.Write($"{data[col].ToString("0.###"),8};");
+                        tw.Write($"{data[col].ToString("0.###"),10};");
                     }
                     else
                     {
-                        tw.Write($"{"",8};");
+                        tw.Write($"{"",10};");
                     }
                 }
                 tw.WriteLine();
@@ -130,7 +164,7 @@ namespace TheGameNet.Core.QLearning
             
         }
 
-        private HashSet<int> GetAllRows()
+        private int [] GetAllRows()
         {
             HashSet<int> result = new HashSet<int>();
             foreach (var row in _HashQTable)
@@ -141,7 +175,7 @@ namespace TheGameNet.Core.QLearning
                 }
             }
 
-            return result;
+            return result.ToArray();
         }
     }
 }

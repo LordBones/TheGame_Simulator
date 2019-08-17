@@ -26,9 +26,9 @@ namespace TheGameNet
 
             Stopwatch performanceCounter = new Stopwatch();
             performanceCounter.Start();
-
+            //PrintDeck();
             //BaseSimulate();
-          
+
 
             //Testings.RunSimulate_Compare();
             //Testings.RunSimulate_Test_PMP();
@@ -41,6 +41,16 @@ namespace TheGameNet
 
             Console.WriteLine(string.Format("{0,000} s ", performanceCounter.Elapsed.TotalSeconds));
             Console.WriteLine($"GC 0: {GC.CollectionCount(0),6} 1:{GC.CollectionCount(1),6} 2:{GC.CollectionCount(2),6}"); 
+        }
+
+        private static void PrintDeck()
+        {
+            byte[] tmp = GameBoard.Get_CreatedSuffledDeck();
+
+            foreach(var item in tmp)
+            {
+                Trace.Write($"{item.ToString()},");
+            }
         }
 
         private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

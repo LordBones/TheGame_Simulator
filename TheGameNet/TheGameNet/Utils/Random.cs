@@ -11,7 +11,7 @@ namespace TheGameNet.Utils
     public static class RandomGen
     {
         private static RandomNumberGenerator rng = RandomNumberGenerator.Create();
-        private static byte[] buff = new byte[2048];
+        private static byte[] buff = new byte[32000];
         private static int buffIndex = 4500000;
         private static Random random = new Random(0);
 
@@ -24,7 +24,7 @@ namespace TheGameNet.Utils
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetRandomNumber(int min, int max)
         {
-            if (buffIndex >= buff.Length)
+            if (buffIndex+4 >= buff.Length)
             {
                 random.NextBytes(buff);
                 //rng.GetBytes(buff);
@@ -43,7 +43,7 @@ namespace TheGameNet.Utils
 
         public static double GetRandomNumberDouble()
         {
-            if (buffIndex >= buff.Length)
+            if (buffIndex+4 >= buff.Length)
             {
                 random.NextBytes(buff);
                 //rng.GetBytes(buff);
@@ -56,7 +56,7 @@ namespace TheGameNet.Utils
             buffIndex += 4;
 
 
-            return (1.0 / uint.MaxValue) * randValue;
+            return ((1.0 * randValue) / uint.MaxValue) ;
         }
 
         /// <summary>

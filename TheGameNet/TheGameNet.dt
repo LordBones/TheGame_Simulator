@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-16"?>
-<DevTrackerData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SolutionTotalEditTime="PT4H53M31.8385216S" SolutionTotalViewTime="PT6H39M26.6316036S" SolutionTotalDebugTime="PT4M30.1434511S">
+<DevTrackerData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SolutionTotalEditTime="PT6H21M52.8987241S" SolutionTotalViewTime="PT9H7M53.6300549S" SolutionTotalDebugTime="PT9M0.3439057S">
   <FileVersion>
     <Major>1</Major>
     <Minor>0</Minor>
@@ -14,23 +14,23 @@
   </ProjectsCreatedDateList>
   <SessionTimeList />
   <LastSessionTimeList>
-    <DevTrackerDataItem ViewActiveTime="PT31.7268147S" EditActiveTime="PT1M0.7974773S">
+    <DevTrackerDataItem ViewActiveTime="PT27.6755829S" EditActiveTime="PT0S">
       <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>1</EditedCount>
+      <EditedCount>0</EditedCount>
       <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGameNet\TheGameNet\Core\Players\Player_DoubleQLearning.cs</Item>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_Soliter_PreserveMaxPossibilites.cs</Item>
       <ItemType>ProjectItem</ItemType>
-      <ProjectName />
-      <CreatedDate>2019-07-12T22:33:12.4301626+02:00</CreatedDate>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-08-14T20:31:08.2551689+02:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
   </LastSessionTimeList>
   <TotalTimeList>
-    <DevTrackerDataItem ViewActiveTime="PT57M45.5932204S" EditActiveTime="PT20M9.9072028S">
+    <DevTrackerDataItem ViewActiveTime="PT57M54.728743S" EditActiveTime="PT20M9.9072028S">
       <ModifiedDate>2019-06-29T01:03:53.9762553+02:00</ModifiedDate>
       <ModifiedBy>bones</ModifiedBy>
       <EditedCount>1</EditedCount>
-      <ViewedCount>5</ViewedCount>
+      <ViewedCount>6</ViewedCount>
       <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\BoardMini.cs</Item>
       <ItemType>ProjectItem</ItemType>
       <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
@@ -79,32 +79,32 @@
       <CreatedDate>2019-06-28T22:40:04.2856652+02:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT4M30.1434511S" EditActiveTime="PT0S">
+    <DevTrackerDataItem ViewActiveTime="PT9M0.3439057S" EditActiveTime="PT0S">
       <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
       <EditedCount>0</EditedCount>
-      <ViewedCount>2</ViewedCount>
+      <ViewedCount>3</ViewedCount>
       <Item>Debug Mode</Item>
       <ItemType>DebugModeItem</ItemType>
       <ProjectName />
       <CreatedDate>2019-01-29T23:40:44.8009038+01:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT1M46.6210987S" EditActiveTime="PT30M11.3216015S">
-      <ModifiedDate>2019-07-07T22:53:02.5870848+02:00</ModifiedDate>
+    <DevTrackerDataItem ViewActiveTime="PT46M53.5829283S" EditActiveTime="PT1H14M49.3927781S">
+      <ModifiedDate>2019-08-12T08:38:53.3781678+02:00</ModifiedDate>
       <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
+      <EditedCount>2</EditedCount>
+      <ViewedCount>2</ViewedCount>
       <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\GameBoardMini\DeepSearch_BoardMini.cs</Item>
       <ItemType>ProjectItem</ItemType>
       <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
       <CreatedDate>2019-07-07T21:34:30.4395653+02:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT1H22M9.4037783S" EditActiveTime="PT47M34.4232618S">
-      <ModifiedDate>2019-07-11T23:19:09.3842875+02:00</ModifiedDate>
+    <DevTrackerDataItem ViewActiveTime="PT1H24M40.4124154S" EditActiveTime="PT47M42.4467207S">
+      <ModifiedDate>2019-08-06T00:09:16.486128+02:00</ModifiedDate>
       <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>6</EditedCount>
-      <ViewedCount>10</ViewedCount>
+      <EditedCount>7</EditedCount>
+      <ViewedCount>11</ViewedCount>
       <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\GameBoard.cs</Item>
       <ItemType>ProjectItem</ItemType>
       <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
@@ -119,6 +119,17 @@
       <ItemType>ProjectItem</ItemType>
       <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
       <CreatedDate>2019-06-09T02:22:57.2589715+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT5M10.2627459S" EditActiveTime="PT22M18.1815396S">
+      <ModifiedDate>2019-08-06T07:55:38.9620063+02:00</ModifiedDate>
+      <ModifiedBy>bones</ModifiedBy>
+      <EditedCount>2</EditedCount>
+      <ViewedCount>2</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\GameProgress.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-07-12T22:49:09.6009096+02:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
     <DevTrackerDataItem ViewActiveTime="PT2M16.5334579S" EditActiveTime="PT9M12.4242934S">
@@ -165,11 +176,11 @@
       <CreatedDate>2019-06-09T01:45:18.5807825+02:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT11M46.3343994S" EditActiveTime="PT24M32.4302183S">
-      <ModifiedDate>2019-07-12T22:18:45.5275786+02:00</ModifiedDate>
+    <DevTrackerDataItem ViewActiveTime="PT12M5.5514986S" EditActiveTime="PT24M35.1593744S">
+      <ModifiedDate>2019-07-12T23:23:04.7233119+02:00</ModifiedDate>
       <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
+      <EditedCount>2</EditedCount>
+      <ViewedCount>2</ViewedCount>
       <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_DoubleQLearning.cs</Item>
       <ItemType>ProjectItem</ItemType>
       <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
@@ -197,11 +208,11 @@
       <CreatedDate>2019-06-09T01:47:33.7115115+02:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT35M29.8818225S" EditActiveTime="PT33M34.0361959S">
-      <ModifiedDate>2019-07-12T21:52:37.490892+02:00</ModifiedDate>
+    <DevTrackerDataItem ViewActiveTime="PT44M41.8403927S" EditActiveTime="PT35M4.9923981S">
+      <ModifiedDate>2019-07-13T06:21:38.2742523+02:00</ModifiedDate>
       <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
+      <EditedCount>2</EditedCount>
+      <ViewedCount>3</ViewedCount>
       <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_QLearning.cs</Item>
       <ItemType>ProjectItem</ItemType>
       <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
@@ -219,11 +230,11 @@
       <CreatedDate>2019-06-09T01:48:26.9105543+02:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT4M50.2676025S" EditActiveTime="PT3M55.9514956S">
-      <ModifiedDate>2019-07-12T19:19:54.6188057+02:00</ModifiedDate>
+    <DevTrackerDataItem ViewActiveTime="PT1H5M21.5232989S" EditActiveTime="PT10M54.7134474S">
+      <ModifiedDate>2019-08-12T08:45:33.2030365+02:00</ModifiedDate>
       <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>3</EditedCount>
-      <ViewedCount>4</ViewedCount>
+      <EditedCount>4</EditedCount>
+      <ViewedCount>6</ViewedCount>
       <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_Soliter_PreserveMaxPossibilites.cs</Item>
       <ItemType>ProjectItem</ItemType>
       <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
@@ -241,11 +252,11 @@
       <CreatedDate>2019-06-09T01:49:40.3647557+02:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT31M44.5481747S" EditActiveTime="PT11M5.1585329S">
+    <DevTrackerDataItem ViewActiveTime="PT32M17.4610573S" EditActiveTime="PT11M5.1585329S">
       <ModifiedDate>2019-06-12T22:31:16.2854773+02:00</ModifiedDate>
       <ModifiedBy>bones</ModifiedBy>
       <EditedCount>4</EditedCount>
-      <ViewedCount>9</ViewedCount>
+      <ViewedCount>11</ViewedCount>
       <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Program.cs</Item>
       <ItemType>ProjectItem</ItemType>
       <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
@@ -274,55 +285,55 @@
       <CreatedDate>2019-07-12T08:58:20.4301054+02:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT15M48.3172403S" EditActiveTime="PT30M28.5295864S">
+    <DevTrackerDataItem ViewActiveTime="PT16M13.5456833S" EditActiveTime="PT30M28.5295864S">
       <ModifiedDate>2019-07-12T18:57:55.9383815+02:00</ModifiedDate>
       <ModifiedBy>bones</ModifiedBy>
       <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
+      <ViewedCount>2</ViewedCount>
       <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\QLearning\QTable.cs</Item>
       <ItemType>ProjectItem</ItemType>
       <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
       <CreatedDate>2019-07-11T08:41:33.0529681+02:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT24M17.9711357S" EditActiveTime="PT3.4891996S">
-      <ModifiedDate>2019-01-22T22:22:06.1945277+01:00</ModifiedDate>
+    <DevTrackerDataItem ViewActiveTime="PT33M36.1660623S" EditActiveTime="PT1M29.8521393S">
+      <ModifiedDate>2019-08-06T00:04:52.5020289+02:00</ModifiedDate>
       <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>6</ViewedCount>
+      <EditedCount>2</EditedCount>
+      <ViewedCount>7</ViewedCount>
       <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Utils\Random.cs</Item>
       <ItemType>ProjectItem</ItemType>
       <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
       <CreatedDate>2019-01-22T22:20:39.1375483+01:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT11M28.2343653S" EditActiveTime="PT14M28.7256884S">
-      <ModifiedDate>2019-07-12T20:34:17.1930503+02:00</ModifiedDate>
+    <DevTrackerDataItem ViewActiveTime="PT14M38.2162318S" EditActiveTime="PT19M30.9349738S">
+      <ModifiedDate>2019-08-05T23:59:08.5793577+02:00</ModifiedDate>
       <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>2</EditedCount>
-      <ViewedCount>3</ViewedCount>
+      <EditedCount>4</EditedCount>
+      <ViewedCount>5</ViewedCount>
       <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\RoundSimulator.cs</Item>
       <ItemType>ProjectItem</ItemType>
       <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
       <CreatedDate>2019-06-09T02:06:46.0184197+02:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT17M49.8171911S" EditActiveTime="PT10M5.4526298S">
-      <ModifiedDate>2019-07-12T20:18:47.2458604+02:00</ModifiedDate>
+    <DevTrackerDataItem ViewActiveTime="PT25M17.8048139S" EditActiveTime="PT16M9.7734675S">
+      <ModifiedDate>2019-08-10T01:20:31.324406+02:00</ModifiedDate>
       <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>3</EditedCount>
-      <ViewedCount>4</ViewedCount>
+      <EditedCount>5</EditedCount>
+      <ViewedCount>6</ViewedCount>
       <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Testings.cs</Item>
       <ItemType>ProjectItem</ItemType>
       <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
       <CreatedDate>2019-06-09T02:17:08.3910174+02:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT16M36.993159S" EditActiveTime="PT5M55.0823095S">
-      <ModifiedDate>2019-07-12T19:23:05.6187303+02:00</ModifiedDate>
+    <DevTrackerDataItem ViewActiveTime="PT21M9.889768S" EditActiveTime="PT6M6.5239639S">
+      <ModifiedDate>2019-08-06T08:30:40.5312092+02:00</ModifiedDate>
       <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>4</EditedCount>
-      <ViewedCount>6</ViewedCount>
+      <EditedCount>5</EditedCount>
+      <ViewedCount>8</ViewedCount>
       <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\TheGameSimulator.cs</Item>
       <ItemType>ProjectItem</ItemType>
       <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
@@ -331,6 +342,229 @@
     </DevTrackerDataItem>
   </TotalTimeList>
   <HistoryTimeList>
+    <DevTrackerDataItem ViewActiveTime="PT27.6665824S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_Soliter_PreserveMaxPossibilites.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-08-14T20:31:08.2551689+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT2M21.1940758S" EditActiveTime="PT5.3013031S">
+      <ModifiedDate>2019-08-06T07:55:38.9620063+02:00</ModifiedDate>
+      <ModifiedBy>bones</ModifiedBy>
+      <EditedCount>1</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\GameProgress.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-08-06T07:54:13.4461151+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT2M31.0086371S" EditActiveTime="PT8.0234589S">
+      <ModifiedDate>2019-08-06T00:09:16.486128+02:00</ModifiedDate>
+      <ModifiedBy>bones</ModifiedBy>
+      <EditedCount>1</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\GameBoard.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-08-06T00:07:32.0181527+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT1M17.3144222S" EditActiveTime="PT1M1.4625155S">
+      <ModifiedDate>2019-08-05T23:59:08.5793577+02:00</ModifiedDate>
+      <ModifiedBy>bones</ModifiedBy>
+      <EditedCount>1</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\RoundSimulator.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-08-05T23:53:08.6957735+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT6M3.5547941S" EditActiveTime="PT5M43.6266541S">
+      <ModifiedDate>2019-08-10T01:20:31.324406+02:00</ModifiedDate>
+      <ModifiedBy>bones</ModifiedBy>
+      <EditedCount>1</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Testings.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-08-05T23:46:39.0274858+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT4M3.7209401S" EditActiveTime="PT11.4416544S">
+      <ModifiedDate>2019-08-06T08:30:40.5312092+02:00</ModifiedDate>
+      <ModifiedBy>bones</ModifiedBy>
+      <EditedCount>1</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\TheGameSimulator.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-08-05T23:35:53.2025467+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT4.9452829S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_QLearning.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-08-05T23:32:19.5923289+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT9M18.1949266S" EditActiveTime="PT1M26.3629397S">
+      <ModifiedDate>2019-08-06T00:04:52.5020289+02:00</ModifiedDate>
+      <ModifiedBy>bones</ModifiedBy>
+      <EditedCount>1</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Utils\Random.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-08-05T23:26:43.1640863+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT26.7385293S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Program.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-07-28T01:54:22.3611824+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT4M30.2004546S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>Debug Mode</Item>
+      <ItemType>DebugModeItem</ItemType>
+      <ProjectName />
+      <CreatedDate>2019-07-28T01:54:21.7211458+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT9.1355226S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\BoardMini.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-07-28T01:43:45.0067278+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT45M6.9618296S" EditActiveTime="PT44M38.0711766S">
+      <ModifiedDate>2019-08-12T08:38:53.3781678+02:00</ModifiedDate>
+      <ModifiedBy>bones</ModifiedBy>
+      <EditedCount>1</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\GameBoardMini\DeepSearch_BoardMini.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-07-28T01:39:10.3650192+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT1H3.5951143S" EditActiveTime="PT6M58.7619518S">
+      <ModifiedDate>2019-08-12T08:45:33.2030365+02:00</ModifiedDate>
+      <ModifiedBy>bones</ModifiedBy>
+      <EditedCount>1</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_Soliter_PreserveMaxPossibilites.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-07-25T23:24:10.9971686+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT25.228443S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\QLearning\QTable.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-07-12T23:33:46.5410218+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT19.2170992S" EditActiveTime="PT2.7291561S">
+      <ModifiedDate>2019-07-12T23:23:04.7233119+02:00</ModifiedDate>
+      <ModifiedBy>bones</ModifiedBy>
+      <EditedCount>1</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_DoubleQLearning.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-07-12T23:22:32.065444+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT29.1756689S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\TheGameSimulator.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-07-12T23:09:55.1431505+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT2M49.0686701S" EditActiveTime="PT22M12.8802365S">
+      <ModifiedDate>2019-07-12T23:34:34.6117713+02:00</ModifiedDate>
+      <ModifiedBy>bones</ModifiedBy>
+      <EditedCount>1</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\GameProgress.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-07-12T22:49:09.6009096+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT9M7.0132873S" EditActiveTime="PT1M30.9562022S">
+      <ModifiedDate>2019-07-13T06:21:38.2742523+02:00</ModifiedDate>
+      <ModifiedBy>bones</ModifiedBy>
+      <EditedCount>1</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_QLearning.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-07-12T22:44:22.8985112+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT1M52.6674443S" EditActiveTime="PT4M0.7467699S">
+      <ModifiedDate>2019-07-12T23:37:24.7305015+02:00</ModifiedDate>
+      <ModifiedBy>bones</ModifiedBy>
+      <EditedCount>1</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\RoundSimulator.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-07-12T22:44:00.1742114+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT1M24.4328287S" EditActiveTime="PT20.6941836S">
+      <ModifiedDate>2019-07-13T05:49:16.3021779+02:00</ModifiedDate>
+      <ModifiedBy>bones</ModifiedBy>
+      <EditedCount>1</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Testings.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-07-12T22:43:56.7670165+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
+    <DevTrackerDataItem ViewActiveTime="PT6.1743533S" EditActiveTime="PT0S">
+      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
+      <EditedCount>0</EditedCount>
+      <ViewedCount>1</ViewedCount>
+      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Program.cs</Item>
+      <ItemType>ProjectItem</ItemType>
+      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
+      <CreatedDate>2019-07-12T22:43:50.586663+02:00</CreatedDate>
+      <ViewedBy>bones</ViewedBy>
+    </DevTrackerDataItem>
     <DevTrackerDataItem ViewActiveTime="PT31.7268147S" EditActiveTime="PT1M0.7964773S">
       <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
       <EditedCount>1</EditedCount>
@@ -681,289 +915,6 @@
       <ItemType>ProjectItem</ItemType>
       <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
       <CreatedDate>2019-06-27T23:43:10.8950514+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT12M10.7157946S" EditActiveTime="PT0S">
-      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>0</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Program.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-12T22:46:31.4488217+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT5.8153326S" EditActiveTime="PT1M41.1517855S">
-      <ModifiedDate>2019-06-12T22:31:16.2254739+02:00</ModifiedDate>
-      <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_Soliter_PreserveMaxPossibilites.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-12T22:23:22.2343632+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT2M56.1090729S" EditActiveTime="PT0S">
-      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>0</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_Team_MinHarm.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-12T22:20:26.12029+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT47.3607088S" EditActiveTime="PT0S">
-      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>0</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_Dumb.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-12T22:20:14.5076258+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT11.0816339S" EditActiveTime="PT0S">
-      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>0</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_Soliter_MinHarm.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-12T22:20:03.4229918+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT4.4742559S" EditActiveTime="PT0S">
-      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>0</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-12T22:19:58.9447356+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT4.1632381S" EditActiveTime="PT0S">
-      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>0</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Player.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-12T22:19:54.7784974+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT17.5290026S" EditActiveTime="PT0S">
-      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>0</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\PlayedCards.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-12T22:15:35.2556535+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT4M33.494643S" EditActiveTime="PT0S">
-      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>0</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\GameBoard.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-12T22:15:03.7458512+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT2M29.8395704S" EditActiveTime="PT26.8945383S">
-      <ModifiedDate>2019-06-12T22:31:16.2854773+02:00</ModifiedDate>
-      <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Program.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-12T22:12:02.7955015+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT1M37.833596S" EditActiveTime="PT0S">
-      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>0</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\RoundSimulator.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-12T00:34:04.3429865+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT3M45.0878744S" EditActiveTime="PT3M36.4253788S">
-      <ModifiedDate>2019-06-12T22:31:05.5658642+02:00</ModifiedDate>
-      <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Testings.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-12T00:30:44.951582+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT41.0023451S" EditActiveTime="PT0S">
-      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>0</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Testings.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-12T00:07:49.2388957+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT17.641009S" EditActiveTime="PT12.6177217S">
-      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\GamePlayGroup.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-09T02:22:57.2589715+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT1M3.7976493S" EditActiveTime="PT2M6.3852287S">
-      <ModifiedDate>2019-06-09T02:24:13.1713134+02:00</ModifiedDate>
-      <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Testings.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-09T02:17:08.3910174+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT58.2503316S" EditActiveTime="PT3M2.0634134S">
-      <ModifiedDate>2019-06-09T02:22:44.4732402+02:00</ModifiedDate>
-      <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\RoundSimulator.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-09T02:06:46.0184197+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT3.2941884S" EditActiveTime="PT0S">
-      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>0</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\CardPlaceholder_UpDirection.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-09T01:56:33.6033916+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT3M30.3120291S" EditActiveTime="PT3M20.7524824S">
-      <ModifiedDate>2019-06-09T02:20:15.8207378+02:00</ModifiedDate>
-      <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Program.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-09T01:53:13.0239191+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT13.3327626S" EditActiveTime="PT5.891337S">
-      <ModifiedDate>2019-06-09T01:53:08.895683+02:00</ModifiedDate>
-      <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\TheGameSimulator.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-09T01:52:55.8909391+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT23.8903665S" EditActiveTime="PT26.121494S">
-      <ModifiedDate>2019-06-09T01:50:55.8570736+02:00</ModifiedDate>
-      <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_Team_MinHarm.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-09T01:49:40.3647557+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT1M27.0389781S" EditActiveTime="PT28.7546447S">
-      <ModifiedDate>2019-06-09T01:49:00.5334775+02:00</ModifiedDate>
-      <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_Soliter_MinHarm.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-09T01:48:26.9105543+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT6.7093837S" EditActiveTime="PT16.1399232S">
-      <ModifiedDate>2019-06-09T01:50:25.4763359+02:00</ModifiedDate>
-      <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player_Dumb.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-09T01:47:33.7115115+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT10.2485861S" EditActiveTime="PT21.9232539S">
-      <ModifiedDate>2019-06-09T01:51:01.21438+02:00</ModifiedDate>
-      <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Players\Player.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-09T01:45:18.5807825+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT20M44.3521726S" EditActiveTime="PT25.316448S">
-      <ModifiedDate>2019-06-09T01:57:50.6197967+02:00</ModifiedDate>
-      <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\GameBoard.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-08T00:45:30.3999103+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT3M56.7735426S" EditActiveTime="PT2M2.3349971S">
-      <ModifiedDate>2019-06-09T01:51:01.2603827+02:00</ModifiedDate>
-      <ModifiedBy>bones</ModifiedBy>
-      <EditedCount>1</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Core\Player.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-08T00:44:16.420679+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT2M28.6485022S" EditActiveTime="PT0S">
-      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>0</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Program.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-06-04T20:57:06.0608164+02:00</CreatedDate>
-      <ViewedBy>bones</ViewedBy>
-    </DevTrackerDataItem>
-    <DevTrackerDataItem ViewActiveTime="PT1M6.4598013S" EditActiveTime="PT0S">
-      <ModifiedDate>0001-01-01T00:00:00</ModifiedDate>
-      <EditedCount>0</EditedCount>
-      <ViewedCount>1</ViewedCount>
-      <Item>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\Program.cs</Item>
-      <ItemType>ProjectItem</ItemType>
-      <ProjectName>D:\programovani\c#\TheGameSimulator\TheGame_Simulator\TheGameNet\TheGameNet\TheGameNet.csproj</ProjectName>
-      <CreatedDate>2019-05-23T22:56:04.9928628+02:00</CreatedDate>
       <ViewedBy>bones</ViewedBy>
     </DevTrackerDataItem>
   </HistoryTimeList>

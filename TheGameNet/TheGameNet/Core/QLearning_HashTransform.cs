@@ -10,9 +10,9 @@ namespace TheGameNet.Core
 {
     internal static class QLearning_HashTransform
     {
-        static byte[] arrayForHashState = new byte[105];
+        static byte[] arrayForHashState = new byte[115];
 
-        public static int QLearning_StateIndex(QTable qTable, BoardMini boardMini, List<byte> handCards)
+        public static int QLearning_StateIndex(QTable qTable, BoardMini boardMini, GameBoard board, List<byte> handCards)
         {
             Array.Clear(arrayForHashState, 0, arrayForHashState.Length);
 
@@ -28,12 +28,12 @@ namespace TheGameNet.Core
 
             }
 
-            //for (int i = 0; i < handCards.Count; i++)
-            //{
-            //    arrayForHashState[arrayForHashIndex + handCards[i]] = 1;
-            //        //arrayForHashIndex++;
-            //}
-            //arrayForHashIndex+=100;
+            for (int i = 0; i < handCards.Count; i++)
+            {
+                arrayForHashState[arrayForHashIndex + handCards[i]] = 1;
+                arrayForHashIndex++;
+            }
+            //arrayForHashIndex += 100;
 
             //for (int i = 0; i < 10; i++)
             //{
@@ -44,8 +44,8 @@ namespace TheGameNet.Core
             //    }
             //}
 
-            //arrayForHash[arrayForHashIndex] = (byte)boardMini.CountNeedPlayCard;
-
+            //arrayForHashState[arrayForHashIndex] = (byte)board.Count_AllRemaindPlayCards;// (byte)boardMini.CountPossiblePlay();
+            arrayForHashIndex++;
             var dataForHash = new ArraySegmentEx_Struct<byte>(arrayForHashState, 0, arrayForHashIndex);
             return qTable.CreateKey_IndexState(dataForHash);
         }
@@ -60,8 +60,8 @@ namespace TheGameNet.Core
             arrayForHashAction[arrayForHashIndex++] = (byte) boardMini.CardPlaceholders[moveToPlay.DeckIndex].Get_CardDiff_ToEnd(moveToPlay.Card);
             arrayForHashAction[arrayForHashIndex++] = (byte)moveToPlay.DeckIndex;
 
-            var dataForHash = new ArraySegmentEx_Struct<byte>(arrayForHashAction, 0, arrayForHashIndex);
-            return qTable.CreateKey_IndexAction(dataForHash);
+           // var dataForHash = new ArraySegmentEx_Struct<byte>(arrayForHashAction, 0, arrayForHashIndex);
+            return qTable.CreateKey_IndexAction(arrayForHashAction.AsSpan(0,arrayForHashIndex) );
         }
 
     }

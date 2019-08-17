@@ -71,7 +71,7 @@ namespace TheGameNet.Core
 
         public void PrintProgress(TextWriter tw)
         {
-            char[] graph = new char[100];
+            char[] graph = new char[101];
 
             foreach(var item in _progress)
             {

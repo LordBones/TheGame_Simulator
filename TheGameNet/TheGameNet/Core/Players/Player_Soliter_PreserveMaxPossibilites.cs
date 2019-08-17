@@ -32,16 +32,17 @@ namespace TheGameNet.Core.Players
         {
             var boardMini = board.CreateBoardMini(this.Id);
 
-            int depthSearch =  board.MinCardForPlay - (board.MaxCardInHands - handCards.Count);
-            if (depthSearch <= 0) depthSearch = 3;
-
-            //depthSearch = 3;
-
-            DeepSearch_BoardMini search = new DeepSearch_BoardMini(boardMini, handCards.ToArray(), depthSearch, board.AvailableCards.Count);
-            var (placeholderId, card, level) = search.GetBestNextCard();
+            int minDepthSearch =  board.MinCardForPlay - (board.MaxCardInHands - handCards.Count);
+            if (minDepthSearch <= 0) minDepthSearch = 1;
 
 
-            _playFreeCard = level - board.MinCardForPlay;
+            int maxDepthSearch = 5;
+
+            DeepSearch_BoardMini search = new DeepSearch_BoardMini(boardMini, handCards.ToArray(), maxDepthSearch, board.AvailableCards.Count);
+            var (placeholderId, card, level) = search.GetBestNextCard((byte)minDepthSearch);
+
+
+            _playFreeCard = level - minDepthSearch;
 
 
             MoveToPlay result = new MoveToPlay(card, placeholderId);
@@ -68,15 +69,15 @@ namespace TheGameNet.Core.Players
                 int depthSearch = board.MinCardForPlay - (board.MaxCardInHands - handCards.Count);
                 if (depthSearch <= 0) depthSearch = 2;
 
-                depthSearch = 1;// _playFreeCard;
+                depthSearch = _playFreeCard;// _playFreeCard;
 
                 DeepSearch_BoardMini search = new DeepSearch_BoardMini(boardMini, handCards.ToArray(), depthSearch, board.AvailableCards.Count);
-                var (placeholderId, card, level) = search.GetBestNextCard();
+                var (placeholderId, card, level) = search.GetBestNextCard((byte)_playFreeCard);
 
                 MoveToPlay result = new MoveToPlay(card, placeholderId);
 
 
-                _playFreeCard = 0;
+                _playFreeCard--;
 
                 return result;
             }
