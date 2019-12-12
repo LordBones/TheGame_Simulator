@@ -87,6 +87,12 @@ namespace TheGameNet.RoundSimulations
                     item.GameStat.computeMedian.PrintDataGroup(tw);
                 }
 
+                using (TextWriter tw = File.CreateText(groupTitle + "_" + item.Title + "_RestCars_log.txt"))
+                {
+
+                    item.GameStat.computeMedianCardsLeft.PrintDataGroup(tw, item.GameStat.countRounds);
+                }
+
                 using (TextWriter tw = File.CreateText(groupTitle + "_" + item.Title + "_GameProgress_log.txt"))
                 {
 
@@ -162,7 +168,7 @@ namespace TheGameNet.RoundSimulations
 
         public GameStat GameStat = new GameStat();
 
-        public GameProgress GameProgress = new GameProgress(100);
+        public GameProgress GameProgress = new GameProgress(1000);
 
         public GamePlay(List<Player> players, string title, StreamWriter playLog)
         {
@@ -189,12 +195,18 @@ namespace TheGameNet.RoundSimulations
         public int countRounds = 0;
         public short bestGameScore = short.MaxValue;
         public Utils.Median<byte> computeMedian = new Utils.Median<byte>();
+        public Utils.Median<byte> computeMedianCardsLeft = new Utils.Median<byte>();
 
         public void UpdateStats(GameResult result)
         {
             this.sum += result.Rest_Cards;
             countRounds++;
             computeMedian.Add((byte)result.Rest_Cards);
+
+            foreach(var item in result.Rest_Cards_List)
+            {
+                computeMedianCardsLeft.Add(item);
+            }
 
             if (result.Rest_Cards < bestGameScore)
                 bestGameScore = (short)result.Rest_Cards;

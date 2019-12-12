@@ -22,18 +22,20 @@ namespace TheGameNet.Core
             for (int i = 0; i < 4; i++)
             {
                 arrayForHashState[arrayForHashIndex] =
-                 //(byte)boardMini.CardPlaceholders[i].Get_TopCard();
-                 (byte)((boardMini.CardPlaceholders[i].Get_CardDiff_ToEnd(boardMini.CardPlaceholders[i].Get_TopCard())));
+                 (byte)boardMini.CardPlaceholders[i].Get_TopCard();
+                 //(byte)((boardMini.CardPlaceholders[i].Get_CardDiff_ToEnd(boardMini.CardPlaceholders[i].Get_TopCard())));
                 arrayForHashIndex++;
 
             }
+
+            //arrayForHashState[arrayForHashIndex++] = (byte)board.AvailableCards.Count; 
 
             for (int i = 0; i < handCards.Count; i++)
             {
                 arrayForHashState[arrayForHashIndex + handCards[i]] = 1;
                 arrayForHashIndex++;
             }
-            //arrayForHashIndex += 100;
+            arrayForHashIndex += 100;
 
             //for (int i = 0; i < 10; i++)
             //{
@@ -57,7 +59,7 @@ namespace TheGameNet.Core
             int arrayForHashIndex = 0;
             arrayForHashAction[arrayForHashIndex++] = (byte)((moveToPlay.IsNotMove) ? 1 : 0);
 
-            arrayForHashAction[arrayForHashIndex++] = (byte) boardMini.CardPlaceholders[moveToPlay.DeckIndex].Get_CardDiff_ToEnd(moveToPlay.Card);
+            arrayForHashAction[arrayForHashIndex++] = moveToPlay.Card; //(byte) boardMini.CardPlaceholders[moveToPlay.DeckIndex].Get_CardDiff_ToEnd(moveToPlay.Card);
             arrayForHashAction[arrayForHashIndex++] = (byte)moveToPlay.DeckIndex;
 
            // var dataForHash = new ArraySegmentEx_Struct<byte>(arrayForHashAction, 0, arrayForHashIndex);

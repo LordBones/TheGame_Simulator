@@ -264,8 +264,14 @@ namespace TheGameNet.Core
 
         public void Apply_PlayerMove(Player player, MoveToPlay move)
         {
-            this.CardPlaceholders[move.DeckIndex].PlaceCard(move.Card);
-
+            try
+            {
+                this.CardPlaceholders[move.DeckIndex].PlaceCard(move.Card);
+            }
+            catch(Exception ex)
+            {
+                int i = 0;
+            }
             this.Get_PlayerHand(player.Id).Remove(move.Card);
 
             this._playedCards.AddCard_IfNotExist(move.Card);

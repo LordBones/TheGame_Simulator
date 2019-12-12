@@ -31,6 +31,8 @@ namespace TheGameNet.Utils
                 buffIndex = 0;
             }
 
+            if (min >= max) throw new Exception("Bad params  min >= max");
+
             randomCall++;
 
             uint randValue = (uint)((buff[buffIndex] << 24) + (buff[buffIndex + 1] << 16) + (buff[buffIndex + 2] << 8) + buff[buffIndex + 3]);

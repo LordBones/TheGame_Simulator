@@ -22,6 +22,8 @@ namespace TheGameNet.Core
             public float Avg;
             public byte Min;
             public byte Max;
+            public float SpreadUp;
+            public float SpreadDown;
         }
 
         public GameProgress(int step)
@@ -57,12 +59,40 @@ namespace TheGameNet.Core
                 sum += tmp;
             }
 
+
+            float avg = (sum / (float)_gameResultsPartial.Count);
+
+            float sumSpreadUp = 0.0f;
+            float sumSpreadDown = 0.0f;
+            int countSpreadUp = 0;
+            int countSpreadDown = 0;
+
+            for (int i = 0; i < _gameResultsPartial.Count; i++)
+            {
+                byte tmp = _gameResultsPartial[i];
+
+                if (tmp < avg)
+                {
+                    sumSpreadDown += tmp;
+                    countSpreadDown++;
+                }
+                if (tmp > avg)
+                {
+                    countSpreadUp++;
+                    sumSpreadUp += tmp;
+                }
+            }
+
+
             _progress.Add(new GameProgressItem()
             {
                 Step = _stepSum,
                 Max = max,
                 Min = min,
-                Avg = (sum / (float)_gameResultsPartial.Count)
+                Avg = avg,
+                SpreadDown = (countSpreadDown> 0)? sumSpreadDown / countSpreadDown : avg,
+                SpreadUp = (countSpreadUp > 0) ? sumSpreadUp / countSpreadUp : avg
+
             });
 
             _stepSum += _step;
@@ -84,9 +114,14 @@ namespace TheGameNet.Core
                     graph[i] = ' ';
                 }
 
+                graph[(byte)(100 - item.SpreadDown)] = ']';
+                graph[(byte)(100 - item.SpreadUp)] = '[';
+
                 graph[100-item.Min] = '<';
                 graph[100-item.Max] = '>';
                 graph[(byte)(100-item.Avg)] = '|';
+
+                
 
                 tw.Write(graph);
 

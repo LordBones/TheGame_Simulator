@@ -66,11 +66,41 @@ namespace TheGameNet
 
         }
 
+        public static void Run_GA_Learn()
+        {
+            int countRounds =  200;
+
+            List<GamePlayGroup> gpg = new List<GamePlayGroup>();
+            string groupName = "Clasic";
+            List<GamePlay> gp = new List<GamePlay>();
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers5), "5 players", groupName, false));
+
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers4), "4 players", groupName, false));
+
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers3), "3 players", groupName, false));
+
+            gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_MinHarm>(namePlayers), "1 players min harm", groupName, false));
+            gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers), "1 players pmp", groupName, false));
+           // gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers2), "2 players pmp", groupName, false));
+           // gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers3), "3 players pmp", groupName, false));
+           // gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers4), "4 players pmp", groupName, false));
+           // gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers5), "5 players pmp", groupName, false));
+
+
+            gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_GAConfigurable>(namePlayers), "1 players GA", groupName, false));
+
+            gpg.Add(new GamePlayGroup(groupName, gp.ToArray()));
+
+            gp.Clear();
+
+            RoundSimulator.SimulateGameRounds(gpg.ToArray(), countRounds);
+        }
+
         public static void Run_QLearning_Teach()
         {
             Run_QLearning_CompareWithOthers();
 
-            int countRounds = 60000;
+            int countRounds = 1020000;
 
             var gpg = new List<GamePlayGroup>();
             string groupName = "QLearning";
@@ -85,7 +115,7 @@ namespace TheGameNet
          //   gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers), "1 players pmp", groupName, false));
             gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers), "1 players", groupName, false));
             
-            //gpg.Add(new GamePlayGroup(groupName, gp.ToArray()));
+            gpg.Add(new GamePlayGroup(groupName, gp.ToArray()));
 
             gp.Clear();
 
@@ -106,7 +136,7 @@ namespace TheGameNet
 
         private static void Run_QLearning_CompareWithOthers()
         {
-            int countRounds = 100;
+            int countRounds = 1;
 
             List<GamePlayGroup> gpg = new List<GamePlayGroup>();
             string groupName = "Clasic";

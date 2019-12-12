@@ -35,6 +35,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GeneticSharp.Domain, Version=2.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GeneticSharp.2.6.0\lib\net462\GeneticSharp.Domain.dll</HintPath>
+    </Reference>
+    <Reference Include="GeneticSharp.Infrastructure.Framework, Version=2.6.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\GeneticSharp.2.6.0\lib\net462\GeneticSharp.Infrastructure.Framework.dll</HintPath>
+    </Reference>
     <Reference Include="HashDepot, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HashDepot.2.0.2\lib\netstandard2.0\HashDepot.dll</HintPath>
     </Reference>
@@ -88,6 +94,7 @@
     <Compile Include="Core\Players\Player.cs" />
     <Compile Include="Core\Players\Player_DoubleQLearning.cs" />
     <Compile Include="Core\Players\Player_Dumb.cs" />
+    <Compile Include="Core\Players\Player_GAConfigurable.cs" />
     <Compile Include="Core\Players\Player_QLearning.cs" />
     <Compile Include="Core\Players\Player_Soliter_MinHarm.cs" />
     <Compile Include="Core\Players\Player_Soliter_PreserveMaxPossibilites.cs" />
@@ -100,13 +107,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoundSimulator.cs" />
     <Compile Include="Testings.cs" />
+    <Compile Include="Utils\FastLock.cs" />
     <Compile Include="Utils\Median.cs" />
+    <Compile Include="Utils\ObjectPoolTS.cs" />
     <Compile Include="Utils\Random.cs" />
     <Compile Include="Utils\SegmentArrayEx.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Core\GA\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -14,7 +14,10 @@ namespace TheGameNet.Core.GameBoardMini_Solver
 
         public byte Get_TopCard() => _cardPlaceholder;
 
+        public bool UpDirection => _upDirection;
+
         public abstract CardPlaceholderLight Clone();
+        public abstract CardPlaceholderLight Clone(CardPlaceholderLight cph);
 
         public abstract bool CanPlaceCard(byte card);
 
@@ -113,9 +116,19 @@ namespace TheGameNet.Core.GameBoardMini_Solver
         public override CardPlaceholderLight Clone()
         {
             CardPlaceholderLight_Down result = new CardPlaceholderLight_Down();
-            result.PlaceCard(_cardPlaceholder);
-            return result;
+            return Clone(result);
         }
+
+        public override CardPlaceholderLight Clone(CardPlaceholderLight cph)
+        {
+            CardPlaceholderLight_Down placeholder = cph as CardPlaceholderLight_Down;
+            if (placeholder == null) throw new Exception("nesmi");
+
+            placeholder.PlaceCard(_cardPlaceholder);
+            return placeholder;
+        }
+
+        
 
         public override string ToString()
         {
@@ -196,9 +209,19 @@ namespace TheGameNet.Core.GameBoardMini_Solver
         public override CardPlaceholderLight Clone()
         {
             CardPlaceholderLight_Up result = new CardPlaceholderLight_Up();
-            result.PlaceCard(_cardPlaceholder);
-            return result;
+            
+            return Clone(result);
         }
+
+        public override CardPlaceholderLight Clone(CardPlaceholderLight cph)
+        {
+            CardPlaceholderLight_Up placeholder = cph as CardPlaceholderLight_Up;
+            if (placeholder == null) throw new Exception("nesmi");
+
+            placeholder.PlaceCard(_cardPlaceholder);
+            return placeholder;
+        }
+
 
         public override string ToString()
         {

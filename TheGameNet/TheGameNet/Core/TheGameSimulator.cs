@@ -51,15 +51,21 @@ namespace TheGameNet.Core
         {
             GameResult result = new GameResult();
 
+            List<byte> leftCards = new List<byte>();
+
             int gameResult = 0;
             foreach(var item in this._gameBoard.Players_Cards)
             {
                 gameResult += item.Count;
+                leftCards.AddRange(item);
             }
 
             gameResult += this._gameBoard.AvailableCards.Count;
 
+            leftCards.AddRange(this._gameBoard.AvailableCards);
+
             result.Rest_Cards = gameResult;
+            result.Rest_Cards_List = leftCards.ToArray();
 
             return result;
         }
@@ -114,6 +120,15 @@ namespace TheGameNet.Core
                 }
 
                 MoveToPlay move = player.Decision_CardToPlay(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id));
+
+                if(move.DeckIndex < 0)
+                {
+                    int i = 0;
+
+                    playerNotEndGame = false;
+                    break;
+
+                }
 
                 this._gameBoard.Apply_PlayerMove(player, move);
 
@@ -243,5 +258,6 @@ namespace TheGameNet.Core
     public class GameResult
     {
         public int Rest_Cards;
+        public byte[] Rest_Cards_List;
     }
 }

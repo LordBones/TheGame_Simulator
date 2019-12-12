@@ -44,7 +44,7 @@ namespace TheGameNet.Utils
             }
         }
 
-        public void PrintDataGroup(TextWriter console)
+        public void PrintDataGroup(TextWriter console, int baseForPercent = 0)
         {
             var kk = (from x in this._data
                       group x by x into xGroup
@@ -53,7 +53,13 @@ namespace TheGameNet.Utils
 
             var kkResult = kk.OrderBy(x => x.Key).ToArray();
 
-            int totalSum = kkResult.Sum(x => x.Count);
+            int totalSum = kkResult.Max(x => x.Count); 
+
+
+            if (baseForPercent <= 0)
+            {
+                baseForPercent = totalSum;
+            }
 
             StringBuilder sb = new StringBuilder();
 
@@ -68,8 +74,10 @@ namespace TheGameNet.Utils
                     countBar--;
                 }
 
+                double percent = item.Count*100 / (double)baseForPercent;
+                string percentStr = string.Format("{0:###.00} %", percent).PadLeft(8);
 
-                console.WriteLine($"{item.Key,3} : {item.Count,4}   | {sb.ToString()}");
+                console.WriteLine($"{item.Key,3} : {percentStr} - {item.Count,6}   | {sb.ToString()}");
             }
         }
 

@@ -19,16 +19,20 @@ namespace TheGameNet.Core.Players
         }
 
         private int _playFreeCard = 0;
+        private MoveSequence _MoveSequenceForPlay = null;
+        private int _moveSequenceForPlayIndex = 0;
 
+        DeepSearch_BoardMini _deepSearch = new DeepSearch_BoardMini();
         public override void StartPlay(GameBoard board, List<byte> handCards)
         {
-
+            _MoveSequenceForPlay = null;
+            _moveSequenceForPlayIndex = -1;
         }
 
        
 
 
-        public override MoveToPlay Decision_CardToPlay(GameBoard board, List<byte> handCards)
+        /*public override MoveToPlay Decision_CardToPlay(GameBoard board, List<byte> handCards)
         {
             var boardMini = board.CreateBoardMini(this.Id);
 
@@ -58,9 +62,42 @@ namespace TheGameNet.Core.Players
 
 
            // return possibleToPlay[0];
+        }*/
+
+        public override MoveToPlay Decision_CardToPlay(GameBoard board, List<byte> handCards)
+        {
+
+            if (_MoveSequenceForPlay == null) {
+                var boardMini = board.CreateBoardMini(this.Id);
+
+                int minDepthSearch = board.MinCardForPlay - (board.MaxCardInHands - handCards.Count);
+                if (minDepthSearch <= 0) minDepthSearch = 1;
+
+
+                int maxDepthSearch = 6;
+
+                _deepSearch.Init(boardMini, handCards.ToArray(), maxDepthSearch, board.AvailableCards.Count);
+                var gbncOut = _deepSearch.GetBestNextCard((byte)minDepthSearch);
+
+                _MoveSequenceForPlay = gbncOut;
+                _moveSequenceForPlayIndex = 0;
+            }
+
+            // List<MoveToPlay> possibleToPlay = board.Get_PossibleToPlay(handCards);
+
+
+            // return possibleToPlay[0];
+
+            if (_MoveSequenceForPlay.MoveCount == 0) return new MoveToPlay(0, -1);
+
+            if (_moveSequenceForPlayIndex >= _MoveSequenceForPlay.MoveCount) return new MoveToPlay(0, -1);
+
+            var move = _MoveSequenceForPlay.Moves[_moveSequenceForPlayIndex++];
+
+            return new MoveToPlay(move.Card, move.Placeholder);
         }
 
-        public override MoveToPlay Decision_CardToPlay_Optional(GameBoard board, List<byte> handCards)
+        /*public override MoveToPlay Decision_CardToPlay_Optional(GameBoard board, List<byte> handCards)
         {
             if (_playFreeCard > 0)
             {
@@ -85,6 +122,21 @@ namespace TheGameNet.Core.Players
 
             return new MoveToPlay(0, -1);
             
+        }*/
+
+        public override MoveToPlay Decision_CardToPlay_Optional(GameBoard board, List<byte> handCards)
+        {
+
+            if (_MoveSequenceForPlay.MoveCount == 0) return new MoveToPlay(0, -1);
+
+            if (_moveSequenceForPlayIndex >= _MoveSequenceForPlay.MoveCount) return new MoveToPlay(0, -1);
+
+            var move = _MoveSequenceForPlay.Moves[_moveSequenceForPlayIndex++];
+
+            return new MoveToPlay(move.Card, move.Placeholder);
+
+            
+
         }
 
         public override void AfterCardPlay_ResultMove(GameBoard board, List<byte> handCards, bool isEndOfGame)
