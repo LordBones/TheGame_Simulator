@@ -107,6 +107,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoundSimulator.cs" />
     <Compile Include="Testings.cs" />
+    <Compile Include="Utils\ChunkArrayCreator.cs" />
     <Compile Include="Utils\FastLock.cs" />
     <Compile Include="Utils\Median.cs" />
     <Compile Include="Utils\ObjectPoolTS.cs" />

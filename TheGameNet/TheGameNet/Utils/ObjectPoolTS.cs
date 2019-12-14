@@ -17,6 +17,10 @@ namespace TheGameNet.Utils
 
         FastLock _fastLock = new FastLock();
 
+        private long _countNews = 0;
+        private long _countRecycled = 0;
+        private long _countRecycledWasted = 0;
+
         public ObjectPoolTS()
             : this(10)
         {
@@ -27,6 +31,11 @@ namespace TheGameNet.Utils
         {
             CONST_MaxElementForRecycle = maxElementsForRecycle;
             _objects = new T[CONST_MaxElementForRecycle];
+        }
+
+        public string GetBaseStat()
+        {
+            return $"new:{_countNews} recycle:{_countRecycled} recy waste:{_countRecycledWasted}";
         }
 
         public T GetNewOrRecycle()
@@ -43,6 +52,7 @@ namespace TheGameNet.Utils
 
             }
 
+            _countNews++;
             return Instance.Invoke();// new T();
         }
 
@@ -63,8 +73,13 @@ namespace TheGameNet.Utils
             {
                 if (_objIndex < this.CONST_MaxElementForRecycle)
                 {
+                    _countRecycled++;
                     _objects[_objIndex] = pobject;
                     _objIndex++;
+                }
+                else
+                {
+                    _countRecycledWasted++;
                 }
             }
 
@@ -75,6 +90,9 @@ namespace TheGameNet.Utils
             using (_fastLock.Lock())
             {
                 _objIndex = 0;
+                _countRecycledWasted = 0;
+                _countRecycled = 0;
+                _countNews = 0;
             }
         }
 

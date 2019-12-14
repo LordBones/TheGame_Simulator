@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -154,10 +155,102 @@ namespace TheGameNet.Utils
             {
                 return this._array[this._offset + index];
             }
+            set
+            {
+                this._array[this._offset + index] = value;
+            }
+        }
+
+        
+    }
+
+    public struct ArraySegmentExSmall_Struct<T>
+    {
+        public ArraySegmentExSmall_Struct(T[] array, ushort offset, ushort count)
+        {
+            if (array == null)
+            {
+                throw new ArgumentNullException("array");
+            }
+            if (offset < 0)
+            {
+                throw new ArgumentOutOfRangeException("offset");
+            }
+            if (count < 0)
+            {
+                throw new ArgumentOutOfRangeException("count");
+            }
+            if (array.Length - offset < count)
+            {
+                throw new ArgumentException();
+            }
+            this._array = array;
+            this._offset = offset;
+            this._count = count;
+        }
+
+        private T[] _array;
+
+        private ushort _offset;
+
+        private ushort _count;
+
+
+        public ArraySegmentEx<T> CreateSegment(ushort index, ushort count)
+        {
+            return CreateSegmentFromSegment(this, index, count);
+        }
+
+        public static ArraySegmentEx<T> CreateSegmentFromSegment(ArraySegmentExSmall_Struct<T> segment, ushort index, ushort count)
+        {
+            return new ArraySegmentEx<T>(segment.Array, segment.Offset + index, count);
+        }
+
+        public T[] Array
+        {
+            get
+            {
+                return this._array;
+            }
+        }
+
+        public int Offset
+        {
+            get
+            {
+                return this._offset;
+            }
+        }
+
+        public int Count
+        {
+            get
+            {
+                return this._count;
+            }
+        }
+
+        public T this[int index]
+        {
+            get
+            {
+                return this._array[this._offset + index];
+            }
+            set
+            {
+                this._array[this._offset + index] = value;
+            }
+        }
+
+        public void CopyTo(ref ArraySegmentExSmall_Struct<T> other, int count = -1)
+        {
+            if (count < 0) count = _count;
+            Buffer.BlockCopy(_array, _offset, other.Array, other.Offset, count);
+
         }
     }
 
-    
+
     public class ArraySegmentEx_Byte : ArraySegmentEx<byte>, IEquatable<ArraySegmentEx_Byte>
     {
         private int _hash = -1;
@@ -195,4 +288,6 @@ namespace TheGameNet.Utils
             return other.Array == this.Array && other.Count == this.Count && other.Offset == this.Offset;
         }
     }
+
+   
 }

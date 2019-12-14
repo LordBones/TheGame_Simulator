@@ -80,14 +80,23 @@ namespace TheGameNet
             //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers3), "3 players", groupName, false));
 
             gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_MinHarm>(namePlayers), "1 players min harm", groupName, false));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_MinHarm>(namePlayers2), "2 players min harm", groupName, false));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_MinHarm>(namePlayers3), "3 players min harm", groupName, false));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_MinHarm>(namePlayers4), "4 players min harm", groupName, false));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_MinHarm>(namePlayers5), "5 players min harm", groupName, false));
+
             gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers), "1 players pmp", groupName, false));
-           // gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers2), "2 players pmp", groupName, false));
-           // gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers3), "3 players pmp", groupName, false));
-           // gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers4), "4 players pmp", groupName, false));
-           // gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers5), "5 players pmp", groupName, false));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers2), "2 players pmp", groupName, false));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers3), "3 players pmp", groupName, false));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers4), "4 players pmp", groupName, false));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers5), "5 players pmp", groupName, false));
 
 
             gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_GAConfigurable>(namePlayers), "1 players GA", groupName, false));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_GAConfigurable>(namePlayers2), "2 players GA", groupName, false));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_GAConfigurable>(namePlayers3), "3 players GA", groupName, false));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_GAConfigurable>(namePlayers4), "4 players GA", groupName, false));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_GAConfigurable>(namePlayers5), "5 players GA", groupName, false));
 
             gpg.Add(new GamePlayGroup(groupName, gp.ToArray()));
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using TheGameNet.Core.GameBoardMini_Solver;
@@ -63,7 +64,8 @@ namespace TheGameNet.Core.GameBoardMini
            
             startNode.CardsInHand = new CardsInHand((byte)_startCardsInHand.Length);
             startNode.CardsInHand.Count = (byte)_startCardsInHand.Length;
-            Buffer.BlockCopy(_startCardsInHand, 0, startNode.CardsInHand.Cards, 0, _startCardsInHand.Length);
+            Buffer.BlockCopy(_startCardsInHand, 0, startNode.CardsInHand.Cards.Array, startNode.CardsInHand.Cards.Offset, _startCardsInHand.Length);
+            //Buffer.BlockCopy(_startCardsInHand, 0, startNode.CardsInHand.Cards, 0, _startCardsInHand.Length);
 
 
             _stackState.Clear();
@@ -77,6 +79,11 @@ namespace TheGameNet.Core.GameBoardMini
 
             var result = new MoveSequence(_bestMoveSequence.MoveCount);
             _bestMoveSequence.CopyTo(result);
+
+
+            //_stackState.Clear();
+            //_cardsPlayedLookup.Clear();
+
 
             return result;
         }
@@ -123,13 +130,6 @@ namespace TheGameNet.Core.GameBoardMini
                 }
 
 
-                //if(result != startNode)
-                {
-                    //_cardsPlayedPool.PutForRecycle(startNode.CardPlayed);
-                }
-
-
-
                 startNode.GameState.RecyclePlaceholders(_cpLightDown_Pool,_cpLightUp_Pool);
                 _boarMiniPool.PutForRecycle(startNode.GameState);
                 startNode.Clear();
@@ -138,7 +138,10 @@ namespace TheGameNet.Core.GameBoardMini
             } while (_stackState.Count > 0);
 
 
-            Trace.WriteLine($"{iteration}");
+            //Trace.WriteLine($"{iteration}");
+
+            //Trace.WriteLine($"{_cpLightUp_Pool.GetBaseStat()}");
+
 
         }
 
@@ -187,7 +190,7 @@ namespace TheGameNet.Core.GameBoardMini
         private void UpdateBestState(int newStateEval)
         {
             _moveSequence.CopyTo(_bestMoveSequence);
-            Trace.WriteLine($"Progress best: {_bestMoveSequence.ToString()}");
+            //Trace.WriteLine($"Progress best: {_bestMoveSequence.ToString()}");
             _bestStateEvaluation = newStateEval;
         }
 
@@ -199,26 +202,37 @@ namespace TheGameNet.Core.GameBoardMini
             int countValidMoves = 0;
          
             var currentCardsInHand = currentState.CardsInHand;
-          
-            for (int c = 0; c < currentCardsInHand.Count; c++)
+            var gameState = currentState.GameState;
+
+
+            for (ushort c = 0; c < currentCardsInHand.Count; c++)
             {
                 
                 byte card = currentCardsInHand.Cards[c];
 
-                countValidMoves += GenerateNextValidMove(currentState, card, 0);
-                countValidMoves += GenerateNextValidMove(currentState, card, 1);
-                countValidMoves += GenerateNextValidMove(currentState, card, 2);
-                countValidMoves += GenerateNextValidMove(currentState, card, 3);
+                for (byte p = 0; p < 4; p++)
+                {
+                    if (gameState.CanPlay(p, card))
+                    {
+                        GenerateNextValidMove(currentState, card, p);
+                        countValidMoves++;
+                    }
+                }
+                //countValidMoves += GenerateNextValidMove(currentState, card, 0);
+                //countValidMoves += GenerateNextValidMove(currentState, card, 1);
+                //countValidMoves += GenerateNextValidMove(currentState, card, 2);
+                //countValidMoves += GenerateNextValidMove(currentState, card, 3);
             }
 
             return countValidMoves;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int GenerateNextValidMove(NodeState currentState, byte card, byte i)
         {
          
-            if (currentState.GameState.CanPlay(i, card)
-                )
+            //if (currentState.GameState.CanPlay(i, card)
+            //    )
             {
 
                 var tmpCanPlayed = _cardsPlayedPool.GetNewOrRecycle();
@@ -228,6 +242,7 @@ namespace TheGameNet.Core.GameBoardMini
                 if (_cardsPlayedLookup.Contains(tmpCanPlayed))
                 {
                     _cardsPlayedPool.PutForRecycle(tmpCanPlayed);
+                   
                     return 0;
                 }
 
@@ -241,7 +256,7 @@ namespace TheGameNet.Core.GameBoardMini
                 startNode.GameState = nextCurrentState;
                 //Remove_CardInHand(currentCardsInHand, card);
                 //currentCardsInHand.Where(x => x != card).ToArray();
-                startNode.CardsInHand = CreateCopy(currentState.CardsInHand);
+                startNode.CardsInHand = CreateCopy(ref currentState.CardsInHand);
                 startNode.CardsInHand.RemoveCard(card);
                 startNode.CurrentMove = new Move((sbyte)i, card);
 
@@ -250,7 +265,7 @@ namespace TheGameNet.Core.GameBoardMini
 
                 startNode.StateEvaluation = startNode.GameState.CountPossiblePlay() +
                     //+ currentState.Level*10 + 
-                    tmp(startNode.GameState, startNode.CardsInHand);
+                    tmp(startNode.GameState,ref startNode.CardsInHand);
                 _cardsPlayedLookup.Add(tmpCanPlayed);
 
 
@@ -268,21 +283,23 @@ namespace TheGameNet.Core.GameBoardMini
             return 0;
         }
 
-        private CardsInHand CreateCopy(CardsInHand cih)
+        private CardsInHand CreateCopy(ref CardsInHand cih)
         {
             CardsInHand result = new CardsInHand(cih.Count);
             result.Count = cih.Count;
-            Buffer.BlockCopy(cih.Cards, 0, result.Cards, 0, cih.Count);
+
+            cih.Cards.CopyTo(ref result.Cards, cih.Count);
+            //Buffer.BlockCopy(cih.Cards.Array, cih.Cards.Offset, result.Cards.Array, result.Cards.Offset, cih.Count);
             return result;
         }
 
-        private int tmp(BoardMini gameState, CardsInHand cardsInHand)
+        private int tmp(BoardMini gameState,ref CardsInHand cardsInHand)
         {
             int countValidMoves = 0;
 
             var currentPlaceholders = gameState.CardPlaceholders;
 
-            for (int c = 0; c < cardsInHand.Count; c++)
+            for (ushort c = 0; c < cardsInHand.Count; c++)
             {
                 byte card = cardsInHand.Cards[c];
 
@@ -303,19 +320,19 @@ namespace TheGameNet.Core.GameBoardMini
 
     struct CardsInHand
     {
-        public byte [] Cards;
+        public ArraySegmentExSmall_Struct<byte> Cards;
 
         public byte Count;
 
         public CardsInHand(byte maxSize)
         {
             Count = 0;
-            Cards = new byte[maxSize]; 
+            Cards = ChunkArrayCreator.Default.GetChunk(maxSize);// new byte[maxSize]; 
         }
 
         public void RemoveCard(byte card)
         {
-            int index = 0;
+            ushort index = 0;
             byte found = 0;
             for(byte i = 0;i < Count; i++)
             {
@@ -341,21 +358,24 @@ namespace TheGameNet.Core.GameBoardMini
         private const int CONST_CountDecks = 4;
 
         private const int CONST_MaxPlayedCards = 10;
-        public byte[] HistoryCardsPlayed;
-        public byte[] HistoryCardsPlayedCounts;
+        public ArraySegmentExSmall_Struct<byte> HistoryCardsPlayed;
+        public ArraySegmentExSmall_Struct<byte>  HistoryCardsPlayedCounts;
 
         public CardsPlayed()
         {
 
-            this.HistoryCardsPlayed = new byte[CONST_MaxPlayedCards * CONST_CountDecks];
-            HistoryCardsPlayedCounts = new byte[CONST_CountDecks];
+            this.HistoryCardsPlayed = ChunkArrayCreator.Default.GetChunk(CONST_MaxPlayedCards * CONST_CountDecks);
+            HistoryCardsPlayedCounts = ChunkArrayCreator.Default.GetChunk(CONST_CountDecks);
         }
 
 
         public void CopyTo(CardsPlayed dest)
         {
-            Buffer.BlockCopy(this.HistoryCardsPlayed, 0, dest.HistoryCardsPlayed, 0, this.HistoryCardsPlayed.Length);
-            Buffer.BlockCopy(this.HistoryCardsPlayedCounts, 0, dest.HistoryCardsPlayedCounts, 0, this.HistoryCardsPlayedCounts.Length);
+            this.HistoryCardsPlayed.CopyTo(ref dest.HistoryCardsPlayed);
+            this.HistoryCardsPlayedCounts.CopyTo(ref dest.HistoryCardsPlayedCounts);
+
+            //Buffer.BlockCopy(this.HistoryCardsPlayed.Array, this.HistoryCardsPlayed.Offset, dest.HistoryCardsPlayed.Array, dest.HistoryCardsPlayed.Offset, this.HistoryCardsPlayed.Count);
+            //Buffer.BlockCopy(this.HistoryCardsPlayedCounts.Array, this.HistoryCardsPlayedCounts.Offset, dest.HistoryCardsPlayedCounts.Array, dest.HistoryCardsPlayedCounts.Offset, this.HistoryCardsPlayedCounts.Count);
 
         }
 
@@ -363,9 +383,8 @@ namespace TheGameNet.Core.GameBoardMini
         {
             var result = new CardsPlayed();
 
-            Buffer.BlockCopy(this.HistoryCardsPlayed, 0, result.HistoryCardsPlayed, 0, this.HistoryCardsPlayed.Length);
-            Buffer.BlockCopy(this.HistoryCardsPlayedCounts, 0, result.HistoryCardsPlayedCounts, 0, this.HistoryCardsPlayedCounts.Length);
-
+            CopyTo(result);
+            
             return result;
         }
 
@@ -377,10 +396,19 @@ namespace TheGameNet.Core.GameBoardMini
 
         public override int GetHashCode()
         {
+            //uint tmp = (uint)HashDepot.XXHash.Hash64(this.HistoryCardsPlayed);
+            ////uint tmp = HashDepot.XXHash.Hash32(state.Array.AsSpan(state.Offset, state.Count));
+            //tmp &= 0x7fffffff;
+
+            //return (int)tmp ;
+
+
             int sum = 0;
-            for (int i = 0; i < this.HistoryCardsPlayed.Length; i++)
+            for (ushort i = 0; i < 
+                this.HistoryCardsPlayed.Count
+                ; i++)
             {
-                sum *= 15;
+                sum *= 31;
                 sum += this.HistoryCardsPlayed[i];
             }
             return sum;
@@ -390,24 +418,24 @@ namespace TheGameNet.Core.GameBoardMini
         {
 
             return
-                CardsPlayed.CompareByteArray(this.HistoryCardsPlayed, other.HistoryCardsPlayed) == 0 &&
-                CardsPlayed.CompareByteArray(this.HistoryCardsPlayedCounts, other.HistoryCardsPlayedCounts) == 0;
+                CardsPlayed.CompareByteArray(ref this.HistoryCardsPlayed, ref other.HistoryCardsPlayed) == 0 &&
+                CardsPlayed.CompareByteArray(ref this.HistoryCardsPlayedCounts,ref other.HistoryCardsPlayedCounts) == 0;
         }
 
         public void Set(int deck, byte card)
         {
-            int indexStart = deck * CONST_MaxPlayedCards;
+            ushort indexStart = (ushort)(deck * CONST_MaxPlayedCards);
 
-            this.HistoryCardsPlayed[indexStart + this.HistoryCardsPlayedCounts[deck]] = card;
-            this.HistoryCardsPlayedCounts[deck]++;
+            this.HistoryCardsPlayed[(ushort)(indexStart + this.HistoryCardsPlayedCounts[(ushort)deck])] = card;
+            this.HistoryCardsPlayedCounts[(ushort)deck]++;
         }
 
         public int CompareTo(CardsPlayed other)
         {
-            int cmp = CardsPlayed.CompareByteArray(this.HistoryCardsPlayed, other.HistoryCardsPlayed);
+            int cmp = CardsPlayed.CompareByteArray(ref this.HistoryCardsPlayed,ref other.HistoryCardsPlayed);
             if (cmp != 0) return cmp;
 
-            return CardsPlayed.CompareByteArray(this.HistoryCardsPlayedCounts, other.HistoryCardsPlayedCounts);
+            return CardsPlayed.CompareByteArray(ref this.HistoryCardsPlayedCounts,ref other.HistoryCardsPlayedCounts);
 
             //if (
             // this.HistoryCardsPlayed.SequenceEqual(other.HistoryCardsPlayed) &&
@@ -429,6 +457,20 @@ namespace TheGameNet.Core.GameBoardMini
 
             return 0;
         }
+
+        public static int CompareByteArray(ref ArraySegmentExSmall_Struct<byte> data,ref ArraySegmentExSmall_Struct<byte> data2)
+        {
+            if (data.Count != data2.Count) return data.Count - data.Count;
+
+            for (ushort i = 0; i < data.Count; i++)
+            {
+                if (data[i] != data2[i]) return data[i] - data2[i];
+            }
+
+            return 0;
+        }
+
+        
     }
 
 
@@ -480,7 +522,7 @@ namespace TheGameNet.Core.GameBoardMini
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < MoveCount; i++)
             {
-                sb.AppendFormat("[{0},{1}],", Moves[i].Placeholder, Moves[i].Card);
+                sb.AppendFormat("[{0},{1}],", Moves[i].Placeholder.ToString(), Moves[i].Card.ToString());
             }
 
             return sb.ToString();
@@ -501,7 +543,7 @@ namespace TheGameNet.Core.GameBoardMini
 
         public override string ToString()
         {
-            return $"p:{Placeholder} card:{Card}";
+            return $"p:{Placeholder.ToString()} card:{Card.ToString()}";
         }
     }
 
