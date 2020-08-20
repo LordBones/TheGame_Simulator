@@ -16,6 +16,35 @@ namespace TheGameNet.Core
 
 
 
+        public BoardMini()
+        {
+           
+
+        }
+
+        public bool WasInited()
+        {
+            return CardPlaceholders[0] != null
+                && CardPlaceholders[1] != null
+                && CardPlaceholders[2] != null
+                && CardPlaceholders[3] != null;
+        }
+
+        public void InitBy(BoardMini boardMini)
+        {
+            for (int i = 0; i < this.CardPlaceholders.Length; i++)
+            {
+                var cph = boardMini.CardPlaceholders[i];
+                if (cph as CardPlaceholderLight_Up != null)
+                {
+                    this.CardPlaceholders[i] = new CardPlaceholderLight_Up(cph.Get_TopCard());
+                }
+                else
+                {
+                    this.CardPlaceholders[i] = new CardPlaceholderLight_Down(cph.Get_TopCard());
+                }
+            }
+        }
 
         public bool CanPlay(byte indexPlaceholder, byte card)
         {
@@ -31,6 +60,7 @@ namespace TheGameNet.Core
         public BoardMini Clone()
         {
             BoardMini result = new BoardMini();
+            result.InitBy(this);
             return Clone(result);
         }
 
@@ -39,6 +69,8 @@ namespace TheGameNet.Core
         
             for(int i = 0;i < CardPlaceholders.Length;i++)
             {
+
+
                 result.CardPlaceholders[i] = CardPlaceholders[i].Clone();
             }
 
@@ -47,34 +79,31 @@ namespace TheGameNet.Core
             return result;
         }
 
-        public BoardMini Clone(BoardMini result, ObjectPoolTS<CardPlaceholderLight_Down> _cpLightDown_Pool, ObjectPoolTS<CardPlaceholderLight_Up> _cpLightUp_Pool)
+        
+
+        public void CopyFrom(BoardMini result)
         {
 
             for (int i = 0; i < CardPlaceholders.Length; i++)
             {
-                if (_cpLightDown_Pool != null && _cpLightUp_Pool != null)
-                {
-                    if (CardPlaceholders[i].UpDirection)
-                    {
-                        result.CardPlaceholders[i] = CardPlaceholders[i].Clone(_cpLightUp_Pool.GetNewOrRecycle());
-                    }
-                    else
-                    {
-                        result.CardPlaceholders[i] = CardPlaceholders[i].Clone(_cpLightDown_Pool.GetNewOrRecycle());
-                    }
-                }
-                else
-                {
-                    result.CardPlaceholders[i] = CardPlaceholders[i].Clone();
-                }
+                bool isDown = CardPlaceholders[i] as CardPlaceholderLight_Down != null;
+                bool isUp = CardPlaceholders[i] as CardPlaceholderLight_Up != null;
+                bool isResultDown = result.CardPlaceholders[i] as CardPlaceholderLight_Down != null;
+                bool isResultUp = result.CardPlaceholders[i] as CardPlaceholderLight_Up != null;
+
+
+                if (!((isDown && isResultDown) || (isResultUp && isResultUp)))
+                    throw new Exception("fail");
+
+                CardPlaceholders[i].PlaceCard(result.CardPlaceholders[i].Get_TopCard());
             }
 
-            result.CountNeedPlayCard = this.CountNeedPlayCard;
+            this.CountNeedPlayCard = result.CountNeedPlayCard;
 
-            return result;
+            //return result;
         }
 
-        public void RecyclePlaceholders(ObjectPoolTS<CardPlaceholderLight_Down> _cpLightDown_Pool, ObjectPoolTS<CardPlaceholderLight_Up> _cpLightUp_Pool)
+        public void RecyclePlaceholders(ObjectPool<CardPlaceholderLight_Down> _cpLightDown_Pool, ObjectPool<CardPlaceholderLight_Up> _cpLightUp_Pool)
         {
             for (int i = 0; i < CardPlaceholders.Length; i++)
             {

@@ -10,25 +10,26 @@ namespace TheGameNet.Core
 {
     internal static class QLearning_HashTransform
     {
-        static byte[] arrayForHashState = new byte[115];
+        static byte[] arrayForHashState = new byte[120];
 
-        public static int QLearning_StateIndex(QTable qTable, BoardMini boardMini, GameBoard board, List<byte> handCards)
+        public static int QLearning_StateIndex2(QTable qTable, BoardMini boardMini, GameBoard board, List<byte> handCards)
         {
             Array.Clear(arrayForHashState, 0, arrayForHashState.Length);
 
-            
+            //Span<byte> arrayForHashState = stackalloc byte[120];
+
             int arrayForHashIndex = 0;
 
             for (int i = 0; i < 4; i++)
             {
                 arrayForHashState[arrayForHashIndex] =
                  (byte)boardMini.CardPlaceholders[i].Get_TopCard();
-                 //(byte)((boardMini.CardPlaceholders[i].Get_CardDiff_ToEnd(boardMini.CardPlaceholders[i].Get_TopCard())));
+                //(byte)((boardMini.CardPlaceholders[i].Get_CardDiff_ToEnd(boardMini.CardPlaceholders[i].Get_TopCard())));
                 arrayForHashIndex++;
 
             }
 
-            //arrayForHashState[arrayForHashIndex++] = (byte)board.AvailableCards.Count; 
+            // arrayForHashState[arrayForHashIndex++] = (byte)board.AvailableCards.Count;
 
             for (int i = 0; i < handCards.Count; i++)
             {
@@ -50,20 +51,86 @@ namespace TheGameNet.Core
             arrayForHashIndex++;
             var dataForHash = new ArraySegmentEx_Struct<byte>(arrayForHashState, 0, arrayForHashIndex);
             return qTable.CreateKey_IndexState(dataForHash);
+
+
+        }
+
+        public static int QLearning_StateIndex(QTable qTable, BoardMini boardMini, GameBoard board, List<byte> handCards)
+        {
+            //Array.Clear(arrayForHashState, 0, arrayForHashState.Length);
+
+            Span<byte> arrayForHashState = stackalloc byte[8];
+            arrayForHashState.Fill(0);
+            int arrayForHashIndex = 0;
+
+            arrayForHashState[0] = (byte)boardMini.CardPlaceholders[0].Get_TopCard();
+            arrayForHashState[1] = (byte)boardMini.CardPlaceholders[1].Get_TopCard();
+            arrayForHashState[2] = (byte)boardMini.CardPlaceholders[2].Get_TopCard();
+            arrayForHashState[3] = (byte)boardMini.CardPlaceholders[3].Get_TopCard();
+
+            arrayForHashIndex += 4;
+            //Encode_CompactHandCars(arrayForHashState, handCards, ref arrayForHashIndex);
+
+            // arrayForHashState[arrayForHashIndex++] = (byte)board.AvailableCards.Count;
+
+            //for (int i = 0; i < handCards.Count; i++)
+            //{
+            //    arrayForHashState[arrayForHashIndex + handCards[i]] = 1;
+            //    arrayForHashIndex++;
+            //}
+            //arrayForHashIndex += 100;
+
+            //arrayForHashState[arrayForHashIndex] = (byte)board.Count_AllRemaindPlayCards;// (byte)boardMini.CountPossiblePlay();
+            arrayForHashIndex++;
+            // var dataForHash = new ArraySegmentEx_Struct<byte>(arrayForHashState, 0, arrayForHashIndex);
+            // return qTable.CreateKey_IndexState(dataForHash);
+
+            return qTable.CreateKey_IndexState(arrayForHashState.Slice(0, arrayForHashIndex));
+        }
+
+        private static void Encode_CompactHandCars(Span<byte> arrayForHashState, List<byte> handCards, ref int arrayForHashIndex)
+        {
+            for (int i = 0; i < handCards.Count; i++)
+            {
+                int index = handCards[i] >> 3;
+                int bitPos = handCards[i] & 0x07;
+
+                arrayForHashState[arrayForHashIndex + index] |= (byte)(1 << (bitPos));
+
+            }
+            arrayForHashIndex += 16;
         }
 
         public static byte[] arrayForHashAction = new byte[10];
         public static int QLearning_ActionIndex(QTable qTable, BoardMini boardMini, MoveToPlay moveToPlay)
         {
-            Array.Clear(arrayForHashAction,0,arrayForHashAction.Length);
+
+            return moveToPlay.Card + (moveToPlay.DeckIndex * 100);
+            Span<byte> arrayForHashAction = stackalloc byte[3];
+            //arrayForHashAction.Fill(0);
+            //Array.Clear(arrayForHashAction,0,arrayForHashAction.Length);
+            int arrayForHashIndex = 0;
+            //arrayForHashAction[arrayForHashIndex++] = (byte)((moveToPlay.IsNotMove) ? 1 : 0);
+
+            arrayForHashAction[arrayForHashIndex++] = moveToPlay.Card; //(byte) boardMini.CardPlaceholders[moveToPlay.DeckIndex].Get_CardDiff_ToEnd(moveToPlay.Card);
+            arrayForHashAction[arrayForHashIndex++] = (byte)moveToPlay.DeckIndex;
+
+            // var dataForHash = new ArraySegmentEx_Struct<byte>(arrayForHashAction, 0, arrayForHashIndex);
+            //return qTable.CreateKey_IndexAction(arrayForHashAction.AsSpan(0,arrayForHashIndex) );
+            return qTable.CreateKey_IndexAction(arrayForHashAction);
+        }
+
+        public static int QLearning_ActionIndex2(QTable qTable, BoardMini boardMini, MoveToPlay moveToPlay)
+        {
+            Array.Clear(arrayForHashAction, 0, arrayForHashAction.Length);
             int arrayForHashIndex = 0;
             arrayForHashAction[arrayForHashIndex++] = (byte)((moveToPlay.IsNotMove) ? 1 : 0);
 
             arrayForHashAction[arrayForHashIndex++] = moveToPlay.Card; //(byte) boardMini.CardPlaceholders[moveToPlay.DeckIndex].Get_CardDiff_ToEnd(moveToPlay.Card);
             arrayForHashAction[arrayForHashIndex++] = (byte)moveToPlay.DeckIndex;
 
-           // var dataForHash = new ArraySegmentEx_Struct<byte>(arrayForHashAction, 0, arrayForHashIndex);
-            return qTable.CreateKey_IndexAction(arrayForHashAction.AsSpan(0,arrayForHashIndex) );
+            // var dataForHash = new ArraySegmentEx_Struct<byte>(arrayForHashAction, 0, arrayForHashIndex);
+            return qTable.CreateKey_IndexAction(arrayForHashAction.AsSpan(0, arrayForHashIndex));
         }
 
     }

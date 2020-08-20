@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ using TheGameNet.RoundSimulations;
 
 namespace TheGameNet
 {
-    internal class Testings
+    public class Testings
 
 
     {
@@ -109,8 +110,10 @@ namespace TheGameNet
         {
             Run_QLearning_CompareWithOthers();
 
-            int countRounds = 1020000;
+            int countRounds = 1000000;
 
+
+            var players1 = RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers);
             var gpg = new List<GamePlayGroup>();
             string groupName = "QLearning";
             var gp = new List<GamePlay>();
@@ -122,13 +125,13 @@ namespace TheGameNet
 
             //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers2), "2 players", groupName, false));
          //   gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers), "1 players pmp", groupName, false));
-            gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers), "1 players", groupName, false));
+            gp.Add(RoundSimulator.CreateGamePlay(players1, "1 players", groupName, false));
             
             gpg.Add(new GamePlayGroup(groupName, gp.ToArray()));
 
             gp.Clear();
 
-            groupName = "QLearningDouble";
+            //groupName = "QLearningDouble";
 
             //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_DoubleQLearning>(namePlayers5), "5 players", groupName, false));
 
@@ -136,11 +139,33 @@ namespace TheGameNet
             //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_DoubleQLearning>(namePlayers3), "3 players", groupName, false));
 
             //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_DoubleQLearning>(namePlayers2), "2 players", groupName, false));
-            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_DoubleQLearning>(namePlayers), "1 players", groupName, false));
+           // gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_DoubleQLearning>(namePlayers), "1 players", groupName, false));
             //gpg.Add(new GamePlayGroup(groupName, gp.ToArray()));
 
+            //gp.Clear();
 
-            RoundSimulator.SimulateGameRounds(gpg.ToArray(), countRounds);
+           
+
+            RoundSimulator.SimulateGameRounds(gpg.ToArray(), countRounds, true, 20);
+
+
+            foreach(var item in players1)
+            {
+                ((Player_QLearning)item).TeachingEnable = false;
+            }
+
+
+            StreamWriter playLog_p1_selfish = new StreamWriter("gamePlay_1p_qlearning_log.txt");
+
+
+            gpg = new List<GamePlayGroup>();
+            gp.Clear();
+            gp.Add(RoundSimulator.CreateGamePlay(players1, "1 players", groupName+"_ControlTest", true));
+
+            gpg.Add(new GamePlayGroup(groupName + "_ControlTest", gp.ToArray()));
+
+            RoundSimulator.SimulateGameRounds(gpg.ToArray(), 100, true, 0,  oneGlobalDeck:false);
+
         }
 
         private static void Run_QLearning_CompareWithOthers()

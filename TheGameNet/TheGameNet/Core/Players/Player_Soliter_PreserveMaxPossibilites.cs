@@ -4,11 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheGameNet.Core.GameBoardMini;
+using TheGameNet.Utils;
 
 namespace TheGameNet.Core.Players
 {
     class Player_Soliter_PreserveMaxPossibilites : Player
     {
+        //private static ChunkArrayCreator _chunkCreator = new ChunkArrayCreator();
+
         public Player_Soliter_PreserveMaxPossibilites()
         {
 
@@ -29,7 +32,7 @@ namespace TheGameNet.Core.Players
             _moveSequenceForPlayIndex = -1;
         }
 
-       
+
 
 
         /*public override MoveToPlay Decision_CardToPlay(GameBoard board, List<byte> handCards)
@@ -64,10 +67,12 @@ namespace TheGameNet.Core.Players
            // return possibleToPlay[0];
         }*/
 
+        private byte[] _tempHand;
+
         public override MoveToPlay Decision_CardToPlay(GameBoard board, List<byte> handCards)
         {
 
-            if (_MoveSequenceForPlay == null) {
+            if (_MoveSequenceForPlay == null || _moveSequenceForPlayIndex >= _MoveSequenceForPlay.MoveCount) {
                 var boardMini = board.CreateBoardMini(this.Id);
 
                 int minDepthSearch = board.MinCardForPlay - (board.MaxCardInHands - handCards.Count);
@@ -76,7 +81,15 @@ namespace TheGameNet.Core.Players
 
                 int maxDepthSearch = 6;
 
-                _deepSearch.Init(boardMini, handCards.ToArray(), maxDepthSearch, board.AvailableCards.Count);
+                if (_tempHand == null || _tempHand.Length < handCards.Count) _tempHand = new byte[handCards.Count];
+
+                ArraySegmentExSmall_Struct<byte> handsArray = new ArraySegmentExSmall_Struct<byte>(_tempHand, 0, (ushort)handCards.Count);  
+                for(int i =0;i < handsArray.Count; i++)
+                {
+                    handsArray[i] = handCards[i];
+                }
+                
+                _deepSearch.Init(boardMini, handsArray, maxDepthSearch, board.AvailableCards.Count);
                 var gbncOut = _deepSearch.GetBestNextCard((byte)minDepthSearch);
 
                 _MoveSequenceForPlay = gbncOut;

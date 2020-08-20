@@ -56,8 +56,8 @@ namespace TheGameNet.Core.Players
 
         private void Init()
         {
-            _qTableA = new QTable(10023, 399);
-            _qTableB = new QTable(10023, 399);
+            _qTableA = new QTable(2000-1, 399, 0.0f);
+            _qTableB = new QTable(2000-1, 399, 0.0f);
 
             _lastQNode = new QNode(0, 0);// QNode.Default;
         }
@@ -119,7 +119,7 @@ namespace TheGameNet.Core.Players
             var currentBestMove = Get_QLearning_BestAction(boardMini, qGameStateIndex, possibleToPlay);
 
 
-            float currentReward =  QLearning_CurrentReward(board,boardMini, handCards);
+            float currentReward =  QLearning_CurrentReward(board,boardMini, handCards)-100;
             float qCurrentReward = _qTableA.Get(_lastQNode.StateIndex, _lastQNode.ActionIndex);
 
             float newReward = _qLearningCompute.Q_Compute(qCurrentReward, currentReward, currentBestMove.reward);
@@ -136,12 +136,12 @@ namespace TheGameNet.Core.Players
 
             int qGameStateIndex = QLearning_HashTransform.QLearning_StateIndex(_qTableA, boardMini,board, handCards);
 
-            float currentReward = 0.0f;// -board.Count_AllRemaindPlayCards; //QLearning_CurrentReward(board,handCards);
+            float currentReward = -1.0f;// -board.Count_AllRemaindPlayCards; //QLearning_CurrentReward(board,handCards);
             float qCurrentReward = _qTableA.Get(_lastQNode.StateIndex, _lastQNode.ActionIndex);
 
-            float newReward = _qLearningCompute.Q_Compute(qCurrentReward, currentReward, 0.0f);
+            float newReward = _qLearningCompute.Q_Compute(qCurrentReward, currentReward, -1.0f);
 
-            _qTableA.Set(_lastQNode.StateIndex, _lastQNode.ActionIndex, currentReward);
+            _qTableA.Set(_lastQNode.StateIndex, _lastQNode.ActionIndex, newReward);
         }
 
 
@@ -220,12 +220,12 @@ namespace TheGameNet.Core.Players
         private int QLearning_CurrentReward(GameBoard board, BoardMini boardMini, List<byte> handCards)
         {
             int sum = 0;
-            foreach (var item in boardMini.CardPlaceholders)
-            {
-                sum += item.Get_CardDiff_ToEnd(item.Get_TopCard());
-            }
-            return sum;
-            //return (((98 - board.Count_AllRemaindPlayCards)));
+            //foreach (var item in boardMini.CardPlaceholders)
+            //{
+            //    sum += item.Get_CardDiff_ToEnd(item.Get_TopCard());
+            //}
+            //return sum;
+            return (((98 - board.Count_AllRemaindPlayCards)));
         }
 
 

@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>TheGameNet</RootNamespace>
     <AssemblyName>TheGameNet</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -84,6 +84,7 @@
     <Compile Include="Core\CardPlaceholder.cs" />
     <Compile Include="Core\CardPlaceholder_DownDirection.cs" />
     <Compile Include="Core\CardPlaceholder_UpDirection.cs" />
+    <Compile Include="Core\DeckGenerator.cs" />
     <Compile Include="Core\GameBoard.cs" />
     <Compile Include="Core\BoardMini.cs" />
     <Compile Include="Core\GameBoardMini\CardPlaceholderLight.cs" />
@@ -108,9 +109,11 @@
     <Compile Include="RoundSimulator.cs" />
     <Compile Include="Testings.cs" />
     <Compile Include="Utils\ChunkArrayCreator.cs" />
+    <Compile Include="Utils\EvaluateState.cs" />
     <Compile Include="Utils\FastLock.cs" />
     <Compile Include="Utils\Median.cs" />
-    <Compile Include="Utils\ObjectPoolTS.cs" />
+    <Compile Include="Utils\ObjectPool.cs" />
+    <Compile Include="Utils\ObjectPoolTS_LocalThread.cs" />
     <Compile Include="Utils\Random.cs" />
     <Compile Include="Utils\SegmentArrayEx.cs" />
   </ItemGroup>

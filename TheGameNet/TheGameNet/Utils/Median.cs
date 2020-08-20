@@ -53,7 +53,7 @@ namespace TheGameNet.Utils
 
             var kkResult = kk.OrderBy(x => x.Key).ToArray();
 
-            int totalSum = kkResult.Max(x => x.Count); 
+            int totalSum =(kkResult.Length > 0)? kkResult.Max(x => x.Count) : 0; 
 
 
             if (baseForPercent <= 0)

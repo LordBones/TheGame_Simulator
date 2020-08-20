@@ -31,7 +31,15 @@ namespace TheGameNet.Core
 
         public int Count_AllRemaindPlayCards => 98 - _playedCards.Count;
 
-        public  PlayerBoardData Get_PlayerBoardData(byte id) =>  PlayersData.First(x=> x.Id == id);
+        public PlayerBoardData Get_PlayerBoardData(byte id)
+        {
+            foreach(var item in PlayersData)
+            {
+                if (item.Id == id) return item;
+            }
+
+            return null;
+        }
         public int Get_CurrentMinCardForPlay { get { return (this.AvailableCards.Count > 0) ? this.MinCardForPlay : 1; } }
 
         public GameBoard()
@@ -125,7 +133,7 @@ namespace TheGameNet.Core
 
             while(forSuffle.Count > 0)
             {
-                int index = RandomGen.GetRandomNumber(0,forSuffle.Count);
+                int index = RandomGen.Default.GetRandomNumber(0,forSuffle.Count);
                 byte card = forSuffle[index];
                 result.Add(card);
                 forSuffle.Remove(card);
@@ -251,6 +259,29 @@ namespace TheGameNet.Core
             return result;
         }
 
+        public int Get_PossibleToPlay(List<byte> hand, Span<MoveToPlay> result)
+        {
+            int index = 0;
+
+
+            for (int d = 0; d < this.CardPlaceholders.Length; d++)
+            {
+                var cardPlaceholder = this.CardPlaceholders[d];
+
+                for (int i = 0; i < hand.Count; i++)
+                {
+                    var cardHand = hand[i];
+                    if (cardPlaceholder.CanPlaceCard(cardHand))
+                    {
+                        result[index] = new MoveToPlay(cardHand, (sbyte)d);
+                        index++;
+                    }
+                }
+            }
+
+            return index;
+        }
+
         public bool Get_HasCard(List<byte> hand, byte card)
         {
             for (int i = 0; i < hand.Count; i++)
@@ -320,6 +351,22 @@ namespace TheGameNet.Core
             result.CountNeedPlayCard = this.Get_PlayerBoardData(playerId).CountNeedPlayCard;
 
             return result;
+        }
+
+        internal BoardMini CreateBoardMini(byte playerId, BoardMini boardMini)
+        {
+
+            for (int i = 0; i < this.CardPlaceholders.Length; i++)
+            {
+                boardMini.CardPlaceholders[i].Clear();
+
+                var cph = CardPlaceholders[i];
+                boardMini.CardPlaceholders[i].PlaceCard(cph.Get_TopCard());
+            }
+
+            boardMini.CountNeedPlayCard = this.Get_PlayerBoardData(playerId).CountNeedPlayCard;
+
+            return boardMini;
         }
     }
 

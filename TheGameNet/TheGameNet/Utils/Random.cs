@@ -8,21 +8,33 @@ using System.Threading.Tasks;
 
 namespace TheGameNet.Utils
 {
-    public static class RandomGen
+    public class RandomGen
     {
-        private static RandomNumberGenerator rng = RandomNumberGenerator.Create();
-        private static byte[] buff = new byte[32000];
-        private static int buffIndex = 4500000;
-        private static Random random = new Random(0);
+        private RandomNumberGenerator rng = RandomNumberGenerator.Create();
+        private byte[] buff = new byte[512];
+        private int buffIndex = 4500000;
+        private Random random;
 
-        public static readonly int MaxPolygons = 250;
-        public static long randomCall = 0;
+        public long randomCall = 0;
+        public static RandomGen Default { get; }
+        
 
-        public static void ClearPseudoRandom() { random = new Random(0); random.NextBytes(buff); buffIndex = 0; randomCall = 0; }
+        public void ClearPseudoRandom() { random = new Random(0); random.NextBytes(buff); buffIndex = 0; randomCall = 0; }
+
+        static RandomGen()
+        {
+            Default = new RandomGen(0);
+        }
+
+        public RandomGen(int seed)
+        {
+            random = new Random(seed);
+        }
+
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int GetRandomNumber(int min, int max)
+        public int GetRandomNumber(int min, int max)
         {
             if (buffIndex+4 >= buff.Length)
             {
@@ -43,7 +55,7 @@ namespace TheGameNet.Utils
             return (int)min + (int)(randValue % tmp);
         }
 
-        public static double GetRandomNumberDouble()
+        public double GetRandomNumberDouble()
         {
             if (buffIndex+4 >= buff.Length)
             {
@@ -68,7 +80,7 @@ namespace TheGameNet.Utils
         /// <param name="max"></param>
         /// <returns></returns>
 
-        public static int GetRandomNumberNoLinear_MinMoreOften(int maxValue, byte mutationRate)
+        public int GetRandomNumberNoLinear_MinMoreOften(int maxValue, byte mutationRate)
         {
             double rnd = GetRandomNumberDouble();
             double power = 4 - 3 * (mutationRate / 255.0);
@@ -77,20 +89,20 @@ namespace TheGameNet.Utils
         }
 
 
-        public static int GetRandomNumberNoLinear_MinMoreOften(int value, int leftMinValue, int rightMaxValue, byte mutationRate)
+        public int GetRandomNumberNoLinear_MinMoreOften(int value, int leftMinValue, int rightMaxValue, byte mutationRate)
         {
             int leftDiff = value - leftMinValue + 1;
             int rightDiff = rightMaxValue - value + 1;
-            int randomMark = (RandomGen.GetRandomNumber(0, 2) == 0) ? 1 : -1;
+            int randomMark = (GetRandomNumber(0, 2) == 0) ? 1 : -1;
 
             int mutationMax = (randomMark >= 0) ? rightDiff : leftDiff;
-            int tmp = RandomGen.GetRandomNumberNoLinear_MinMoreOften(mutationMax, mutationRate) * randomMark;
+            int tmp = GetRandomNumberNoLinear_MinMoreOften(mutationMax, mutationRate) * randomMark;
 
             return value + tmp;
         }
 
 
-        public static int GetRandomNumber(int min, int max, int ignore)
+        public int GetRandomNumber(int min, int max, int ignore)
         {
             if (!(min <= ignore && ignore < max)) return GetRandomNumber(min, max);
 
@@ -99,7 +111,7 @@ namespace TheGameNet.Utils
         }
 
 
-        public static int GetRandomChangeValue(int oldValue, int min, int max)
+        public int GetRandomChangeValue(int oldValue, int min, int max)
         {
             if (!(oldValue >= min && oldValue <= max))
                 throw new NotImplementedException();
@@ -113,7 +125,7 @@ namespace TheGameNet.Utils
         }
 
 
-        public static int GetRandomChangeValue(int oldValue, int min, int max, byte mutationRate)
+        public int GetRandomChangeValue(int oldValue, int min, int max, byte mutationRate)
         {
             if (!(oldValue >= min && oldValue <= max))
                 throw new NotImplementedException();
@@ -132,7 +144,7 @@ namespace TheGameNet.Utils
         }
 
 
-        public static int GetRandomChangeValueGuaranted(int oldValue, int min, int max, byte mutationRate)
+        public int GetRandomChangeValueGuaranted(int oldValue, int min, int max, byte mutationRate)
         {
             if (!(oldValue >= min && oldValue <= max))
                 throw new NotImplementedException();
@@ -153,7 +165,7 @@ namespace TheGameNet.Utils
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int GetValueByMutationRate(int value, int minValue, byte mutationRate)
+        private int GetValueByMutationRate(int value, int minValue, byte mutationRate)
         {
             return Math.Max(minValue, ((mutationRate + 1) * value) / (256));
         }
@@ -167,7 +179,7 @@ namespace TheGameNet.Utils
         /// <param name="numerator"></param>
         /// <param name="denominator"></param>
         /// <returns></returns>
-        public static int DivWithMathRouding(int numerator, int denominator)
+        public int DivWithMathRouding(int numerator, int denominator)
         {
             int tmp = numerator / denominator;
             int modulo = numerator % denominator;
@@ -181,7 +193,7 @@ namespace TheGameNet.Utils
             return tmp;
         }
 
-        public static void swap<T>(ref T p1, ref T p2)
+        public void swap<T>(ref T p1, ref T p2)
         {
             T tmp = p1;
             p1 = p2;
@@ -190,7 +202,7 @@ namespace TheGameNet.Utils
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int fastAbs(int value)
+        public int fastAbs(int value)
         {
             return (value ^ (value >> 31)) - (value >> 31);
 

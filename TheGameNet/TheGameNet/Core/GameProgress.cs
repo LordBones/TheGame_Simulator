@@ -129,5 +129,38 @@ namespace TheGameNet.Core
                 tw.WriteLine();
             }
         }
+
+        private void PrintLastXGroup(TextWriter tw)
+        {
+            char[] graph = new char[101];
+
+            foreach (var item in _progress)
+            {
+
+                tw.Write($"step: {item.Step,8} min: {item.Min,3} avg: {item.Avg.ToString("0.###"),7} max: {item.Max,3}  | ");
+
+
+                for (int i = 0; i < graph.Length; i++)
+                {
+                    graph[i] = ' ';
+                }
+
+                graph[(byte)(100 - item.SpreadDown)] = ']';
+                graph[(byte)(100 - item.SpreadUp)] = '[';
+
+                graph[100 - item.Min] = '<';
+                graph[100 - item.Max] = '>';
+                graph[(byte)(100 - item.Avg)] = '|';
+
+
+
+                tw.Write(graph);
+
+                tw.Write(" #");
+                tw.WriteLine();
+            }
+        }
+
+
     }
 }

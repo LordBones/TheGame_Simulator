@@ -72,7 +72,10 @@ namespace TheGameNet.Core
 
         private void Run()
         {
-            
+            foreach (var p in this.Players)
+            {
+                p.StartGame(this._gameBoard);
+            }
 
             Player player = this._gameBoard.Player_Order.Current;
 
@@ -111,6 +114,8 @@ namespace TheGameNet.Core
         {
             bool playerNotEndGame = true;
 
+            var playerHand = this._gameBoard.Get_PlayerHand(player.Id);
+
             for (int m = 0; m < this._gameBoard.Get_CurrentMinCardForPlay; m++)
             {
                 if (!this._gameBoard.Can_PlayerPlay(player.Id))
@@ -119,7 +124,7 @@ namespace TheGameNet.Core
                     break;
                 }
 
-                MoveToPlay move = player.Decision_CardToPlay(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id));
+                MoveToPlay move = player.Decision_CardToPlay(this._gameBoard, playerHand);
 
                 if(move.DeckIndex < 0)
                 {
@@ -132,7 +137,7 @@ namespace TheGameNet.Core
 
                 this._gameBoard.Apply_PlayerMove(player, move);
 
-                player.AfterCardPlay_ResultMove(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id),false);
+                player.AfterCardPlay_ResultMove(this._gameBoard, playerHand, false);
 
             }
             
@@ -141,18 +146,20 @@ namespace TheGameNet.Core
 
         private void Process_PlayerMoves_Optional(Player player)
         {
+            var playerHand = this._gameBoard.Get_PlayerHand(player.Id);
+
             while (!this._gameBoard.PlayerHand_IsEmpty(player.Id))
             {
-                MoveToPlay move = player.Decision_CardToPlay_Optional(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id));
+                MoveToPlay move = player.Decision_CardToPlay_Optional(this._gameBoard, playerHand);
 
                 if (move.IsNotMove)
                 {
-                    player.AfterCardPlay_ResultMove(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id), false);
+                    player.AfterCardPlay_ResultMove(this._gameBoard, playerHand, false);
                     return;
                 }
 
                 this._gameBoard.Apply_PlayerMove(player, move);
-                player.AfterCardPlay_ResultMove(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id), false);
+                player.AfterCardPlay_ResultMove(this._gameBoard, playerHand, false);
             }
         }
 

@@ -29,6 +29,11 @@ namespace TheGameNet.Core.Players
 
         public abstract void AfterCardPlay_ResultMove(GameBoard board, List<byte> handCards, bool isEndOfGame);
 
+
+        public virtual void StartGame(GameBoard board)
+        {
+
+        }
         public abstract void EndGame(GameBoard board, List<byte> handCards);
 
     }

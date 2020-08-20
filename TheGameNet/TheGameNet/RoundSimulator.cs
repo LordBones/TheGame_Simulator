@@ -29,17 +29,27 @@ namespace TheGameNet.RoundSimulations
             return new GamePlay(players, title, playLog);
         }
 
-        public static void SimulateGameRounds(GamePlayGroup[] gamePlayes, int rounds)
+        public static void SimulateGameRounds(GamePlayGroup[] gamePlayes, int rounds, bool enablePrintResults = true, int seed = 0, bool oneGlobalDeck = true)
         {
             //byte[] newGameDeck = _testGameDeck;
-            //byte[] newGameDeck = GameBoard.Get_CreatedSuffledDeck();
+            DeckGenerator deckGen = new DeckGenerator(100, 0);
+
+            byte[] newGameDeck = Array.Empty<byte>();
+            if (oneGlobalDeck)
+                newGameDeck = deckGen.Get_CreatedSuffledDeck();
             for (int r = 0; r < rounds; r++)
             {
-                byte[] newGameDeck = GameBoard.Get_CreatedSuffledDeck();
+                if (!oneGlobalDeck)
+                    newGameDeck = deckGen.Get_CreatedSuffledDeck();
+
                 SimulateGameplays(gamePlayes, newGameDeck);
+                
             }
 
-            PrintSimulationResults(gamePlayes);
+            if (enablePrintResults)
+            {
+                PrintSimulationResults(gamePlayes);
+            }
         }
 
        public static void SimulateGameplays(GamePlayGroup[] gamePlayes, byte[] deckCards)
@@ -104,12 +114,17 @@ namespace TheGameNet.RoundSimulations
 
                     if (p is Player_QLearning)
                     {
-                        using (TextWriter tw = File.CreateText(groupTitle + "_" + item.Title+"_"+p.Name + "_QTable_log.txt"))
+                        string fileName = groupTitle + "_" + item.Title + "_" + p.Name + "_QTable_log.txt";
+                        
+                        using (Stream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 32000, FileOptions.SequentialScan))
+                        using (TextWriter tw = new StreamWriter(fs, Encoding.UTF8))
                         {
-                            ((Player_QLearning)p).PrintQTable(tw);
+                          //  ((Player_QLearning)p).PrintQTable(tw);
                         }
 
                     }
+
+                   
 
                     if (p is Player_DoubleQLearning)
                     {
@@ -176,7 +191,8 @@ namespace TheGameNet.RoundSimulations
             tgs.SetPlayers(players);
 
             this.Title = title;
-
+           // Span<int> k = stackalloc int[5];
+            
 
         }
 

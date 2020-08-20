@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,8 +14,9 @@ namespace TheGameNet.Core.QLearning
     {
         private Dictionary<int, float>[] _HashQTable;
         private int _hashActionSize;
+        private float _defaultValue;
 
-        public QTable(int hashTableSize, int hashActionSize)
+        public QTable(int hashTableSize, int hashActionSize, float defaultValue)
         {
             _hashActionSize = hashActionSize;
             _HashQTable = new Dictionary<int,float>[hashTableSize];
@@ -23,6 +25,8 @@ namespace TheGameNet.Core.QLearning
             {
                 _HashQTable[i] = new Dictionary<int, float>();
             }
+
+            _defaultValue = defaultValue;
         }
 
 
@@ -44,6 +48,26 @@ namespace TheGameNet.Core.QLearning
             tmp &= 0x7fffffff;
 
             return (int) tmp % _HashQTable.Length;
+        }
+
+        public int CreateKey_IndexState(Span<byte> state)
+        {
+            //  _hash.Compute()
+            //  xxHashSharp.xxHash.CalculateHash(state,)
+
+
+            //ulong resLong = Standart.Hash.xxHash.xxHash64.ComputeHash(state.Array.AsSpan(state.Offset, state.Count), state.Count);
+
+            //byte [] result = _shaProvider.ComputeHash(state.Array, state.Offset, state.Count);
+
+            //uint tmp = (uint)((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | (result[3]));
+            //uint tmp = (uint)resLong;
+
+            uint tmp = (uint)HashDepot.XXHash.Hash64(state);
+            //uint tmp = HashDepot.XXHash.Hash32(state.Array.AsSpan(state.Offset, state.Count));
+            tmp &= 0x7fffffff;
+
+            return (int)tmp % _HashQTable.Length;
         }
 
         public int CreateKey_IndexAction(Span<byte> action)
@@ -74,16 +98,56 @@ namespace TheGameNet.Core.QLearning
             return _HashQTable[indexState].Keys.Contains(actionState);
         }
 
-        public float Get(int indexState, int actionState)
+        public (float val, bool empty) Get_detectIfExist(int indexState, int actionState)
         {
             var dicActions = _HashQTable[indexState];
 
             if(dicActions.TryGetValue(actionState, out float val))
             {
-                return val;
+                return (val,true);
             }
 
-            return 0.0f;
+            return (_defaultValue, false);
+        }
+
+        public float Get(int indexState, int actionState)
+        {
+            var dicActions = _HashQTable[indexState];
+
+            if (dicActions.TryGetValue(actionState, out float val))
+            {
+                return val ;
+            }
+
+            return _defaultValue;
+        }
+
+        public (float val, int state) Get_Highest(int indexState, Span<int> actionStates)
+        {
+            float biggestVal = float.MinValue;
+            int state = -1;
+
+            var dicActions = _HashQTable[indexState];
+
+            for(int i = 0;i < actionStates.Length; i++)
+            {
+
+                if (dicActions.TryGetValue(actionStates[i], out float val))
+                {
+                    if (biggestVal < val)
+                    {
+                        biggestVal = val;
+                        state = actionStates[i];
+                    }
+                }
+                //else
+                //{
+                //    state = actionStates[i];
+                //    biggestVal = float.MaxValue;
+                //}
+            }
+
+            return (biggestVal, state);
         }
 
         public void Set(int indexState, int actionState, float value)
@@ -105,7 +169,7 @@ namespace TheGameNet.Core.QLearning
             var forHeader = GetAllRows().OrderBy(x => x).ToArray();
 
             int skip = 0;
-            int take = 20;
+            int take = 10;
 
             do
             {
@@ -133,32 +197,40 @@ namespace TheGameNet.Core.QLearning
 
             foreach(var row in rows)
             {
-                tw.Write($"{row.ToString("x"), 10};");
+                tw.Write($"{row.ToString("X"), 10};");
             }
 
-            tw.WriteLine();
+            tw.Write("\n");
         }
+
+        StringBuilder sb = new StringBuilder(60);
 
         private  void PrintTableData(TextWriter tw, Span<int> rows)
         {
             HashSet<int> result = new HashSet<int>();
+
+            
+
             for(int i = 0;i < _HashQTable.Length;i++ )
             {
-                tw.Write($"{i.ToString(""),10};");
+                sb.Clear();
+                sb.Append($"{i,10};");
 
                 var data = _HashQTable[i];
                 foreach (var col in rows)
                 {
                     if (data.ContainsKey(col))
                     {
-                        tw.Write($"{data[col].ToString("0.###"),10};");
+                        sb.AppendFormat("{0,10};", data[col].ToString("0.###"));
                     }
                     else
                     {
-                        tw.Write($"{"",10};");
+                        sb.Append($"{"",10};");
                     }
                 }
-                tw.WriteLine();
+
+                
+                tw.Write(sb.ToString()+"\n");
             }
 
             
@@ -166,7 +238,7 @@ namespace TheGameNet.Core.QLearning
 
         private int [] GetAllRows()
         {
-            HashSet<int> result = new HashSet<int>();
+            HashSet<int> result = new HashSet<int>(400);
             foreach (var row in _HashQTable)
             {
                 foreach(var col in row)

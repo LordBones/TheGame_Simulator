@@ -12,40 +12,43 @@ namespace TheGameNet.Core.GameBoardMini
 {
     internal class DeepSearch_BoardMini
     {
-        private static ObjectPoolTS<CardsPlayed> _cardsPlayedPool = new ObjectPoolTS<CardsPlayed>(100);
-        private static ObjectPoolTS<NodeState> _nodeStatePool = new ObjectPoolTS<NodeState>(100);
-        private static ObjectPoolTS<BoardMini> _boarMiniPool = new ObjectPoolTS<BoardMini>(100);
-        private static ObjectPoolTS<CardPlaceholderLight_Down> _cpLightDown_Pool = new ObjectPoolTS<CardPlaceholderLight_Down>(200);
-        private static ObjectPoolTS<CardPlaceholderLight_Up> _cpLightUp_Pool = new ObjectPoolTS<CardPlaceholderLight_Up>(200);
+        private static ObjectPool<CardsPlayed> _cardsPlayedPool = new ObjectPool<CardsPlayed>(200, () => { return new CardsPlayed(); });
+        private static ObjectPool<NodeState> _nodeStatePool = new ObjectPool<NodeState>(200, () => { return new NodeState(); });
+        private static ObjectPool<BoardMini> _boarMiniPool = new ObjectPool<BoardMini>(200, () => { return new BoardMini(); });
+        //private static ObjectPoolTS<CardPlaceholderLight_Down> _cpLightDown_Pool = new ObjectPoolTS<CardPlaceholderLight_Down>(200);
+        //private static ObjectPoolTS<CardPlaceholderLight_Up> _cpLightUp_Pool = new ObjectPoolTS<CardPlaceholderLight_Up>(200);
 
+        private static ChunkArrayCreator _cardsPlayedLookup_chunkCreator = new ChunkArrayCreator();
 
         private BoardMini _initGameState;
-        private byte[] _startCardsInHand;
+        private ArraySegmentExSmall_Struct<byte> _startCardsInHand;
         private int _maxLevel;
         private int _countCardsInDeck;
-        private HashSet<CardsPlayed> _cardsPlayedLookup;
-
-        private Stack<NodeState> _stackState = new Stack<NodeState>();
-
-        private MoveSequence _moveSequence = new MoveSequence(32);
-        private MoveSequence _bestMoveSequence = new MoveSequence(32);
-        private int _bestStateEvaluation = -1;
+        //private HashSet<CardsPlayed> _cardsPlayedLookup;
+        private HashSet<ArraySegmentExSmall_Struct<byte>> _cardsPlayedLookup;
 
 
+        private Stack<NodeState> _stackState = new Stack<NodeState>(200);
+
+        private MoveSequence _moveSequence = new MoveSequence(11);
+        private MoveSequence _bestMoveSequence = new MoveSequence(11);
+        private EvaluateState<int, int> _bestStateEvaluation = new EvaluateState<int, int>(-1,-1);
+
+        private const int CONST_Treshold_CardDiff_NotGetMoves = 5;
         public DeepSearch_BoardMini()
         {
-            _cardsPlayedLookup = new HashSet<CardsPlayed>();
+            _cardsPlayedLookup = new HashSet<ArraySegmentExSmall_Struct<byte>>(new ASESSComparer());
         }
-        public DeepSearch_BoardMini(BoardMini stateGame, byte[] cardsInHand, int maxLevel, int countCardsInDeck)
+        public DeepSearch_BoardMini(BoardMini stateGame,in ArraySegmentExSmall_Struct<byte> cardsInHand, int maxLevel, int countCardsInDeck)
         {
             _startCardsInHand = cardsInHand;
             _initGameState = stateGame;
             _maxLevel = maxLevel;
             _countCardsInDeck = countCardsInDeck;
-            _cardsPlayedLookup = new HashSet<CardsPlayed>();
+            _cardsPlayedLookup = new HashSet<ArraySegmentExSmall_Struct<byte>>(new ASESSComparer());
         }
 
-        public void Init(BoardMini stateGame, byte[] cardsInHand, int maxLevel, int countCardsInDeck)
+        public void Init(BoardMini stateGame,in ArraySegmentExSmall_Struct<byte> cardsInHand, int maxLevel, int countCardsInDeck)
         {
             _startCardsInHand = cardsInHand;
             _initGameState = stateGame;
@@ -57,23 +60,47 @@ namespace TheGameNet.Core.GameBoardMini
       
         public MoveSequence GetBestNextCard(byte minLevel)
         {
-            NodeState startNode = new NodeState();
-            startNode.GameState = _initGameState.Clone();
+            NodeState startNode = _nodeStatePool.GetNewOrRecycle(); //new NodeState();
+
+            BoardMini nextCurrentState = _boarMiniPool.GetNewOrRecycle();
+
+            if (!nextCurrentState.WasInited())
+            {
+                nextCurrentState.InitBy(_initGameState);
+            }
+            nextCurrentState.CopyFrom(_initGameState);
+
+            var cpl = _cardsPlayedPool.GetNewOrRecycle();
+            cpl.Clear();
+
+            startNode.GameState = nextCurrentState;
             startNode.Level = 0;
-            startNode.CardPlayed = new CardsPlayed();
-           
-            startNode.CardsInHand = new CardsInHand((byte)_startCardsInHand.Length);
-            startNode.CardsInHand.Count = (byte)_startCardsInHand.Length;
-            Buffer.BlockCopy(_startCardsInHand, 0, startNode.CardsInHand.Cards.Array, startNode.CardsInHand.Cards.Offset, _startCardsInHand.Length);
+            startNode.CardPlayed = cpl;// new CardsPlayed();
+            startNode.IsNotWorthGenNextMove = false;
+            startNode.CardsInHand = new CardsInHand((byte)_startCardsInHand.Count);
+            startNode.CardsInHand.Count = (byte)_startCardsInHand.Count;
+            _startCardsInHand.CopyTo(startNode.CardsInHand.Cards);
+            //Buffer.BlockCopy(_startCardsInHand., 0, startNode.CardsInHand.Cards.Array, startNode.CardsInHand.Cards.Offset, _startCardsInHand.Count);
             //Buffer.BlockCopy(_startCardsInHand, 0, startNode.CardsInHand.Cards, 0, _startCardsInHand.Length);
 
 
             _stackState.Clear();
-            _stackState.Push(startNode);
-            _moveSequence = new MoveSequence(32);
-            _bestMoveSequence = new MoveSequence(32);
+
+
+
+            //_stackState.Push(startNode);
+            _moveSequence.Clear();// = new MoveSequence(16);
+            _bestMoveSequence.Clear();// = new MoveSequence(16);
             _cardsPlayedLookup.Clear();
-            _bestStateEvaluation = int.MinValue;
+            _bestStateEvaluation.Val = int.MinValue;
+            _bestStateEvaluation.Val2 = int.MinValue;
+
+            GenerateNextValidMoves(startNode);
+
+            _boarMiniPool.PutForRecycle(startNode.GameState);
+            _cardsPlayedPool.PutForRecycle(startNode.CardPlayed);
+            startNode.Clear();
+            _nodeStatePool.PutForRecycle(startNode);
 
             FindBestNextCard(minLevel);
 
@@ -93,19 +120,13 @@ namespace TheGameNet.Core.GameBoardMini
 
 
             int iteration = 0;
-            do
+            while (_stackState.Count > 0)
             {
                 iteration++;
                 NodeState startNode = _stackState.Pop();
 
-                if (startNode.Level != 0)
-                {
-                    _moveSequence.SetMove(startNode.Level, startNode.CurrentMove);
-                }
-
-
-
-
+                _moveSequence.SetMove(startNode.Level,in startNode.CurrentMove);
+             
 
                 //   result = GetBestNodeState(result, startNode);
                 bool foundBetterScore = WasFoundBetterScore(minlevel, startNode.Level, startNode.StateEvaluation);
@@ -118,7 +139,10 @@ namespace TheGameNet.Core.GameBoardMini
                 {
                     if (minlevel >= startNode.Level)
                     {
-                        int generatedLevels = GenerateNextValidMoves(startNode);
+                        //if (!startNode.IsNotWorthGenNextMove)
+                        {
+                            int generatedLevels = GenerateNextValidMoves(startNode);
+                        }
                     }
                     else
                     {
@@ -130,12 +154,13 @@ namespace TheGameNet.Core.GameBoardMini
                 }
 
 
-                startNode.GameState.RecyclePlaceholders(_cpLightDown_Pool,_cpLightUp_Pool);
+                _cardsPlayedPool.PutForRecycle(startNode.CardPlayed); 
+                //startNode.GameState.RecyclePlaceholders(_cpLightDown_Pool,_cpLightUp_Pool);
                 _boarMiniPool.PutForRecycle(startNode.GameState);
                 startNode.Clear();
                 _nodeStatePool.PutForRecycle(startNode);
 
-            } while (_stackState.Count > 0);
+            } ;
 
 
             //Trace.WriteLine($"{iteration}");
@@ -147,9 +172,11 @@ namespace TheGameNet.Core.GameBoardMini
 
         private bool IsWorthGenerateNextMoves(NodeState newNodeState, bool foundBetterScore)
         {
-            if (_bestStateEvaluation == int.MinValue) return true;
+            //if (newNodeState.IsNotWorthGenNextMove) return false;
 
-            // return foundBetterScore;
+            if (_bestStateEvaluation.Val == int.MinValue) return true;
+
+            //return foundBetterScore;
 
             return false;
             //return currentBest.StateEvaluation <= newNodeState.StateEvaluation;
@@ -157,10 +184,10 @@ namespace TheGameNet.Core.GameBoardMini
         }
 
 
-        private bool WasFoundBetterScore(byte minLevel, byte level, int stateEval)
+        private bool WasFoundBetterScore(byte minLevel, byte level, EvaluateState<int, int> stateEval)
         {
             byte currBestLevel = _bestMoveSequence.MoveCount;
-            int currBestStateEval = _bestStateEvaluation;
+            EvaluateState<int, int> currBestStateEval = _bestStateEvaluation;
 
             if (currBestLevel == 0) return true;
 
@@ -173,7 +200,7 @@ namespace TheGameNet.Core.GameBoardMini
             if (currBestUnderLevel && underLevel)
             {
                 if (currBestLevel < level) return true;
-                else if (currBestLevel == level) return currBestStateEval < stateEval;
+                else if (currBestLevel == level) return currBestStateEval.CompareTo(stateEval)<0;
                 else return false;
             }
 
@@ -181,13 +208,13 @@ namespace TheGameNet.Core.GameBoardMini
 
             if (!currBestUnderLevel && !underLevel)
             {
-                return currBestStateEval < stateEval;
+                return currBestStateEval.CompareTo(stateEval) < 0;
             }
 
             throw new Exception("nesmi nastat");
         }
 
-        private void UpdateBestState(int newStateEval)
+        private void UpdateBestState(EvaluateState<int,int> newStateEval)
         {
             _moveSequence.CopyTo(_bestMoveSequence);
             //Trace.WriteLine($"Progress best: {_bestMoveSequence.ToString()}");
@@ -204,11 +231,13 @@ namespace TheGameNet.Core.GameBoardMini
             var currentCardsInHand = currentState.CardsInHand;
             var gameState = currentState.GameState;
 
+            var ccihCount = currentCardsInHand.Count;
 
-            for (ushort c = 0; c < currentCardsInHand.Count; c++)
+            var ccihCards = currentCardsInHand.Cards;
+            for (ushort c = 0; c < ccihCount; c++)
             {
                 
-                byte card = currentCardsInHand.Cards[c];
+                byte card = ccihCards[c];
 
                 for (byte p = 0; p < 4; p++)
                 {
@@ -239,7 +268,12 @@ namespace TheGameNet.Core.GameBoardMini
                 currentState.CardPlayed.CopyTo(tmpCanPlayed);
                 tmpCanPlayed.Set(i, card);
 
-                if (_cardsPlayedLookup.Contains(tmpCanPlayed))
+
+                var chunk = _cardsPlayedLookup_chunkCreator.GetChunk((ushort)tmpCanPlayed.HistoryCardsPlayed.Count);
+                tmpCanPlayed.HistoryCardsPlayed.CopyTo(chunk, tmpCanPlayed.HistoryCardsPlayed.Count);
+                
+
+                if (_cardsPlayedLookup.Contains(chunk))
                 {
                     _cardsPlayedPool.PutForRecycle(tmpCanPlayed);
                    
@@ -248,7 +282,12 @@ namespace TheGameNet.Core.GameBoardMini
 
 
                 BoardMini nextCurrentState = _boarMiniPool.GetNewOrRecycle();
-                nextCurrentState = currentState.GameState.Clone(nextCurrentState,_cpLightDown_Pool,_cpLightUp_Pool);
+
+                if (!nextCurrentState.WasInited())
+                {
+                    nextCurrentState.InitBy(currentState.GameState);
+                }
+                nextCurrentState.CopyFrom(currentState.GameState);
                 nextCurrentState.ApplyCard((sbyte)i, card);
 
 
@@ -256,18 +295,27 @@ namespace TheGameNet.Core.GameBoardMini
                 startNode.GameState = nextCurrentState;
                 //Remove_CardInHand(currentCardsInHand, card);
                 //currentCardsInHand.Where(x => x != card).ToArray();
-                startNode.CardsInHand = CreateCopy(ref currentState.CardsInHand);
+                startNode.CardsInHand = CreateCopy2(in currentState.CardsInHand,ref startNode.CardsInHand);
                 startNode.CardsInHand.RemoveCard(card);
                 startNode.CurrentMove = new Move((sbyte)i, card);
 
                 startNode.Level = (byte)(currentState.Level + 1);
                 startNode.CardPlayed = tmpCanPlayed;
+                startNode.IsNotWorthGenNextMove = false;
+                startNode.StateEvaluation = 
+                    new EvaluateState<int, int>(
+                        
+                        
+                    startNode.GameState.CountPossiblePlay()
+                    ,
+                    tmp(startNode.GameState, startNode.CardsInHand)
+                    
+                    );
+                _cardsPlayedLookup.Add(chunk);
 
-                startNode.StateEvaluation = startNode.GameState.CountPossiblePlay() +
-                    //+ currentState.Level*10 + 
-                    tmp(startNode.GameState,ref startNode.CardsInHand);
-                _cardsPlayedLookup.Add(tmpCanPlayed);
 
+                if (currentState.GameState.CardPlaceholders[i].Get_CardDiff(card) > CONST_Treshold_CardDiff_NotGetMoves)
+                    startNode.IsNotWorthGenNextMove = true;
 
                 //var ferda = Remove_CardInHand(currentCardsInHand, card);
                 //var ferda2 = currentCardsInHand.Where(x => x != card).ToArray();
@@ -283,21 +331,38 @@ namespace TheGameNet.Core.GameBoardMini
             return 0;
         }
 
-        private CardsInHand CreateCopy(ref CardsInHand cih)
+        private CardsInHand CreateCopy(in CardsInHand cih)
         {
             CardsInHand result = new CardsInHand(cih.Count);
             result.Count = cih.Count;
 
-            cih.Cards.CopyTo(ref result.Cards, cih.Count);
+            cih.Cards.CopyTo(result.Cards, cih.Count);
             //Buffer.BlockCopy(cih.Cards.Array, cih.Cards.Offset, result.Cards.Array, result.Cards.Offset, cih.Count);
             return result;
         }
 
-        private int tmp(BoardMini gameState,ref CardsInHand cardsInHand)
+        private CardsInHand CreateCopy2(in CardsInHand cih, ref CardsInHand cihNew)
+        {
+
+            CardsInHand result = (cihNew.Cards!= null && cihNew.Cards.Length >= cih.Count)?
+                cihNew: new CardsInHand(cih.Count);
+            result.Count = cih.Count;
+
+            //cih.Cards.CopyTo(result.Cards,0, cih.Count);
+            Buffer.BlockCopy(cih.Cards, 0, result.Cards, 0, cih.Count);
+            //Buffer.BlockCopy(cih.Cards.Array, cih.Cards.Offset, result.Cards.Array, result.Cards.Offset, cih.Count);
+            return result;
+        }
+
+        private int tmp(BoardMini gameState,in CardsInHand cardsInHand)
         {
             int countValidMoves = 0;
 
-            var currentPlaceholders = gameState.CardPlaceholders;
+            //var currentPlaceholders = gameState.CardPlaceholders;
+
+            var ccihCount = cardsInHand.Count;
+
+            var ccihCards = cardsInHand.Cards;
 
             for (ushort c = 0; c < cardsInHand.Count; c++)
             {
@@ -320,11 +385,47 @@ namespace TheGameNet.Core.GameBoardMini
 
     struct CardsInHand
     {
-        public ArraySegmentExSmall_Struct<byte> Cards;
+        public readonly byte [] Cards;
 
         public byte Count;
 
         public CardsInHand(byte maxSize)
+        {
+            Count = 0;
+            Cards = new byte[maxSize];
+        }
+
+        public void RemoveCard(byte card)
+        {
+            ushort index = 0;
+            byte found = 0;
+            for (byte i = 0; i < Count; i++)
+            {
+                var cardI = Cards[i];
+                if (cardI == card)
+                {
+                    found++;
+                }
+                else
+                {
+                    Cards[index] = cardI;
+                    index++;
+                }
+            }
+
+            Count -= found;
+        }
+
+
+    }
+
+    struct CardsInHand2
+    {
+        public readonly ArraySegmentExSmall_Struct<byte> Cards;
+
+        public byte Count;
+
+        public CardsInHand2(byte maxSize)
         {
             Count = 0;
             Cards = ChunkArrayCreator.Default.GetChunk(maxSize);// new byte[maxSize]; 
@@ -336,13 +437,14 @@ namespace TheGameNet.Core.GameBoardMini
             byte found = 0;
             for(byte i = 0;i < Count; i++)
             {
-                if(Cards[i] == card)
+                ref var cardI = ref Cards.Get(i);
+                if(cardI == card)
                 {
                     found++;
                 }
                 else
                 {
-                    Cards[index] = Cards[i];
+                    Cards[index] = cardI;
                     index++;
                 }
             }
@@ -361,18 +463,32 @@ namespace TheGameNet.Core.GameBoardMini
         public ArraySegmentExSmall_Struct<byte> HistoryCardsPlayed;
         public ArraySegmentExSmall_Struct<byte>  HistoryCardsPlayedCounts;
 
+        private static ChunkArrayCreator chunkCreator = new ChunkArrayCreator();
+
         public CardsPlayed()
         {
 
-            this.HistoryCardsPlayed = ChunkArrayCreator.Default.GetChunk(CONST_MaxPlayedCards * CONST_CountDecks);
-            HistoryCardsPlayedCounts = ChunkArrayCreator.Default.GetChunk(CONST_CountDecks);
+            this.HistoryCardsPlayed = chunkCreator.GetChunk(CONST_MaxPlayedCards * CONST_CountDecks);
+            HistoryCardsPlayedCounts = chunkCreator.GetChunk(CONST_CountDecks);
+        }
+
+        public void Clear()
+        {
+            for (int i = 0; i < HistoryCardsPlayed.Count; i++) {
+                HistoryCardsPlayed[i] = 0;
+            }
+
+            for (int i = 0; i < HistoryCardsPlayedCounts.Count; i++)
+            {
+                HistoryCardsPlayedCounts[i] = 0;
+            }
         }
 
 
         public void CopyTo(CardsPlayed dest)
         {
-            this.HistoryCardsPlayed.CopyTo(ref dest.HistoryCardsPlayed);
-            this.HistoryCardsPlayedCounts.CopyTo(ref dest.HistoryCardsPlayedCounts);
+            this.HistoryCardsPlayed.CopyTo(dest.HistoryCardsPlayed);
+            this.HistoryCardsPlayedCounts.CopyTo(dest.HistoryCardsPlayedCounts);
 
             //Buffer.BlockCopy(this.HistoryCardsPlayed.Array, this.HistoryCardsPlayed.Offset, dest.HistoryCardsPlayed.Array, dest.HistoryCardsPlayed.Offset, this.HistoryCardsPlayed.Count);
             //Buffer.BlockCopy(this.HistoryCardsPlayedCounts.Array, this.HistoryCardsPlayedCounts.Offset, dest.HistoryCardsPlayedCounts.Array, dest.HistoryCardsPlayedCounts.Offset, this.HistoryCardsPlayedCounts.Count);
@@ -418,8 +534,8 @@ namespace TheGameNet.Core.GameBoardMini
         {
 
             return
-                CardsPlayed.CompareByteArray(ref this.HistoryCardsPlayed, ref other.HistoryCardsPlayed) == 0 &&
-                CardsPlayed.CompareByteArray(ref this.HistoryCardsPlayedCounts,ref other.HistoryCardsPlayedCounts) == 0;
+                CardsPlayed.CompareByteArray(in this.HistoryCardsPlayed, in other.HistoryCardsPlayed) == 0 &&
+                CardsPlayed.CompareByteArray(in this.HistoryCardsPlayedCounts,in other.HistoryCardsPlayedCounts) == 0;
         }
 
         public void Set(int deck, byte card)
@@ -432,10 +548,10 @@ namespace TheGameNet.Core.GameBoardMini
 
         public int CompareTo(CardsPlayed other)
         {
-            int cmp = CardsPlayed.CompareByteArray(ref this.HistoryCardsPlayed,ref other.HistoryCardsPlayed);
+            int cmp = CardsPlayed.CompareByteArray(in this.HistoryCardsPlayed,in other.HistoryCardsPlayed);
             if (cmp != 0) return cmp;
 
-            return CardsPlayed.CompareByteArray(ref this.HistoryCardsPlayedCounts,ref other.HistoryCardsPlayedCounts);
+            return CardsPlayed.CompareByteArray(in this.HistoryCardsPlayedCounts,in other.HistoryCardsPlayedCounts);
 
             //if (
             // this.HistoryCardsPlayed.SequenceEqual(other.HistoryCardsPlayed) &&
@@ -458,13 +574,15 @@ namespace TheGameNet.Core.GameBoardMini
             return 0;
         }
 
-        public static int CompareByteArray(ref ArraySegmentExSmall_Struct<byte> data,ref ArraySegmentExSmall_Struct<byte> data2)
+        public static int CompareByteArray(in ArraySegmentExSmall_Struct<byte> data,in ArraySegmentExSmall_Struct<byte> data2)
         {
             if (data.Count != data2.Count) return data.Count - data.Count;
 
             for (ushort i = 0; i < data.Count; i++)
             {
-                if (data[i] != data2[i]) return data[i] - data2[i];
+                ref byte d1 = ref data.Get(i);
+                ref byte d2 = ref data2.Get(i);
+                if (d1 != d2) return data[i] - data2[i];
             }
 
             return 0;
@@ -478,14 +596,15 @@ namespace TheGameNet.Core.GameBoardMini
     {
         public BoardMini GameState;
         public byte Level;
-        public int StateEvaluation;
+        public EvaluateState<int,int> StateEvaluation;
         public CardsPlayed CardPlayed;
         public CardsInHand CardsInHand;
         public Move CurrentMove;
+        public bool IsNotWorthGenNextMove;
 
         public void Clear()
         {
-            CardPlayed = null;
+            
             GameState = null;
         }
     }
@@ -502,7 +621,7 @@ namespace TheGameNet.Core.GameBoardMini
             MoveCount = 0;
         }
 
-        public void SetMove(byte level, Move move)
+        public void SetMove(byte level,in Move move)
         {
             if (level == 0) throw new Exception();
             if (level > MoveCount + 1) { throw new Exception(); }
@@ -527,13 +646,18 @@ namespace TheGameNet.Core.GameBoardMini
 
             return sb.ToString();
         }
+
+        public void Clear()
+        {
+            MoveCount = 0;
+        }
     }
 
 
-    public struct Move
+    public readonly struct Move
     {
-        public sbyte Placeholder;
-        public byte Card;
+        public readonly sbyte Placeholder;
+        public readonly byte Card;
 
         public Move(sbyte placeholder, byte card)
         {
@@ -547,5 +671,33 @@ namespace TheGameNet.Core.GameBoardMini
         }
     }
 
+    class ASESSComparer : IEqualityComparer<ArraySegmentExSmall_Struct<byte>>
+    {
+        public bool Equals(ArraySegmentExSmall_Struct<byte> x, ArraySegmentExSmall_Struct<byte> y)
+        {
+            return CardsPlayed.CompareByteArray(in x,in  y) == 0;
+        }
 
+        public int GetHashCode(ArraySegmentExSmall_Struct<byte> obj)
+        {
+            //uint tmp = (uint)HashDepot.XXHash.Hash64(this.HistoryCardsPlayed);
+            ////uint tmp = HashDepot.XXHash.Hash32(state.Array.AsSpan(state.Offset, state.Count));
+            //tmp &= 0x7fffffff;
+
+            //return (int)tmp ;
+
+
+            int sum = 0;
+            for (ushort i = 0; i <
+                obj.Count
+                ; i++)
+            {
+                sum *= 31;
+                sum += obj[i];
+            }
+            return sum;
+        }
+    }
+
+    
 }

@@ -164,7 +164,7 @@ namespace TheGameNet.Utils
         
     }
 
-    public struct ArraySegmentExSmall_Struct<T>
+    public readonly struct ArraySegmentExSmall_Struct<T>
     {
         public ArraySegmentExSmall_Struct(T[] array, ushort offset, ushort count)
         {
@@ -189,11 +189,11 @@ namespace TheGameNet.Utils
             this._count = count;
         }
 
-        private T[] _array;
+        private readonly T[] _array;
 
-        private ushort _offset;
+        private readonly ushort _offset;
 
-        private ushort _count;
+        private readonly ushort _count;
 
 
         public ArraySegmentEx<T> CreateSegment(ushort index, ushort count)
@@ -201,7 +201,7 @@ namespace TheGameNet.Utils
             return CreateSegmentFromSegment(this, index, count);
         }
 
-        public static ArraySegmentEx<T> CreateSegmentFromSegment(ArraySegmentExSmall_Struct<T> segment, ushort index, ushort count)
+        public static ArraySegmentEx<T> CreateSegmentFromSegment(in ArraySegmentExSmall_Struct<T> segment, ushort index, ushort count)
         {
             return new ArraySegmentEx<T>(segment.Array, segment.Offset + index, count);
         }
@@ -242,10 +242,22 @@ namespace TheGameNet.Utils
             }
         }
 
-        public void CopyTo(ref ArraySegmentExSmall_Struct<T> other, int count = -1)
+        public ref T Get(int index)
+        {
+            return ref this._array[this._offset + index];
+        }
+
+        public void CopyTo(in ArraySegmentExSmall_Struct<T> other, int count = -1)
         {
             if (count < 0) count = _count;
             Buffer.BlockCopy(_array, _offset, other.Array, other.Offset, count);
+
+        }
+
+        public void CopyTo(T [] other, int count = -1)
+        {
+            if (count < 0) count = _count;
+            Buffer.BlockCopy(_array, _offset, other, 0, count);
 
         }
     }
