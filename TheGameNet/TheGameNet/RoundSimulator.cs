@@ -119,7 +119,7 @@ namespace TheGameNet.RoundSimulations
                         using (Stream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 32000, FileOptions.SequentialScan))
                         using (TextWriter tw = new StreamWriter(fs, Encoding.UTF8))
                         {
-                          //  ((Player_QLearning)p).PrintQTable(tw);
+                            ((Player_QLearning)p).PrintQTable(tw);
                         }
 
                     }
@@ -149,7 +149,7 @@ namespace TheGameNet.RoundSimulations
 
         public static List<Player> CreatePlayers<T>(string[] names) where T : Player, new()
         {
-            List<Player> result = new List<Player>();
+            List<Player> result = new List<Player>(names.Length);
 
             foreach (string name in names)
             {

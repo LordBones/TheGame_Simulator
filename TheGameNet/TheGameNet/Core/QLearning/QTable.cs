@@ -203,25 +203,74 @@ namespace TheGameNet.Core.QLearning
             tw.Write("\n");
         }
 
-        StringBuilder sb = new StringBuilder(60);
-
+        StringBuilder sb = new StringBuilder(4096);
+        char[] buffer = new char[1024];
         private  void PrintTableData(TextWriter tw, Span<int> rows)
         {
-            HashSet<int> result = new HashSet<int>();
-
             
 
             for(int i = 0;i < _HashQTable.Length;i++ )
             {
-                sb.Clear();
+                if(sb.Length > 512)
+                {
+                    sb.CopyTo(0, buffer, 0, sb.Length);
+                    tw.Write(buffer, 0, sb.Length);
+                    sb.Clear();
+                }
+                
+                sb.Append($"{i.ToString(),10};");
+
+                var data = _HashQTable[i];
+                foreach (var col in rows)
+                {
+                    if (data.TryGetValue(col,out float qValue))
+                    {
+                        
+                        sb.AppendFormat("{0,10};", qValue.ToString("0.###"));
+                    }
+                    else
+                    {
+                        sb.Append($"{"",10};");
+                    }
+
+                    if (sb.Length > 512)
+                    {
+                        sb.CopyTo(0, buffer, 0, sb.Length);
+                        tw.Write(buffer, 0, sb.Length);
+                        sb.Clear();
+                    }
+                }
+
+                sb.AppendLine();
+                
+            }
+
+            sb.CopyTo(0, buffer, 0, sb.Length);
+            tw.Write(buffer, 0, sb.Length);
+            sb.Clear();
+            //tw.Write(sb.ToString());
+        }
+
+        private void PrintTableData2(TextWriter tw, Span<int> rows)
+        {
+
+            for (int i = 0; i < _HashQTable.Length; i++)
+            {
+                if (sb.Length > 2048)
+                {
+                    tw.Write(sb.ToString());
+                    sb.Clear();
+                }
+
                 sb.Append($"{i,10};");
 
                 var data = _HashQTable[i];
                 foreach (var col in rows)
                 {
-                    if (data.ContainsKey(col))
+                    if (data.TryGetValue(col, out float qValue))
                     {
-                        sb.AppendFormat("{0,10};", data[col].ToString("0.###"));
+                        
+                        sb.AppendFormat("{0,10};", qValue.ToString("0.###"));
                     }
                     else
                     {
@@ -229,11 +278,11 @@ namespace TheGameNet.Core.QLearning
                     }
                 }
 
-                
-                tw.Write(sb.ToString()+"\n");
+                sb.AppendLine();
+
             }
 
-            
+            tw.Write(sb.ToString());
         }
 
         private int [] GetAllRows()

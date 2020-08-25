@@ -14,22 +14,25 @@ namespace TheGameNet.Core
 
         public int MinCardForPlay = 2;
 
-        public Stack<byte> AvailableCards = new Stack<byte>();
+        public Stack<byte> AvailableCards = new Stack<byte>(100);
 
         private readonly PlayedCards _playedCards;
         public CardPlaceholder[] CardPlaceholders = new CardPlaceholder[4];
         //public PlayersHintsPlaceholder[] CardPlaceholdersHints = new PlayersHintsPlaceholder[4];
 
 
-        public Player[] Players = new Player[0];
-        public PlayerBoardData [] PlayersData = new PlayerBoardData[0];
+        public Player[] Players = Array.Empty<Player>();
+        public PlayerBoardData [] PlayersData = Array.Empty<PlayerBoardData>();
 
-        public List<byte>[] Players_Cards = new List<byte>[0];
+        public List<byte>[] Players_Cards = Array.Empty< List<byte>>();
 
 
         public PlayersOrder Player_Order = new PlayersOrder();
 
-        public int Count_AllRemaindPlayCards => 98 - _playedCards.Count;
+        public int Count_AllRemaindPlayCards => _totalCardsForPlay - _playedCards.Count;
+
+        private int _totalCardsForPlay;
+        public int TotalCardsForPlay { get { return _totalCardsForPlay; } set { _totalCardsForPlay = value; } }
 
         public PlayerBoardData Get_PlayerBoardData(byte id)
         {
@@ -51,7 +54,7 @@ namespace TheGameNet.Core
             this.CardPlaceholders[2] = new CardPlaceholder_UpDirection_Smart(_playedCards);
             this.CardPlaceholders[3] = new CardPlaceholder_UpDirection_Smart(_playedCards);
 
-
+            _totalCardsForPlay = 98;
            
             
         }
@@ -61,14 +64,17 @@ namespace TheGameNet.Core
         public void InitPlayers(ICollection<Player> players)
         {
             this.Players = players.ToArray();
-            this.PlayersData = new PlayerBoardData[Players.Length];
 
-            this.Players_Cards = new List<byte>[this.Players.Length];
+            if(this.PlayersData.Length != Players.Length)
+                this.PlayersData = new PlayerBoardData[Players.Length];
+
+            if (this.Players_Cards.Length != Players.Length)
+                this.Players_Cards = new List<byte>[this.Players.Length];
 
             for(int i = 0; i < this.Players.Length; i++)
             {
                 this.Players[i].Id = (byte)i;
-                this.Players_Cards[i] = new List<byte>();
+                this.Players_Cards[i] = new List<byte>(10);
                 this.PlayersData[i] = new PlayerBoardData() { Id = (byte)i };
             }
 
@@ -119,11 +125,16 @@ namespace TheGameNet.Core
             }
         }
 
-        public static byte [] Get_CreatedSuffledDeck()
+        public byte[] Get_CreatedSuffledDeck()
         {
-            List<byte> result = new List<byte>(98);
+            return Get_CreatedSuffledDeck(_totalCardsForPlay);
+        }
 
-            List<byte> forSuffle = new List<byte>(98);
+        public static byte [] Get_CreatedSuffledDeck(int totalCardsForPlay)
+        {
+            List<byte> result = new List<byte>(totalCardsForPlay);
+
+            List<byte> forSuffle = new List<byte>(totalCardsForPlay);
             for(byte i = 2; i < 100; i++)
             {
                 forSuffle.Add(i);
@@ -370,10 +381,10 @@ namespace TheGameNet.Core
         }
     }
 
-    public struct MoveToPlay
+    public readonly struct MoveToPlay
     {
-        public byte Card;
-        public sbyte DeckIndex;
+        public byte Card { get; }
+        public sbyte DeckIndex { get; }
 
         public MoveToPlay(byte card, sbyte deckIndex)
         {

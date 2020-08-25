@@ -15,8 +15,8 @@ namespace TheGameNet.Core.Players
     {
         private QTable _qTable;
         private QNode _lastQNode;
-        private QLearningCompute _qLearningCompute = new QLearningCompute(0.05f, 1.0f);
-        private float _qExplorationPolicy = 0.2f;
+        private QLearningCompute _qLearningCompute = new QLearningCompute(0.1f, 1.0f);
+        private float _qExplorationPolicy = 0.01f;
 
 
         private QTHistoryItem[] _qHistoryMoves = new QTHistoryItem[100];
@@ -69,7 +69,7 @@ namespace TheGameNet.Core.Players
 
         private void Init()
         {
-            _qTable = new QTable(100000 - 1, 399, 200.0f);
+            _qTable = new QTable(10000 - 1, 399, 200.0f);
             _lastQNode = new QNode(0, 0);// QNode.Default;
         }
 
@@ -93,7 +93,7 @@ namespace TheGameNet.Core.Players
 
             List<MoveToPlay> possibleToPlay = board.Get_PossibleToPlay(handCards);
 
-            int qGameStateIndex = QLearning_HashTransform.QLearning_StateIndex(_qTable, boardMini, board, handCards);
+            int qGameStateIndex = QLearning_HashTransform.QLearning_StateIndex(_qTable, boardMini, board, handCards, this.Id);
 
             var currentBestMove = Get_QLearning_BestAction(boardMini, qGameStateIndex, possibleToPlay);
             //var currentBestMove = Get_QLearning_BestAction_Proportional(boardMini, qGameStateIndex, possibleToPlay);
@@ -139,7 +139,7 @@ namespace TheGameNet.Core.Players
 
             //List<MoveToPlay> possibleToPlay = board.Get_PossibleToPlay(handCards);
 
-            int qGameStateIndex = QLearning_HashTransform.QLearning_StateIndex(_qTable, boardMini, board, handCards);
+            int qGameStateIndex = QLearning_HashTransform.QLearning_StateIndex(_qTable, boardMini, board, handCards,this.Id);
 
             //var currentBestMove = Get_QLearning_BestAction(boardMini, qGameStateIndex, possibleToPlay);
 
@@ -186,14 +186,13 @@ namespace TheGameNet.Core.Players
 
         public override void EndGame(GameBoard board, List<byte> handCards)
         {
-            if (_lastQNode.IsDefault()) return;
-
             if (_qHistoryMovesIndex == 0) return;
             if (!TeachingEnable) return;
 
             var qhmi = _qHistoryMoves[_qHistoryMovesIndex - 1];
 
-            float currentReward = (98 - (board.Count_AllRemaindPlayCards));
+            float currentReward = -board.Count_AllRemaindPlayCards;
+                //(98 - (board.Count_AllRemaindPlayCards));
 
             float qCurrentReward = _qTable.Get(qhmi.qNode.StateIndex, qhmi.qNode.ActionIndex);
 
@@ -218,7 +217,9 @@ namespace TheGameNet.Core.Players
 
                 newReward = //currentReward;
                     _qLearningCompute.Q_Compute(qCurrentReward,
-                    0.0f,
+                    //0.0f,
+                    1.0f,
+                    //currentReward,
                     qhmi.FutureExpectedReward);
 
                 _qTable.Set(qhmi.qNode.StateIndex, qhmi.qNode.ActionIndex, newReward);

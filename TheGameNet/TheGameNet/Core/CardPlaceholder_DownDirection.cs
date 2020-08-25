@@ -10,7 +10,7 @@ namespace TheGameNet.Core
     public class CardPlaceholder_DownDirection : CardPlaceholder
     {
 
-        private const int CONST_InitCard = 100;
+        private int InitCard = 100;
 
         public CardPlaceholder_DownDirection()
         {
@@ -18,7 +18,10 @@ namespace TheGameNet.Core
             this.Clear();
         }
 
-
+        public void Set_InitCard(int card)
+        {
+            InitCard = card;
+        }
 
         public override void PlaceCard(byte card)
         {
@@ -37,7 +40,7 @@ namespace TheGameNet.Core
         {
             int peekCard = this.GetPeakCard();
 
-            return CONST_InitCard - (int)myCard;
+            return InitCard - (int)myCard;
         }
 
         public override bool CanPlaceCard(byte card)
@@ -76,7 +79,7 @@ namespace TheGameNet.Core
         {
             this._cardPlaceholder.Clear();
             
-            this._cardPlaceholder.Push(CONST_InitCard);
+            this._cardPlaceholder.Push((byte)InitCard);
         }
 
         protected override byte GetPeakCard()

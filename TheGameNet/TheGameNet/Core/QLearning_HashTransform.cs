@@ -55,7 +55,7 @@ namespace TheGameNet.Core
 
         }
 
-        public static int QLearning_StateIndex(QTable qTable, BoardMini boardMini, GameBoard board, List<byte> handCards)
+        public static int QLearning_StateIndex(QTable qTable, BoardMini boardMini, GameBoard board, List<byte> handCards, byte playerId)
         {
             //Array.Clear(arrayForHashState, 0, arrayForHashState.Length);
 
@@ -67,8 +67,11 @@ namespace TheGameNet.Core
             arrayForHashState[1] = (byte)boardMini.CardPlaceholders[1].Get_TopCard();
             arrayForHashState[2] = (byte)boardMini.CardPlaceholders[2].Get_TopCard();
             arrayForHashState[3] = (byte)boardMini.CardPlaceholders[3].Get_TopCard();
-
+            
             arrayForHashIndex += 4;
+
+            //arrayForHashState[4] = (byte)board.Get_PlayerBoardData(playerId).CountNeedPlayCard;
+            //arrayForHashIndex ++;
             //Encode_CompactHandCars(arrayForHashState, handCards, ref arrayForHashIndex);
 
             // arrayForHashState[arrayForHashIndex++] = (byte)board.AvailableCards.Count;

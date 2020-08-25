@@ -51,7 +51,7 @@ namespace TheGameNet
 
         private static void PrintDeck()
         {
-            byte[] tmp = GameBoard.Get_CreatedSuffledDeck();
+            byte[] tmp = GameBoard.Get_CreatedSuffledDeck(98);
 
             foreach(var item in tmp)
             {
@@ -76,7 +76,7 @@ namespace TheGameNet
             TheGameSimulator tgs = new TheGameSimulator(null);
             tgs.SetPlayers(players);
 
-            byte[] newGameDeck = GameBoard.Get_CreatedSuffledDeck();
+            byte[] newGameDeck = GameBoard.Get_CreatedSuffledDeck(98);
             var gameResult = tgs.Simulate(newGameDeck);
 
             Trace.WriteLine($"Result game: {gameResult.Rest_Cards}");

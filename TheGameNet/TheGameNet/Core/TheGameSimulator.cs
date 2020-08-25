@@ -27,6 +27,11 @@ namespace TheGameNet.Core
             this._gameBoard.InitPlayers(players);
         }
 
+        public void Set_TotalCountCards(int totalCards)
+        {
+            _gameBoard.TotalCardsForPlay = totalCards;
+        }
+
         public GameResult Simulate(byte [] deckCards)
         {
             Log_StartGame();
@@ -51,24 +56,43 @@ namespace TheGameNet.Core
         {
             GameResult result = new GameResult();
 
-            List<byte> leftCards = new List<byte>();
+            int playersCardsCountTotal = 0;
+            foreach (var item in this._gameBoard.Players_Cards)
+            {
+                playersCardsCountTotal += item.Count;
+            }
+
+                byte[] leftCards = new byte[playersCardsCountTotal + this._gameBoard.AvailableCards.Count+1];
+            int leftCardsIndex = 0;
+
 
             int gameResult = 0;
-            foreach(var item in this._gameBoard.Players_Cards)
+            foreach (var item in this._gameBoard.Players_Cards)
             {
                 gameResult += item.Count;
-                leftCards.AddRange(item);
+
+                for (int i = 0; i < item.Count; i++)
+                {
+                    leftCards[leftCardsIndex] = item[i];
+                    leftCardsIndex++;
+                }
             }
 
             gameResult += this._gameBoard.AvailableCards.Count;
 
-            leftCards.AddRange(this._gameBoard.AvailableCards);
+            foreach (var item in this._gameBoard.AvailableCards)
+            {
+                leftCards[leftCardsIndex] = item;
+                leftCardsIndex++;
+            }
 
             result.Rest_Cards = gameResult;
-            result.Rest_Cards_List = leftCards.ToArray();
+            result.Rest_Cards_List = leftCards;
 
             return result;
         }
+
+        
 
         private void Run()
         {

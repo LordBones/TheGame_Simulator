@@ -85,7 +85,7 @@ namespace TheGameNet.Core.Players
 
             List<MoveToPlay> possibleToPlay = board.Get_PossibleToPlay(handCards);
 
-            int qGameStateIndex = QLearning_HashTransform.QLearning_StateIndex(_qTableA, boardMini,board, handCards);
+            int qGameStateIndex = QLearning_HashTransform.QLearning_StateIndex(_qTableA, boardMini,board, handCards, this.Id);
 
             var currentBestMove = Get_QLearning_BestActionForPlay(boardMini, qGameStateIndex, possibleToPlay);
 
@@ -114,7 +114,7 @@ namespace TheGameNet.Core.Players
 
             List<MoveToPlay> possibleToPlay = board.Get_PossibleToPlay(handCards);
 
-            int qGameStateIndex = QLearning_HashTransform.QLearning_StateIndex(_qTableA, boardMini,board, handCards);
+            int qGameStateIndex = QLearning_HashTransform.QLearning_StateIndex(_qTableA, boardMini,board, handCards, this.Id);
 
             var currentBestMove = Get_QLearning_BestAction(boardMini, qGameStateIndex, possibleToPlay);
 
@@ -134,7 +134,7 @@ namespace TheGameNet.Core.Players
             var boardMini = board.CreateBoardMini(this.Id);
 
 
-            int qGameStateIndex = QLearning_HashTransform.QLearning_StateIndex(_qTableA, boardMini,board, handCards);
+            int qGameStateIndex = QLearning_HashTransform.QLearning_StateIndex(_qTableA, boardMini,board, handCards, this.Id);
 
             float currentReward = -1.0f;// -board.Count_AllRemaindPlayCards; //QLearning_CurrentReward(board,handCards);
             float qCurrentReward = _qTableA.Get(_lastQNode.StateIndex, _lastQNode.ActionIndex);
