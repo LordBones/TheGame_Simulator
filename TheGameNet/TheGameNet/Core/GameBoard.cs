@@ -5,6 +5,7 @@ using System.Linq;
 using TheGameNet.Utils;
 using TheGameNet.Core.Players;
 using TheGameNet.Core.GameBoardMini_Solver;
+using BonesLib.Utils;
 
 namespace TheGameNet.Core
 {
@@ -24,7 +25,8 @@ namespace TheGameNet.Core
         public Player[] Players = Array.Empty<Player>();
         public PlayerBoardData [] PlayersData = Array.Empty<PlayerBoardData>();
 
-        public List<byte>[] Players_Cards = Array.Empty< List<byte>>();
+        //public List<byte>[] Players_Cards = Array.Empty< List<byte>>();
+        public PlayersCards Players_Cards=  new PlayersCards(5);
 
 
         public PlayersOrder Player_Order = new PlayersOrder();
@@ -63,18 +65,21 @@ namespace TheGameNet.Core
 
         public void InitPlayers(ICollection<Player> players)
         {
+            
+
             this.Players = players.ToArray();
 
             if(this.PlayersData.Length != Players.Length)
                 this.PlayersData = new PlayerBoardData[Players.Length];
 
-            if (this.Players_Cards.Length != Players.Length)
-                this.Players_Cards = new List<byte>[this.Players.Length];
+            //if (this.Players_Cards.Length != Players.Length)
+            //    this.Players_Cards = new List<byte>[this.Players.Length];
+            this.Players_Cards.Init(this.Players.Length);
 
             for(int i = 0; i < this.Players.Length; i++)
             {
                 this.Players[i].Id = (byte)i;
-                this.Players_Cards[i] = new List<byte>(10);
+                
                 this.PlayersData[i] = new PlayerBoardData() { Id = (byte)i };
             }
 
@@ -95,9 +100,15 @@ namespace TheGameNet.Core
                 CardPlaceholders[i].Clear();
             }
 
-            for(int i = 0;i< this.Players_Cards.Length; i++)
+            for(int i = 0;i< this.Players.Length; i++)
             {
                 this.Players_Cards[i].Clear();
+            }
+
+            for (int i = 0; i < this.Players_Cards.PlayerCardsCount.Length; i++)
+            {
+
+                this.Players_Cards.PlayerCardsCount[i] = 0;
             }
 
             Player_Order.Clear();
@@ -105,14 +116,14 @@ namespace TheGameNet.Core
         }
 
 
-        public List<byte> Get_PlayerHand(byte playerId)
+        public Span<byte> Get_PlayerHand(byte playerId)
         {
             return this.Players_Cards[playerId];
         }
 
         public bool PlayerHand_IsEmpty(byte playerId)
         {
-            return this.Players_Cards[playerId].Count == 0;
+            return this.Players_Cards[playerId].Length == 0;
         }
 
         public void Set_AvailableCardsDeck(byte [] deckCards)
@@ -161,7 +172,7 @@ namespace TheGameNet.Core
                 for(int c = 0; c < this.MaxCardInHands; c++)
                 {
                     byte card = this.AvailableCards.Pop();
-                    this.Players_Cards[i].Add(card);
+                    this.Players_Cards.Add(i,card);
                 }
             }
         }
@@ -198,8 +209,8 @@ namespace TheGameNet.Core
                 {
                     byte playerId = this.Players[p].Id;
 
-                    List<byte> playerCards = this.Players_Cards[playerId];
-                    for(int c = 0;c< playerCards.Count; c++)
+                    Span<byte> playerCards = this.Players_Cards[playerId];
+                    for(int c = 0;c< playerCards.Length; c++)
                     {
                         int diff = placeholder.Get_CardDiff(playerCards[c]);
                         //RangeHint hint = DiffToRangeHint(diff);
@@ -225,9 +236,9 @@ namespace TheGameNet.Core
 
         public bool Can_PlayerPlay(byte playerId)
         {
-            List<byte> hand = this.Players_Cards[playerId];
+            Span<byte> hand = this.Players_Cards[playerId];
 
-            for(int i  = 0;i < hand.Count; i++)
+            for(int i  = 0;i < hand.Length; i++)
             {
                 var card = hand[i];
 
@@ -246,7 +257,7 @@ namespace TheGameNet.Core
         List<MoveToPlay> result = new List<MoveToPlay>();
 
 
-        public List<MoveToPlay> Get_PossibleToPlay(List<byte> hand)
+        public List<MoveToPlay> Get_PossibleToPlay(Span<byte> hand)
         {
             //List<MoveToPlay> result = new List<MoveToPlay>();
 
@@ -257,7 +268,7 @@ namespace TheGameNet.Core
             {
                 var cardPlaceholder = this.CardPlaceholders[d];
 
-                for (int i = 0; i < hand.Count; i++)
+                for (int i = 0; i < hand.Length; i++)
                 {
                     var cardHand = hand[i];
                     if (cardPlaceholder.CanPlaceCard(cardHand))
@@ -270,7 +281,7 @@ namespace TheGameNet.Core
             return result;
         }
 
-        public int Get_PossibleToPlay(List<byte> hand, Span<MoveToPlay> result)
+        public int Get_PossibleToPlay(Span<byte> hand, Span<MoveToPlay> result)
         {
             int index = 0;
 
@@ -279,7 +290,7 @@ namespace TheGameNet.Core
             {
                 var cardPlaceholder = this.CardPlaceholders[d];
 
-                for (int i = 0; i < hand.Count; i++)
+                for (int i = 0; i < hand.Length; i++)
                 {
                     var cardHand = hand[i];
                     if (cardPlaceholder.CanPlaceCard(cardHand))
@@ -293,12 +304,42 @@ namespace TheGameNet.Core
             return index;
         }
 
+        public void Get_PossibleToPlay(Span<byte> hand, ref FixListSpan<MoveToPlay> result)
+        {
+            for (int d = 0; d < this.CardPlaceholders.Length; d++)
+            {
+                var cardPlaceholder = this.CardPlaceholders[d];
+
+                for (int i = 0; i < hand.Length; i++)
+                {
+                    var cardHand = hand[i];
+                    if (cardPlaceholder.CanPlaceCard(cardHand))
+                    {
+                        result.Add( new MoveToPlay(cardHand, (sbyte)d));
+                        
+                    }
+                }
+            }
+        }
+
+        
+
         public bool Get_HasCard(List<byte> hand, byte card)
         {
             for (int i = 0; i < hand.Count; i++)
             {
                 if (hand[i] == card) return true;
                 
+            }
+
+            return false;
+        }
+        public bool Get_HasCard(Span<byte> hand, byte card)
+        {
+            for (int i = 0; i < hand.Length; i++)
+            {
+                if (hand[i] == card) return true;
+
             }
 
             return false;
@@ -314,7 +355,10 @@ namespace TheGameNet.Core
             {
                 int i = 0;
             }
-            this.Get_PlayerHand(player.Id).Remove(move.Card);
+
+            int cardIndex = this.Players_Cards[player.Id].IndexOf(move.Card);
+            
+            this.Players_Cards.Remove(player.Id,cardIndex);
 
             this._playedCards.AddCard_IfNotExist(move.Card);
 
@@ -325,12 +369,9 @@ namespace TheGameNet.Core
 
         public void Refill_PlayerCards(byte playerId)
         {
-
-            List<byte> playerHand = this.Get_PlayerHand(playerId);
-
-            while (this.AvailableCards.Count > 0 && playerHand.Count < this.MaxCardInHands)
+            while (this.AvailableCards.Count > 0 && this.Players_Cards.PlayerCardsCount[playerId] < this.MaxCardInHands)
             {
-                playerHand.Add(this.AvailableCards.Pop());
+                this.Players_Cards.Add(playerId,this.AvailableCards.Pop());
             }
         }
 
@@ -502,6 +543,60 @@ namespace TheGameNet.Core
             }
 
             return result;
+        }
+    }
+
+    public struct PlayersCards
+    {
+        const byte CONST_MaxCardsPerPlayer = 12;
+       
+        byte[] cards;
+        public byte[] PlayerCardsCount ;
+
+        public PlayersCards(int maxPlayers)
+        {
+            cards = new byte[maxPlayers* CONST_MaxCardsPerPlayer];
+
+            PlayerCardsCount = Array.Empty<byte>();
+        }
+
+        public void Init(int countPlayers)
+        {
+            PlayerCardsCount = new byte[countPlayers];
+        }
+
+        public Span<byte> this[int i]
+        {
+            get { return cards.AsSpan(i * CONST_MaxCardsPerPlayer, PlayerCardsCount[i]); }
+        }
+
+        public void Add(int playerIndex, byte card)
+        {
+            int pcc = PlayerCardsCount[playerIndex];
+
+            if (pcc == CONST_MaxCardsPerPlayer)
+            {
+                throw new IndexOutOfRangeException();
+            }
+
+            cards[playerIndex * CONST_MaxCardsPerPlayer + pcc] = card;
+            PlayerCardsCount[playerIndex]++;
+        }
+
+        public void Remove(int playerIndex, int indexCard)
+        {
+            int pcc = PlayerCardsCount[playerIndex];
+            if (pcc <= indexCard)
+            {
+                throw new IndexOutOfRangeException();
+            }
+
+            for( int i = indexCard;i < pcc-1;i++)
+            {
+                cards[playerIndex * CONST_MaxCardsPerPlayer + i ] = cards[playerIndex * CONST_MaxCardsPerPlayer + i+1];
+            }
+
+            PlayerCardsCount[playerIndex]--;
         }
     }
 }

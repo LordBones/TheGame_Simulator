@@ -72,13 +72,13 @@ namespace TheGameNet.Core.Players
             _qTableB.PrintTable(tw);
         }
 
-        public override void StartPlay(GameBoard board, List<byte> handCards)
+        public override void StartPlay(GameBoard board, Span<byte> handCards)
         {
             _lastQNode = new QNode(0, 0);
         }
 
 
-        public override MoveToPlay Decision_CardToPlay(GameBoard board, List<byte> handCards)
+        public override MoveToPlay Decision_CardToPlay(GameBoard board, Span<byte> handCards)
         {
             Swap_QTable();
             var boardMini = board.CreateBoardMini(this.Id);
@@ -100,13 +100,13 @@ namespace TheGameNet.Core.Players
             return currentBestMove.move;
         }
 
-        public override MoveToPlay Decision_CardToPlay_Optional(GameBoard board, List<byte> handCards)
+        public override MoveToPlay Decision_CardToPlay_Optional(GameBoard board, Span<byte> handCards)
         {
             _lastQNode = QNode.Default;
             return new MoveToPlay(0, -1);
         }
 
-        public override void AfterCardPlay_ResultMove(GameBoard board, List<byte> handCards, bool isEndOfGame)
+        public override void AfterCardPlay_ResultMove(GameBoard board, Span<byte> handCards, bool isEndOfGame)
         {
             if (_lastQNode.IsDefault()) return;
 
@@ -127,7 +127,7 @@ namespace TheGameNet.Core.Players
             _qTableA.Set(_lastQNode.StateIndex, _lastQNode.ActionIndex, newReward);
         }
 
-        public override void EndGame(GameBoard board, List<byte> handCards)
+        public override void EndGame(GameBoard board, Span<byte> handCards)
         {
             if (_lastQNode.IsDefault()) return;
 
@@ -217,7 +217,7 @@ namespace TheGameNet.Core.Players
             return (reward: rewardBest, qActionIndex: qActionIndexBest, move: moveBest);
         }
 
-        private int QLearning_CurrentReward(GameBoard board, BoardMini boardMini, List<byte> handCards)
+        private int QLearning_CurrentReward(GameBoard board, BoardMini boardMini, Span<byte> handCards)
         {
             int sum = 0;
             //foreach (var item in boardMini.CardPlaceholders)

@@ -55,7 +55,7 @@ namespace TheGameNet.Core
 
         }
 
-        public static int QLearning_StateIndex(QTable qTable, BoardMini boardMini, GameBoard board, List<byte> handCards, byte playerId)
+        public static int QLearning_StateIndex(QTable qTable, BoardMini boardMini, GameBoard board, Span<byte> handCards, byte playerId)
         {
             //Array.Clear(arrayForHashState, 0, arrayForHashState.Length);
 

@@ -21,20 +21,20 @@ namespace TheGameNet.Core.Players
             this.Name = name;
         }
 
-        public abstract void StartPlay(GameBoard board, List<byte> handCards);
+        public abstract void StartPlay(GameBoard board, Span<byte> handCards);
 
-        public abstract MoveToPlay Decision_CardToPlay(GameBoard board, List<byte> handCards);
+        public abstract MoveToPlay Decision_CardToPlay(GameBoard board, Span<byte> handCards);
 
-        public abstract MoveToPlay Decision_CardToPlay_Optional(GameBoard board, List<byte> handCards);
+        public abstract MoveToPlay Decision_CardToPlay_Optional(GameBoard board, Span<byte> handCards);
 
-        public abstract void AfterCardPlay_ResultMove(GameBoard board, List<byte> handCards, bool isEndOfGame);
+        public abstract void AfterCardPlay_ResultMove(GameBoard board, Span<byte> handCards, bool isEndOfGame);
 
 
         public virtual void StartGame(GameBoard board)
         {
 
         }
-        public abstract void EndGame(GameBoard board, List<byte> handCards);
+        public abstract void EndGame(GameBoard board, Span<byte> handCards);
 
     }
 }

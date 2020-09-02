@@ -26,7 +26,7 @@ namespace TheGameNet.Core.Players
         private int _moveSequenceForPlayIndex = 0;
 
         DeepSearch_BoardMini _deepSearch = new DeepSearch_BoardMini();
-        public override void StartPlay(GameBoard board, List<byte> handCards)
+        public override void StartPlay(GameBoard board, Span<byte> handCards)
         {
             _MoveSequenceForPlay = null;
             _moveSequenceForPlayIndex = -1;
@@ -69,21 +69,21 @@ namespace TheGameNet.Core.Players
 
         private byte[] _tempHand;
 
-        public override MoveToPlay Decision_CardToPlay(GameBoard board, List<byte> handCards)
+        public override MoveToPlay Decision_CardToPlay(GameBoard board, Span<byte> handCards)
         {
 
             if (_MoveSequenceForPlay == null || _moveSequenceForPlayIndex >= _MoveSequenceForPlay.MoveCount) {
                 var boardMini = board.CreateBoardMini(this.Id);
 
-                int minDepthSearch = board.MinCardForPlay - (board.MaxCardInHands - handCards.Count);
+                int minDepthSearch = board.MinCardForPlay - (board.MaxCardInHands - handCards.Length);
                 if (minDepthSearch <= 0) minDepthSearch = 1;
 
 
                 int maxDepthSearch = 6;
 
-                if (_tempHand == null || _tempHand.Length < handCards.Count) _tempHand = new byte[handCards.Count];
+                if (_tempHand == null || _tempHand.Length < handCards.Length) _tempHand = new byte[handCards.Length];
 
-                ArraySegmentExSmall_Struct<byte> handsArray = new ArraySegmentExSmall_Struct<byte>(_tempHand, 0, (ushort)handCards.Count);  
+                ArraySegmentExSmall_Struct<byte> handsArray = new ArraySegmentExSmall_Struct<byte>(_tempHand, 0, (ushort)handCards.Length);  
                 for(int i =0;i < handsArray.Count; i++)
                 {
                     handsArray[i] = handCards[i];
@@ -137,7 +137,7 @@ namespace TheGameNet.Core.Players
             
         }*/
 
-        public override MoveToPlay Decision_CardToPlay_Optional(GameBoard board, List<byte> handCards)
+        public override MoveToPlay Decision_CardToPlay_Optional(GameBoard board, Span<byte> handCards)
         {
 
             if (_MoveSequenceForPlay.MoveCount == 0) return new MoveToPlay(0, -1);
@@ -152,12 +152,12 @@ namespace TheGameNet.Core.Players
 
         }
 
-        public override void AfterCardPlay_ResultMove(GameBoard board, List<byte> handCards, bool isEndOfGame)
+        public override void AfterCardPlay_ResultMove(GameBoard board, Span<byte> handCards, bool isEndOfGame)
         {
 
         }
 
-        public override void EndGame(GameBoard board, List<byte> handCards)
+        public override void EndGame(GameBoard board, Span<byte> handCards)
         {
 
         }

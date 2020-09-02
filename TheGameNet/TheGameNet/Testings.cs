@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BonesLib.ForwardNN;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -105,6 +106,22 @@ namespace TheGameNet
 
             RoundSimulator.SimulateGameRounds(gpg.ToArray(), countRounds);
         }
+
+        public static void FNN_Testing()
+        {
+            BonesLib.ForwardNN.ForwardNN fnn = new ForwardNN(5, 5);
+            fnn.SetTopology(new short[] { 20 });
+
+            FNN_LayerManipulator manipulator = new FNN_LayerManipulator(0);
+            manipulator.InitRandomWeights(fnn.Layers);
+
+            fnn.Inputs[0] = 0.05f;
+            fnn.Inputs[3] = 0.08f;
+
+            fnn.Evaluate();
+
+        }
+
 
         public static void Run_QLearning_Teach()
         {

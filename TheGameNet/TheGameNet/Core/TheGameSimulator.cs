@@ -57,9 +57,9 @@ namespace TheGameNet.Core
             GameResult result = new GameResult();
 
             int playersCardsCountTotal = 0;
-            foreach (var item in this._gameBoard.Players_Cards)
+            foreach (var item in this._gameBoard.Players_Cards.PlayerCardsCount)
             {
-                playersCardsCountTotal += item.Count;
+                playersCardsCountTotal += item;
             }
 
                 byte[] leftCards = new byte[playersCardsCountTotal + this._gameBoard.AvailableCards.Count+1];
@@ -67,13 +67,14 @@ namespace TheGameNet.Core
 
 
             int gameResult = 0;
-            foreach (var item in this._gameBoard.Players_Cards)
+            for (int k = 0;k < this._gameBoard.Players_Cards.PlayerCardsCount.Length;k++)
             {
-                gameResult += item.Count;
+                gameResult += this._gameBoard.Players_Cards.PlayerCardsCount[k];
 
-                for (int i = 0; i < item.Count; i++)
+                var cards = this._gameBoard.Players_Cards[k];
+                for (int i = 0; i < cards.Length; i++)
                 {
-                    leftCards[leftCardsIndex] = item[i];
+                    leftCards[leftCardsIndex] = cards[i];
                     leftCardsIndex++;
                 }
             }
@@ -161,6 +162,8 @@ namespace TheGameNet.Core
 
                 this._gameBoard.Apply_PlayerMove(player, move);
 
+                playerHand = this._gameBoard.Get_PlayerHand(player.Id);
+
                 player.AfterCardPlay_ResultMove(this._gameBoard, playerHand, false);
 
             }
@@ -183,6 +186,7 @@ namespace TheGameNet.Core
                 }
 
                 this._gameBoard.Apply_PlayerMove(player, move);
+                playerHand = this._gameBoard.Get_PlayerHand(player.Id);
                 player.AfterCardPlay_ResultMove(this._gameBoard, playerHand, false);
             }
         }
@@ -257,7 +261,7 @@ namespace TheGameNet.Core
             StringBuilder sb = new StringBuilder();
 
             Player[] players = this._gameBoard.Players;
-            List<byte>[] playersCards = this._gameBoard.Players_Cards;
+            var playersCards = this._gameBoard.Players_Cards;
 
             Player currentPlayer = this._gameBoard.Player_Order.Current;
 
@@ -270,9 +274,9 @@ namespace TheGameNet.Core
                 
                 sb.Append($"{markNewLine}{markPlayNow,1} P{i} {playerName,15}: ");
 
-                List<byte> cards = playersCards[i];
+                Span<byte> cards = playersCards[i];
 
-                for(int c = 0; c < cards.Count; c++)
+                for(int c = 0; c < cards.Length; c++)
                 {
                     sb.Append($"{cards[c],3}, ");
                 }

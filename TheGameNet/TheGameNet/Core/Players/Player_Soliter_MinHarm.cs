@@ -17,13 +17,13 @@ namespace TheGameNet.Core.Players
         {
         }
 
-        public override void StartPlay(GameBoard board, List<byte> handCards)
+        public override void StartPlay(GameBoard board, Span<byte> handCards)
         {
 
         }
 
 
-        public override MoveToPlay Decision_CardToPlay(GameBoard board, List<byte> handCards)
+        public override MoveToPlay Decision_CardToPlay(GameBoard board, Span<byte> handCards)
         {
 
             List<MoveToPlay> possibleToPlay = board.Get_PossibleToPlay(handCards);
@@ -37,7 +37,7 @@ namespace TheGameNet.Core.Players
 
 
 
-        public override MoveToPlay Decision_CardToPlay_Optional(GameBoard board, List<byte> handCards)
+        public override MoveToPlay Decision_CardToPlay_Optional(GameBoard board, Span<byte> handCards)
         {
             List<MoveToPlay> possibleToPlay = board.Get_PossibleToPlay(handCards);
 
@@ -52,18 +52,18 @@ namespace TheGameNet.Core.Players
             return new MoveToPlay(0, -1);
         }
 
-        public override void AfterCardPlay_ResultMove(GameBoard board, List<byte> handCards, bool isEndOfGame)
+        public override void AfterCardPlay_ResultMove(GameBoard board, Span<byte> handCards, bool isEndOfGame)
         {
 
         }
 
-        public override void EndGame(GameBoard board, List<byte> handCards)
+        public override void EndGame(GameBoard board, Span<byte> handCards)
         {
 
         }
 
 
-        private MoveToPlay Get_JumpFromHandToPlay(GameBoard board, List<byte> handCards, MoveToPlay forMove)
+        private MoveToPlay Get_JumpFromHandToPlay(GameBoard board, Span<byte> handCards, MoveToPlay forMove)
         {
             byte cardJump = board.CardPlaceholders[forMove.DeckIndex].Get_CardJump(forMove.Card);
 

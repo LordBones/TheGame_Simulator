@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace TheGameNet.Utils
 {
-    class FixList
-    {
-    }
+    //struct FixList<T>
+    //{
+    //    private Span<T> _array;
+    //    private 
+    //}
 }

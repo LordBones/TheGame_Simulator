@@ -111,10 +111,10 @@
     <Compile Include="Utils\ChunkArrayCreator.cs" />
     <Compile Include="Utils\EvaluateState.cs" />
     <Compile Include="Utils\FastLock.cs" />
+    <Compile Include="Utils\FixList.cs" />
     <Compile Include="Utils\Median.cs" />
     <Compile Include="Utils\ObjectPool.cs" />
     <Compile Include="Utils\ObjectPoolTS_LocalThread.cs" />
-    <Compile Include="Utils\Random.cs" />
     <Compile Include="Utils\SegmentArrayEx.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -123,6 +123,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Core\GA\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BonesLib\BonesLib.csproj">
+      <Project>{1f605aeb-2fa7-4295-aced-8c0597ea739a}</Project>
+      <Name>BonesLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
