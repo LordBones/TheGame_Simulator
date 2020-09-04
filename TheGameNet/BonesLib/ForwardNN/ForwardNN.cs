@@ -1,6 +1,7 @@
 ﻿using BonesLib.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -8,7 +9,9 @@ namespace BonesLib.ForwardNN
 {
     public class ForwardNN
     {
-        priv
+        private const float CONST_Bias = 1.0f;
+
+        public short [] Topology { get; private set; }
         public float[] Outputs { get; private set; }
         public float [] Inputs { get; private set; }
 
@@ -25,6 +28,7 @@ namespace BonesLib.ForwardNN
 
         public void SetTopology(short  [] topology)
         {
+            Topology = topology.ToArray();
             _layers = new NNLayer[topology.Length +1];
             short linksPerNeuron = (short)Inputs.Length;
 
@@ -43,6 +47,41 @@ namespace BonesLib.ForwardNN
             layerEnd = new NNLayer(Outputs.Length, linksPerNeuron);
             layerEnd.InitLinks();
         }
+
+        public ForwardNN Clone()
+        {
+            ForwardNN newObj = new ForwardNN((short)Inputs.Length, (short)Outputs.Length);
+            newObj.SetTopology(Topology);
+
+            CopyTo(newObj);
+            return newObj;
+        }
+
+        public  void CopyTo( ForwardNN dest)
+        {
+            if (!this.IsEqualTopology(dest)) { throw new Exception("Bad topology"); };
+
+            for(int level = 0; level < Layers.Length; level++)
+            {
+                ref var levelDest = ref dest.Layers[level];
+                var levelSource = Layers[level];
+
+                for(int i =0; i < levelDest.Neurons.Length; i++)
+                {
+                    levelDest.Neurons[i] = levelSource.Neurons[i];
+                }
+
+                for (int i = 0; i < levelDest.NeuronLinks.Length; i++)
+                {
+                    levelDest.NeuronLinks[i] = levelSource.NeuronLinks[i];
+                }
+
+                levelDest.CountLinksPerNeuron = levelSource.CountLinksPerNeuron;
+            }
+
+        }
+
+#region evaluate
 
         public void Evaluate()
         {
@@ -64,14 +103,15 @@ namespace BonesLib.ForwardNN
 
             for (int i = 0, n=0; i < links.Length; i += layer.CountLinksPerNeuron,n++)
             {
-                float sum = 0.0f;
+                float sum = CONST_Bias;
                 for(int k = 0; k < layer.CountLinksPerNeuron; k++)
                 {
-                    var link = links[i + k];
+                    ref var link = ref links[i + k];
                     sum+=  this.Inputs[link.BackNeuronIndex] * link.Weight;
                 }
 
-                layer.Neurons[n].Output = layer.Neurons[n].ActivationFunction_tanh(sum);
+                ref var neuron = ref layer.Neurons[n];
+                neuron.Output = neuron.ActivationFunction_tanh(sum);
             }
         }
 
@@ -79,26 +119,49 @@ namespace BonesLib.ForwardNN
         {
             for (int level = 1; level < this._layers.Length; level++)
             {
-                var layer = this._layers[level];
+                ref var layer = ref this._layers[level];
 
                 var links = layer.NeuronLinks;
                 var lastLevelNeurons = this._layers[level-1].Neurons;
 
                 for (int i = 0, n = 0; i < links.Length; i += layer.CountLinksPerNeuron, n++)
                 {
-                    float sum = 0.0f;
+                    float sum = CONST_Bias;
                     for (int k = 0; k < layer.CountLinksPerNeuron; k++)
                     {
-                        var link = links[i + k];
+                        ref var link = ref links[i + k];
                         sum += lastLevelNeurons[link.BackNeuronIndex].Output * link.Weight;
                     }
 
-                    layer.Neurons[n].Output = layer.Neurons[n].ActivationFunction_tanh(sum);
+                    ref var neuron = ref layer.Neurons[n];
+                    neuron.Output = neuron.ActivationFunction_tanh(sum);
                 }
             }
         }
 
+        #endregion
 
+        public bool IsEqualTopology(ForwardNN fnn)
+        {
+            if(fnn.Inputs.Length != Inputs.Length ||
+               fnn.Outputs.Length != Outputs.Length ||
+               fnn._layers.Length != _layers.Length)
+            {
+                return false;
+            }
+
+
+            for(int i =0; i < _layers.Length; i++)
+            {
+                if(fnn._layers[i].Neurons.Length != _layers[i].Neurons.Length ||
+                   fnn._layers[i].NeuronLinks.Length != _layers[i].NeuronLinks.Length)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 
 
@@ -142,9 +205,29 @@ namespace BonesLib.ForwardNN
     {
         public float Output;
 
+        public float ActivationFunction_tanh2(float sum)
+        {
+            double eSum = Math.Exp(sum);
+            double eSumNeg = Math.Exp(-sum);
+
+            return (float)((eSum - eSumNeg) / (eSum + eSumNeg));
+        }
+
         public float ActivationFunction_tanh(float sum)
         {
-            return (float)((Math.Exp(sum) - Math.Exp(-sum)) / (Math.Exp(sum) + Math.Exp(-sum)));
+            float eSum = FastExp(sum);
+            float eSumNeg = FastExp(-sum);
+
+            return ((eSum - eSumNeg) / (eSum + eSumNeg));
+        }
+
+        public float FastExp(float val)
+        {
+            float x = 1.0f + val / 1024;
+            x *= x; x *= x; x *= x; x *= x;
+            x *= x; x *= x; x *= x; x *= x;
+            x *= x; x *= x;
+            return x;
         }
 
         public override string ToString()
@@ -156,8 +239,9 @@ namespace BonesLib.ForwardNN
 
     public struct NeuronLink
     {
-        public ushort BackNeuronIndex;
         public float Weight;
+        public ushort BackNeuronIndex;
+        
 
         public override string ToString()
         {

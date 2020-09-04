@@ -23,7 +23,11 @@ namespace TheGameNet.Core
         {
 
             int countCards = _maxCard - 2;
-            List<byte> result = new List<byte>(countCards);
+
+            Span<byte> result_Span = stackalloc byte[countCards];
+            FixListSpan<byte> result = new FixListSpan<byte>(result_Span);
+
+            //List<byte> result = new List<byte>(countCards);
 
             List<byte> forSuffle = new List<byte>(countCards);
             for (byte i = 2; i < _maxCard; i++)
@@ -41,7 +45,7 @@ namespace TheGameNet.Core
                 forSuffle.Remove(card);
             }
 
-            return result.ToArray();
+            return result.GetSpan().ToArray();
         }
     }
 }

@@ -34,7 +34,8 @@ namespace TheGameNet
             //Testings.RunSimulate_Test_PMP();
 
 
-            Testings.FNN_Testing();
+            Testings.Run_FNN_Teach();
+            //Testings.FNN_Testing();
             //Testings.Run_QLearning_Teach();
             //Testings.Run_GA_Learn();
 

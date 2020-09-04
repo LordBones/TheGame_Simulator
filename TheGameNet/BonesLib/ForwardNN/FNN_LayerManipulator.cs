@@ -21,9 +21,17 @@ namespace BonesLib.ForwardNN
                 var links = nnls[level].NeuronLinks;
                 for (int linkIndex = 0; linkIndex < links.Length; linkIndex++)
                 {
-                    links[linkIndex].Weight = (float)_rnd.GetRandomNumberDouble();
+                    links[linkIndex].Weight = ((float)_rnd.GetRandomNumberDouble())/10;
                 }
             }
+        }
+
+        public void MutateWeight(NNLayer [] nnls)
+        {
+            int level = _rnd.GetRandomNumber(0, nnls.Length);
+            int linkIndex = _rnd.GetRandomNumber(0, nnls[level].NeuronLinks.Length);
+
+            nnls[level].NeuronLinks[linkIndex].Weight = (float)_rnd.GetRandomNumberDouble();
         }
 
     }

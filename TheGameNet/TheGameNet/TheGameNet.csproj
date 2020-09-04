@@ -85,6 +85,7 @@
     <Compile Include="Core\CardPlaceholder_DownDirection.cs" />
     <Compile Include="Core\CardPlaceholder_UpDirection.cs" />
     <Compile Include="Core\DeckGenerator.cs" />
+    <Compile Include="Core\FNN\FNN_Evolve.cs" />
     <Compile Include="Core\GameBoard.cs" />
     <Compile Include="Core\BoardMini.cs" />
     <Compile Include="Core\GameBoardMini\CardPlaceholderLight.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Core\Players\Player.cs" />
     <Compile Include="Core\Players\Player_DoubleQLearning.cs" />
     <Compile Include="Core\Players\Player_Dumb.cs" />
+    <Compile Include="Core\Players\Player_FNN.cs" />
     <Compile Include="Core\Players\Player_GAConfigurable.cs" />
     <Compile Include="Core\Players\Player_QLearning.cs" />
     <Compile Include="Core\Players\Player_Soliter_MinHarm.cs" />
