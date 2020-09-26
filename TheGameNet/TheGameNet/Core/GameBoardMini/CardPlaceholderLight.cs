@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TheGameNet.Core.GameBoardMini_Solver
 {
-    internal abstract class CardPlaceholderLight
+    public abstract class CardPlaceholderLight
     {
         protected bool _upDirection;
         protected byte _cardPlaceholder;
@@ -43,7 +43,7 @@ namespace TheGameNet.Core.GameBoardMini_Solver
         public abstract void UpdatePhantomState();
     }
 
-    internal class CardPlaceholderLight_Down : CardPlaceholderLight
+    public class CardPlaceholderLight_Down : CardPlaceholderLight
     {
         private const int CONST_InitCard = 100;
         private const int CONST_EndCard = 2;
@@ -137,7 +137,7 @@ namespace TheGameNet.Core.GameBoardMini_Solver
     }
 
 
-    internal class CardPlaceholderLight_Up : CardPlaceholderLight
+    public class CardPlaceholderLight_Up : CardPlaceholderLight
     {
         private const int CONST_InitCard = 1;
         private const int CONST_EndCard = 99;

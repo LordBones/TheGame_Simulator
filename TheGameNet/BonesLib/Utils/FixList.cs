@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace BonesLib.Utils
@@ -9,6 +10,7 @@ namespace BonesLib.Utils
         private T [] Data;
         public int Length;
 
+        public int MaxSize => Data.Length;
 
         public FixList(int size)
             :this(new T[size])
@@ -28,13 +30,41 @@ namespace BonesLib.Utils
             Length = 0;
         }
 
+        public void Clear()
+        {
+            Length = 0;
+        }
+
         public ref T this[int i]
         {
-            get { return ref Data[i]; }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { 
+                    if (i >= Length)
+                    throw new Exception("not alllowed");
+                    return ref Data[i]; }
             //set { Data[i] = value; }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref T Get(int i)
+        {
+            if (i >= Length)
+                throw new Exception("not alllowed");
+            return ref Data[i];
+
+        }
+
         public Span<T> GetSpan() => Data.AsSpan(0, Length);
+
+        public void CopyTo(FixList<T> data)
+        {
+            if (data.MaxSize < this.Length)
+                throw new Exception("not allow");
+
+            data.Length = this.Length;
+
+            Array.Copy(this.Data,data.Data,this.Length);
+        }
 
         public void Add(T data)
         {

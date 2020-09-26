@@ -57,7 +57,8 @@ namespace TheGameNet.Core
             GameResult result = new GameResult();
 
             int playersCardsCountTotal = 0;
-            foreach (var item in this._gameBoard.Players_Cards.PlayerCardsCount)
+            var pcc = this._gameBoard.Players_Cards.PlayerCardsCount;
+            foreach (var item in pcc)
             {
                 playersCardsCountTotal += item;
             }
@@ -67,11 +68,11 @@ namespace TheGameNet.Core
 
 
             int gameResult = 0;
-            for (int k = 0;k < this._gameBoard.Players_Cards.PlayerCardsCount.Length;k++)
+            for (int k = 0;k < pcc.Length;k++)
             {
-                gameResult += this._gameBoard.Players_Cards.PlayerCardsCount[k];
+                gameResult += pcc[k];
 
-                var cards = this._gameBoard.Players_Cards[k];
+                var cards = this._gameBoard.Players_Cards.Get(k);
                 for (int i = 0; i < cards.Length; i++)
                 {
                     leftCards[leftCardsIndex] = cards[i];
@@ -108,7 +109,7 @@ namespace TheGameNet.Core
 
             while (player!=null && this._gameBoard.Can_PlayerPlay(player.Id))
             {
-                
+               
                 Log_CurrentDecksState();
                 Log_PlayerCards();
 
@@ -126,10 +127,12 @@ namespace TheGameNet.Core
                 this._gameBoard.Refill_PlayerCards(player.Id);
                
                 player = MoveTo_NextPlayer(player);
+
                 player?.StartPlay(this._gameBoard, this._gameBoard.Get_PlayerHand(player.Id));
+
             }
 
-            foreach(var p in this.Players)
+            foreach (var p in this.Players)
             {
                 p.EndGame(this._gameBoard, this._gameBoard.Get_PlayerHand(p.Id));
             }
@@ -237,28 +240,31 @@ namespace TheGameNet.Core
             if (_gameRunLog == StreamWriter.Null) return;
 
             string cards = string.Join(", ", deckCards);
-            _gameRunLog.WriteLine($"DeckCards: {cards}");
+            _gameRunLog.WriteLine("DeckCards: ");
+            _gameRunLog.WriteLine(cards);
         }
 
+        StringBuilder sb = new StringBuilder();
         private void Log_CurrentDecksState()
         {
             if (_gameRunLog == StreamWriter.Null) return;
 
-            StringBuilder sb = new StringBuilder();
+            sb.Clear();
 
-            sb.Append($"{_gameBoard.CardPlaceholders[0].Get_TopCard(),3} ");
-            sb.Append($"{_gameBoard.CardPlaceholders[1].Get_TopCard(),3} ");
-            sb.Append($"{_gameBoard.CardPlaceholders[2].Get_TopCard(),3} ");
-            sb.Append($"{_gameBoard.CardPlaceholders[3].Get_TopCard(),3} ");
+            sb.Append($"{_gameBoard.Get_PH_ULight(0).Get_TopCard().ToString(),3} ");
+            sb.Append($"{_gameBoard.Get_PH_ULight(1).Get_TopCard().ToString(),3} ");
+            sb.Append($"{_gameBoard.Get_PH_ULight(2).Get_TopCard().ToString(),3} ");
+            sb.Append($"{_gameBoard.Get_PH_ULight(3).Get_TopCard().ToString(),3} ");
 
-            _gameRunLog.WriteLine($"DeckCards: {sb.ToString()}");
+            _gameRunLog.WriteLine("DeckCards: ");
+            _gameRunLog.WriteLine(sb.ToString());
         }
 
         private void Log_PlayerCards()
         {
             if (_gameRunLog == StreamWriter.Null) return;
 
-            StringBuilder sb = new StringBuilder();
+            sb.Clear();
 
             Player[] players = this._gameBoard.Players;
             var playersCards = this._gameBoard.Players_Cards;
@@ -272,13 +278,21 @@ namespace TheGameNet.Core
 
                 string playerName = players[i].Name;
                 
-                sb.Append($"{markNewLine}{markPlayNow,1} P{i} {playerName,15}: ");
+                sb//.Append($"{markNewLine}{markPlayNow,1} P{i} {playerName,15}: ")
+                  .Append(markNewLine)
+                  .Append($"{ markPlayNow,1}")
+                  .Append(" P")
+                  .Append(i)
+                  .Append(" ")
+                  .Append($"{playerName,15}")
+                  .Append(": ")
+                  ;
 
-                Span<byte> cards = playersCards[i];
+                Span<byte> cards = playersCards.Get(i);
 
                 for(int c = 0; c < cards.Length; c++)
                 {
-                    sb.Append($"{cards[c],3}, ");
+                    sb.Append($"{cards[c].ToString(),3}, ");
                 }
 
 
@@ -290,9 +304,10 @@ namespace TheGameNet.Core
         #endregion
     }
 
-    public class GameResult
+    struct GameResult
     {
-        public int Rest_Cards;
         public byte[] Rest_Cards_List;
+        public int Rest_Cards;
+        
     }
 }

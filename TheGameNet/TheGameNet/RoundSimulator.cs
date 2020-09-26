@@ -79,7 +79,10 @@ namespace TheGameNet.RoundSimulations
             for (int i = 0; i < gamePlayGroups.Length; i++)
             {
                 string text = gamePlayGroups[i].Title;
-                Trace.WriteLine(text);
+
+                if(Trace.Listeners.Count > 0)
+                    Trace.WriteLine(text);
+
                 Console.WriteLine(text);
                 PrintSimulationResults(gamePlayGroups[i].GamePlayes, gamePlayGroups[i].Title);
             }
@@ -140,8 +143,9 @@ namespace TheGameNet.RoundSimulations
                     }
                 }
 
+                if (Trace.Listeners.Count > 0)
+                    Trace.WriteLine(textGameResult);
 
-                Trace.WriteLine(textGameResult);
                 Console.WriteLine(textGameResult);
             }
         }

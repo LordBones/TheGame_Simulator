@@ -1,10 +1,12 @@
-﻿using BonesLib.ForwardNN;
+﻿using BonesLib.FlexibleForwardNN;
+using BonesLib.ForwardNN;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheGameNet.Core.FNN;
 using TheGameNet.Core.Players;
 using TheGameNet.RoundSimulations;
 
@@ -70,7 +72,7 @@ namespace TheGameNet
 
         public static void Run_GA_Learn()
         {
-            int countRounds =  200;
+            int countRounds = 200;
 
             List<GamePlayGroup> gpg = new List<GamePlayGroup>();
             string groupName = "Clasic";
@@ -109,8 +111,8 @@ namespace TheGameNet
 
         public static void FNN_Testing()
         {
-            BonesLib.ForwardNN.ForwardNN fnn = new ForwardNN(5, 5);
-            fnn.SetTopology(new short[] { 20 });
+            BonesLib.ForwardNN.ForwardNN fnn = new ForwardNN(100, 100);
+            fnn.SetTopology(new short[] { 100 });
 
             FNN_LayerManipulator manipulator = new FNN_LayerManipulator(0);
             manipulator.InitRandomWeights(fnn.Layers);
@@ -118,19 +120,58 @@ namespace TheGameNet
             fnn.Inputs[0] = 0.05f;
             fnn.Inputs[3] = 0.08f;
 
-            fnn.Evaluate();
+            for (int i = 0; i < 100000; i++)
+            {
+                fnn.Evaluate();
+            }
 
         }
+
+        public static void FlexibleFNN_Testing()
+        {
+            FlexibleForwardNN fnn = new FlexibleForwardNN(100, 100);
+            fnn.Layers.Init(100, 100, 300, 30000);
+            fnn.SetTopology(new short[] { 100,100,100 });
+
+            FlexibleFNN_LayerManipulator manipulator = new FlexibleFNN_LayerManipulator(0);
+            manipulator.InitRandomWeights(fnn.Layers);
+
+            fnn.Inputs[0] = 0.05f;
+            fnn.Inputs[3] = 0.08f;
+
+            for (int i = 0; i < 100000; i++)
+            {
+                fnn.Evaluate();
+            }
+
+        }
+       
 
         public static void Run_FNN_Teach()
         {
             //Run_QLearning_CompareWithOthers();
 
-            int countRounds = 100000;
+            int countRounds = 1100;
 
 
             var players1 = RoundSimulator.CreatePlayers<Player_FNN>(namePlayers);
             var players5 = RoundSimulator.CreatePlayers<Player_FNN>(namePlayers5);
+
+
+            var playerFnn = ((Player_FNN)players1[0]).Fnn;
+
+            FNN_LayerManipulator fnnManipul = new FNN_LayerManipulator(0);
+            fnnManipul.InitRandomWeights(playerFnn.Layers);
+
+            var evolveProgress = new StreamWriter($"FNN_EvolveProgress_1P_log.txt");
+
+            FNN_Evolve fe = new FNN_Evolve(5, 40);
+            fe.RunEvolution(countRounds, playerFnn, evolveProgress);
+            evolveProgress.Dispose();
+
+            ((Player_FNN)players1[0]).Fnn = fe.Best_fnn;
+
+            Console.WriteLine("best:" + fe.Best_fitness.ToString());
 
             var gpg = new List<GamePlayGroup>();
             string groupName = "FNN";
@@ -143,10 +184,10 @@ namespace TheGameNet
 
             //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers2), "2 players", groupName, false));
             //   gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers), "1 players pmp", groupName, false));
-            gp.Add(RoundSimulator.CreateGamePlay(players1, "1 players", groupName, false));
+           // gp.Add(RoundSimulator.CreateGamePlay(players1, "1 players", groupName, false));
             //gp.Add(RoundSimulator.CreateGamePlay(players5, "5 players", groupName, false));
 
-            gpg.Add(new GamePlayGroup(groupName, gp.ToArray()));
+            //gpg.Add(new GamePlayGroup(groupName, gp.ToArray()));
 
             gp.Clear();
 
@@ -170,6 +211,88 @@ namespace TheGameNet
             
 
             StreamWriter playLog_p1_selfish = new StreamWriter("gamePlay_1p_fnn_log.txt");
+
+
+            gpg = new List<GamePlayGroup>();
+            gp.Clear();
+            gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_MinHarm>(namePlayers), "1 players min harm", groupName, true));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_MinHarm>(namePlayers5), "5 players min harm", groupName, true));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers), "1 players pmp", groupName, true));
+
+            gp.Add(RoundSimulator.CreateGamePlay(players1, "1 players", groupName + "_ControlTest", true));
+            //gp.Add(RoundSimulator.CreateGamePlay(players5, "5 players", groupName + "_ControlTest", true));
+
+            gpg.Add(new GamePlayGroup(groupName + "_ControlTest", gp.ToArray()));
+
+            RoundSimulator.SimulateGameRounds(gpg.ToArray(), 100, true, 0, oneGlobalDeck: false);
+        }
+
+        public static void Run_FlexibleFNN_Teach()
+        {
+            //Run_QLearning_CompareWithOthers();
+
+            int countRounds = 1100;
+
+
+            var players1 = RoundSimulator.CreatePlayers<Player_FlexibleFNN>(namePlayers);
+            var players5 = RoundSimulator.CreatePlayers<Player_FlexibleFNN>(namePlayers5);
+
+
+            var playerFnn = ((Player_FlexibleFNN)players1[0]).Fnn;
+
+            FlexibleFNN_LayerManipulator fnnManipul = new FlexibleFNN_LayerManipulator(0);
+            fnnManipul.InitRandomWeights(playerFnn.Layers);
+
+            var evolveProgress = new StreamWriter($"FlexibleFNN_EvolveProgress_1P_log.txt");
+
+            FlexibleFNN_Evolve fe = new FlexibleFNN_Evolve(5, 40);
+            fe.RunEvolution(countRounds, playerFnn, evolveProgress);
+            evolveProgress.Dispose();
+
+            ((Player_FlexibleFNN)players1[0]).Fnn = fe.Best_fnn;
+
+            Console.WriteLine("best:" + fe.Best_fitness.ToString());
+            StreamWriter bestFnnLog = new StreamWriter("flexiblefnn_BestNN.txt");
+            fe.Best_fnn.PrintNetwork(bestFnnLog);
+
+            var gpg = new List<GamePlayGroup>();
+            string groupName = "FlexibleFNN";
+            var gp = new List<GamePlay>();
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers5), "5 players", groupName, false));
+
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers4), "4 players", groupName, false));
+
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers3), "3 players", groupName, false));
+
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers2), "2 players", groupName, false));
+            //   gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers), "1 players pmp", groupName, false));
+            // gp.Add(RoundSimulator.CreateGamePlay(players1, "1 players", groupName, false));
+            //gp.Add(RoundSimulator.CreateGamePlay(players5, "5 players", groupName, false));
+
+            //gpg.Add(new GamePlayGroup(groupName, gp.ToArray()));
+
+            gp.Clear();
+
+            //groupName = "QLearningDouble";
+
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_DoubleQLearning>(namePlayers5), "5 players", groupName, false));
+
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_DoubleQLearning>(namePlayers4), "4 players", groupName, false));
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_DoubleQLearning>(namePlayers3), "3 players", groupName, false));
+
+            //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_DoubleQLearning>(namePlayers2), "2 players", groupName, false));
+            // gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_DoubleQLearning>(namePlayers), "1 players", groupName, false));
+            //gpg.Add(new GamePlayGroup(groupName, gp.ToArray()));
+
+            //gp.Clear();
+
+
+
+            RoundSimulator.SimulateGameRounds(gpg.ToArray(), countRounds, true, 20, oneGlobalDeck: false);
+
+
+
+            StreamWriter playLog_p1_selfish = new StreamWriter("gamePlay_1p_flexiblefnn_log.txt");
 
 
             gpg = new List<GamePlayGroup>();

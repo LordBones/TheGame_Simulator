@@ -10,8 +10,8 @@ namespace BonesLib.Utils
 {
     public class RandomGen
     {
-        private RandomNumberGenerator rng = RandomNumberGenerator.Create();
-        private byte[] buff = new byte[512];
+        //private RandomNumberGenerator rng = RandomNumberGenerator.Create();
+        private byte[] buff = new byte[16];
         private int buffIndex = 4500000;
         private Random random;
 
@@ -34,7 +34,7 @@ namespace BonesLib.Utils
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int GetRandomNumber(int min, int max)
+        public int GetRandomNumber_Buffered(int min, int max)
         {
             if (buffIndex+4 >= buff.Length)
             {
@@ -55,7 +55,13 @@ namespace BonesLib.Utils
             return (int)min + (int)(randValue % tmp);
         }
 
-        public double GetRandomNumberDouble()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int GetRandomNumber(int min, int max)
+        {
+            return random.Next(min ,max);
+        }
+
+        public double GetRandomNumberDouble_Buffered()
         {
             if (buffIndex+4 >= buff.Length)
             {
@@ -72,6 +78,50 @@ namespace BonesLib.Utils
 
             return ((1.0 * randValue) / uint.MaxValue) ;
         }
+
+        public double GetRandomNumberDouble()
+        {
+            return random.NextDouble();
+        }
+
+        readonly double _sqrt2 = Math.Sqrt(2.0);
+
+        /// <summary>
+        /// generate values 0.5..0 gaus probability
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        private double PhiGausian(double x)
+        {
+            // constants
+            const double a1 = 0.254829592;
+            const double a2 = -0.284496736;
+            const double a3 = 1.421413741;
+            const double a4 = -1.453152027;
+            const double a5 = 1.061405429;
+            const double p = 0.3275911;
+           
+
+            // Save the sign of x
+            int sign = 1;
+            if (x < 0)
+                sign = -1;
+            x = Math.Abs(x) / _sqrt2;
+
+            // A&S formula 7.1.26
+            double t = 1.0 / (1.0 + p * x);
+            double y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * FastExp(-x * x);
+
+            return 0.5 * (1.0 + sign * y);
+        }
+
+        public double GetRandomNumberDoubleGausisan()
+        {
+            double x = GetRandomNumberDouble()*6.0-3.0;
+            double g = PhiGausian(x);
+            return g;
+        }
+
 
         /// <summary>
         /// 
@@ -206,6 +256,26 @@ namespace BonesLib.Utils
         {
             return (value ^ (value >> 31)) - (value >> 31);
 
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float FastExp(float val)
+        {
+            float x = 1.0f + val / 1024;
+            x *= x; x *= x; x *= x; x *= x;
+            x *= x; x *= x; x *= x; x *= x;
+            x *= x; x *= x;
+            return x;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double FastExp(double val)
+        {
+            double x = 1.0 + val / 1024.0;
+            x *= x; x *= x; x *= x; x *= x;
+            x *= x; x *= x; x *= x; x *= x;
+            x *= x; x *= x;
+            return x;
         }
     }
 }

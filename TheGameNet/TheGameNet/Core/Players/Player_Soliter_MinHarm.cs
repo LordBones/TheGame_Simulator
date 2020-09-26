@@ -43,7 +43,7 @@ namespace TheGameNet.Core.Players
 
             MoveToPlay forMove = GetMinHarm_Move(possibleToPlay, board);
 
-            if (!forMove.IsNotMove && board.CardPlaceholders[forMove.DeckIndex].Get_CardDiff(forMove.Card) < 2)
+            if (!forMove.IsNotMove && board.Get_PH_ULight(forMove.DeckIndex).Get_CardDiff(forMove.Card) < 2)
             {
                 forMove = Get_JumpFromHandToPlay(board, handCards, forMove);
                 return forMove;
@@ -65,7 +65,7 @@ namespace TheGameNet.Core.Players
 
         private MoveToPlay Get_JumpFromHandToPlay(GameBoard board, Span<byte> handCards, MoveToPlay forMove)
         {
-            byte cardJump = board.CardPlaceholders[forMove.DeckIndex].Get_CardJump(forMove.Card);
+            byte cardJump = board.Get_PH_ULight(forMove.DeckIndex).Get_CardJump(forMove.Card);
 
             int index = handCards.IndexOf(cardJump);
 
@@ -87,7 +87,7 @@ namespace TheGameNet.Core.Players
             for (int i = 0; i < moves.Count; i++)
             {
                 MoveToPlay move = moves[i];
-                int diff = board.CardPlaceholders[move.DeckIndex].Get_CardDiff(move.Card);
+                int diff = board.Get_PH_ULight(move.DeckIndex).Get_CardDiff(move.Card);
 
                 if (diff < bestDiff)
                 {

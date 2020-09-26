@@ -9,6 +9,7 @@ namespace BonesLib.ForwardNN
 {
     public class ForwardNN
     {
+        private const int CONST_MaxLinkPerNeuron = 10;
         private const float CONST_Bias = 1.0f;
 
         public short [] Topology { get; private set; }
@@ -26,26 +27,45 @@ namespace BonesLib.ForwardNN
 
         }
 
+        public int GetCountWeights()
+        {
+            int result = 0;
+            foreach(var item in Layers)
+            {
+                result += item.NeuronLinks.Length;
+            }
+
+            return result;
+        }
+
         public void SetTopology(short  [] topology)
         {
             Topology = topology.ToArray();
             _layers = new NNLayer[topology.Length +1];
             short linksPerNeuron = (short)Inputs.Length;
+            short countLastNeurons = (short)Inputs.Length;
 
-            for(int i = 0;i < topology.Length; i++)
+            if (linksPerNeuron > CONST_MaxLinkPerNeuron) 
+                linksPerNeuron = CONST_MaxLinkPerNeuron;
+
+            for (int i = 0;i < topology.Length; i++)
             {
                 ref var layer = ref _layers[i];
 
                 layer = new NNLayer(topology[i], linksPerNeuron);
-                layer.InitLinks();
+                layer.InitLinks(countLastNeurons);
 
+                countLastNeurons = topology[i];
                 linksPerNeuron = topology[i];
+
+                if (linksPerNeuron > CONST_MaxLinkPerNeuron)
+                    linksPerNeuron = CONST_MaxLinkPerNeuron;
             }
 
 
             ref var layerEnd = ref _layers[_layers.Length - 1];
             layerEnd = new NNLayer(Outputs.Length, linksPerNeuron);
-            layerEnd.InitLinks();
+            layerEnd.InitLinks(countLastNeurons);
         }
 
         public ForwardNN Clone()
@@ -111,7 +131,7 @@ namespace BonesLib.ForwardNN
                 }
 
                 ref var neuron = ref layer.Neurons[n];
-                neuron.Output = neuron.ActivationFunction_tanh(sum);
+                neuron.Output = neuron.ActivationFunction_ReLu(sum);
             }
         }
 
@@ -134,7 +154,7 @@ namespace BonesLib.ForwardNN
                     }
 
                     ref var neuron = ref layer.Neurons[n];
-                    neuron.Output = neuron.ActivationFunction_tanh(sum);
+                    neuron.Output = neuron.ActivationFunction_ReLu(sum);
                 }
             }
         }
@@ -175,16 +195,29 @@ namespace BonesLib.ForwardNN
         {
             Neurons = new Neuron[countNeurons];
             NeuronLinks = new NeuronLink[countLinksPerNeuron * countNeurons];
+            
             CountLinksPerNeuron = countLinksPerNeuron;
         }
 
-        public void InitLinks()
+        public void InitLinks(int totalBackNeurons)
         {
             ushort idCounter = 0;
+            ushort idStartPos = 0;
             for (int i = 0; i < NeuronLinks.Length; i++)
             {
-                if (idCounter == CountLinksPerNeuron)
-                    idCounter = 0;
+                if (idCounter == CountLinksPerNeuron+idStartPos)
+                {
+                    if(idStartPos + CountLinksPerNeuron >= totalBackNeurons)
+                    {
+                        idStartPos = 0;
+                    }
+                    else
+                    {
+                        idStartPos++;
+                    }
+
+                    idCounter = idStartPos;
+                }
 
                 NeuronLinks[i].BackNeuronIndex = idCounter;
 
@@ -213,12 +246,25 @@ namespace BonesLib.ForwardNN
             return (float)((eSum - eSumNeg) / (eSum + eSumNeg));
         }
 
+        
         public float ActivationFunction_tanh(float sum)
         {
             float eSum = FastExp(sum);
             float eSumNeg = FastExp(-sum);
 
             return ((eSum - eSumNeg) / (eSum + eSumNeg));
+        }
+
+        public float ActivationFunction_ReLu(float sum)
+        {
+            return (sum < 0) ? 0.01f*sum : sum;
+            
+        }
+
+        public float ActivationFunction_Swish(float sum)
+        {
+            return sum/(1+ FastExp(-0.5f*sum));
+            //return (float)(sum/(1+ Math.Exp(-sum)));
         }
 
         public float FastExp(float val)

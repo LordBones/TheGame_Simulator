@@ -1,8 +1,7 @@
-﻿using BonesLib.ForwardNN;
+﻿using BonesLib.FlexibleForwardNN;
 using BonesLib.Utils;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,45 +9,45 @@ using TheGameNet.Core.Players;
 
 namespace TheGameNet.Core.FNN
 {
-    class FNN_Evolve
+    public class FlexibleFNN_Evolve
     {
         private float _mutationChance;
         private int _populationSize;
 
-        private FixList<ForwardNN> _fnn_pool;
+        private FixList<FlexibleForwardNN> _fnn_pool;
 
-        private FNN_LayerManipulator _fnn_manipulator;
+        private FlexibleFNN_LayerManipulator _fnn_manipulator;
 
         private int _best_fitness;
-        private ForwardNN _best_fnn;
+        private FlexibleForwardNN _best_fnn;
 
         private int[] _pop_Fitness;
-        private ForwardNN[] _pop_generation;
-        private ForwardNN[] _pop_generation_tmp;
+        private FlexibleForwardNN[] _pop_generation;
+        private FlexibleForwardNN[] _pop_generation_tmp;
 
         private RandomGen _rnd;
 
         private EvolveProgress _evolveProgress = new EvolveProgress(10);
-       
 
-        public FNN_Evolve(float mutation,int populationSize)
+
+        public FlexibleFNN_Evolve(float mutation, int populationSize)
         {
             _mutationChance = mutation;
             _populationSize = populationSize;
             _pop_Fitness = new int[populationSize];
-            _pop_generation = new ForwardNN[populationSize];
-            _pop_generation_tmp = new ForwardNN[populationSize];
-            _fnn_manipulator = new FNN_LayerManipulator(0);
+            _pop_generation = new FlexibleForwardNN[populationSize];
+            _pop_generation_tmp = new FlexibleForwardNN[populationSize];
+            _fnn_manipulator = new FlexibleFNN_LayerManipulator(0);
             _rnd = new RandomGen(0);
 
             _decksForTest = new byte[_deckBatchSize][];
 
-            
+
 
         }
 
 
-        public void RunEvolution(int generations, ForwardNN fnn, System.IO.StreamWriter evolveProgress)
+        public void RunEvolution(int generations, FlexibleForwardNN fnn, System.IO.StreamWriter evolveProgress)
         {
             evolveProgress = evolveProgress ?? System.IO.StreamWriter.Null;
             _evolveProgress.Clear();
@@ -72,13 +71,13 @@ namespace TheGameNet.Core.FNN
 
         }
 
-        private void CreatePoolFnn(ForwardNN fnn)
+        private void CreatePoolFnn(FlexibleForwardNN fnn)
         {
-            
 
-            _fnn_pool = new FixList<ForwardNN>(_populationSize * 2+1);
 
-            for(int i = 0;i < _fnn_pool.MaxSize; i++)
+            _fnn_pool = new FixList<FlexibleForwardNN>(_populationSize * 2 + 1);
+
+            for (int i = 0; i < _fnn_pool.MaxSize; i++)
             {
                 _fnn_pool.Add(fnn.Clone());
             }
@@ -90,9 +89,9 @@ namespace TheGameNet.Core.FNN
             }
         }
 
-        private void InitStartPop(ForwardNN fnn)
+        private void InitStartPop(FlexibleForwardNN fnn)
         {
-            for(int i  = 0; i < _populationSize; i++)
+            for (int i = 0; i < _populationSize; i++)
             {
                 var newModelNN = _fnn_pool.Pop();
                 fnn.CopyTo(newModelNN);
@@ -105,16 +104,16 @@ namespace TheGameNet.Core.FNN
 
 
 
-        private void ApplyMutation(ForwardNN fnn)
+        private void ApplyMutation(FlexibleForwardNN fnn)
         {
 
-            int countMutations = 
-            //    1;
-             (fnn.GetCountWeights() / 50) + 1;
+            int countMutations =
+                 1;
+             //(fnn.Layers.NeuronLinks.Length / 50) + 1;
 
             for (int i = 0; i < countMutations; i++)
             {
-                _fnn_manipulator.MutateWeight(fnn.Layers);
+                _fnn_manipulator.MutateWeight(fnn.Layers, countMutations);
             }
         }
 
@@ -122,7 +121,7 @@ namespace TheGameNet.Core.FNN
 
         private static string[] namePlayers = new string[] { "ferda" };
 
-        public ForwardNN Best_fnn { get => _best_fnn; set => _best_fnn = value; }
+        public FlexibleForwardNN Best_fnn { get => _best_fnn; set => _best_fnn = value; }
         public int Best_fitness { get => _best_fitness; set => _best_fitness = value; }
 
 
@@ -130,22 +129,22 @@ namespace TheGameNet.Core.FNN
         private byte[][] _decksForTest;
         private int _deckBatchDurability = 100;
         private int _deckBatchDurabilityCounter = 0;
-        private int _elitismCount = 4;
+        private int _elitismCount = 8;
 
         DeckGenerator deckGen = new DeckGenerator(100, 0);
         private void ComputeFitnesses()
         {
             CheckAndGensDeck();
 
-            var players = RoundSimulations.RoundSimulator.CreatePlayers<Player_FNN>(namePlayers);    
+            var players = RoundSimulations.RoundSimulator.CreatePlayers<Player_FlexibleFNN>(namePlayers);
             tgs.SetPlayers(players);
-            
+
             //var deck = deckGen.Get_CreatedSuffledDeck();
-            for (int i =0; i < _populationSize; i++)
+            for (int i = 0; i < _populationSize; i++)
             {
-                foreach(var player in players)
+                foreach (var player in players)
                 {
-                    ((Player_FNN)player).Fnn = _pop_generation[i];
+                    ((Player_FlexibleFNN)player).Fnn = _pop_generation[i];
                 }
 
                 int fittness = 0;
@@ -161,9 +160,9 @@ namespace TheGameNet.Core.FNN
 
         private void CheckAndGensDeck()
         {
-            if(_deckBatchDurabilityCounter == _deckBatchDurability)
+            if (_deckBatchDurabilityCounter == _deckBatchDurability)
             {
-                for(int i =0;i < _decksForTest.Length; i++)
+                for (int i = 0; i < _decksForTest.Length; i++)
                 {
                     _decksForTest[i] = deckGen.Get_CreatedSuffledDeck();
                 }
@@ -207,7 +206,7 @@ namespace TheGameNet.Core.FNN
 
         private void PrintProgress(System.IO.StreamWriter progressOutput)
         {
-            if(progressOutput != System.IO.StreamWriter.Null)
+            if (progressOutput != System.IO.StreamWriter.Null)
             {
                 _evolveProgress.PrintProgress(progressOutput);
             }
@@ -218,7 +217,7 @@ namespace TheGameNet.Core.FNN
             int sumFitness = Helper_GetSumFitness();
 
             GenerateNewPop_ApplyElitism();
-            
+
 
             for (int p = _elitismCount; p < _populationSize; p++)
             {
@@ -231,14 +230,14 @@ namespace TheGameNet.Core.FNN
                 _pop_generation_tmp[p] = tmpFnn;
             }
 
-            for(int i = 0;i < _pop_generation.Length; i++)
+            for (int i = 0; i < _pop_generation.Length; i++)
             {
                 _fnn_pool.Add(_pop_generation[i]);
 
                 _pop_generation[i] = _pop_generation_tmp[i];
                 _pop_generation_tmp[i] = null;
             }
-            
+
         }
 
         private void GenerateNewPop_ApplyElitism()
@@ -246,7 +245,7 @@ namespace TheGameNet.Core.FNN
             Span<int> elites = stackalloc int[_elitismCount];
             FixListSpan<int> elitesList = new FixListSpan<int>(elites);
 
-            for(int i =0;i < _elitismCount; i++)
+            for (int i = 0; i < _elitismCount; i++)
             {
                 int bestIndex = Helper_GetBestFitnessIndex(elitesList);
                 if (bestIndex < 0)
@@ -257,7 +256,7 @@ namespace TheGameNet.Core.FNN
                 _pop_generation[bestIndex].CopyTo(tmpFnn);
                 _pop_generation_tmp[i] = tmpFnn;
             }
-           
+
         }
 
         private int Helper_GetIndexByFitnessNumber(int fitness)
@@ -271,7 +270,7 @@ namespace TheGameNet.Core.FNN
                 {
                     return i;
                 }
-                
+
             }
 
             return -1;
@@ -280,14 +279,14 @@ namespace TheGameNet.Core.FNN
         private int Helper_GetSumFitness()
         {
             int sum = 0;
-            for(int i =0;i < _pop_Fitness.Length; i++)
+            for (int i = 0; i < _pop_Fitness.Length; i++)
             {
                 sum += _pop_Fitness[i];
             }
             return sum;
         }
 
-        
+
         private int Helper_GetBestFitnessIndex(FixListSpan<int> excludeElites)
         {
             float bestFittness = float.MaxValue;
@@ -309,6 +308,7 @@ namespace TheGameNet.Core.FNN
         }
         //CreateInstanceBinder 
 
-        
+
     }
 }
+

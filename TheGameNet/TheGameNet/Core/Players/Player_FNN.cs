@@ -16,6 +16,8 @@ namespace TheGameNet.Core.Players
 
         private BoardMini _tmpBoardMini = null;
 
+        public ForwardNN Fnn { get => _fnn; set => _fnn = value; }
+
         public Player_FNN()
         {
             Init();
@@ -28,14 +30,14 @@ namespace TheGameNet.Core.Players
 
         private void Init()
         {
-            _fnn = new ForwardNN(104, 104);
-            _fnn.SetTopology(new short[] { 20 });
-            
+            _fnn = new ForwardNN(105, 104);
+            _fnn.SetTopology(new short[] { 50,40,40,40,40,40,40 });
+           
         }
 
         public override void StartPlay(GameBoard board, Span<byte> handCards)
         {
-            _tmpBoardMini = (_tmpBoardMini != null) ? board.CreateBoardMini(this.Id, _tmpBoardMini) : board.CreateBoardMini(this.Id);
+           // _tmpBoardMini = (_tmpBoardMini != null) ? board.CreateBoardMini(this.Id, _tmpBoardMini) : board.CreateBoardMini(this.Id);
 
         }
 
@@ -46,7 +48,7 @@ namespace TheGameNet.Core.Players
 
         public override MoveToPlay Decision_CardToPlay(GameBoard board, Span<byte> handCards)
         {
-            var boardMini = board.CreateBoardMini(this.Id, _tmpBoardMini);
+          //  var boardMini = board.CreateBoardMini(this.Id, _tmpBoardMini);
 
             Span<MoveToPlay> flsa = stackalloc MoveToPlay[40];
             FixListSpan<MoveToPlay> possibleToPlay = new FixListSpan<MoveToPlay>(flsa);
@@ -81,9 +83,12 @@ namespace TheGameNet.Core.Players
             _fnn.Inputs[2] = board.CardPlaceholders[2].Get_TopCard() / 100.0f;
             _fnn.Inputs[3] = board.CardPlaceholders[3].Get_TopCard() / 100.0f;
 
-            for(int i = 0;i < handCards.Length; i++)
+            
+            _fnn.Inputs[4] = (byte)board.Get_PlayerBoardData(playerId).CountNeedPlayCard/2.0f;
+            int index = 5;
+            for (int i = 0;i < handCards.Length; i++)
             {
-                _fnn.Inputs[handCards[i] + 4] = 1.0f;
+                _fnn.Inputs[handCards[i] + index] = 1.0f;
             }
         }
 
@@ -95,8 +100,19 @@ namespace TheGameNet.Core.Players
             for (int i =0;i < possibleToPlay.Length;i++)
             {
                 var moveToPlay = possibleToPlay[i];
-                float valueWeight = _fnn.Outputs[moveToPlay.DeckIndex] *
-                 _fnn.Outputs[moveToPlay.Card + 4];
+
+                float valCoef = _fnn.Outputs[moveToPlay.Card + 4];
+                if (valCoef < 0.9f)
+                    valCoef = 0;
+
+
+                float valCoefDeck = _fnn.Outputs[moveToPlay.DeckIndex];
+                //if (valCoefDeck < 0.0f)
+                //    valCoefDeck = 0;
+
+
+                float valueWeight = valCoefDeck *
+                 valCoef;
 
                 if(bestValue < valueWeight)
                 {

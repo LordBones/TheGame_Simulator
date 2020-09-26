@@ -33,9 +33,12 @@ namespace TheGameNet
             //Testings.RunSimulate_Compare();
             //Testings.RunSimulate_Test_PMP();
 
+            //Testings.Run_FNN_Teach();
+            Testings.Run_FlexibleFNN_Teach();
 
-            Testings.Run_FNN_Teach();
+            //Testings.FlexibleFNN_Testing();
             //Testings.FNN_Testing();
+
             //Testings.Run_QLearning_Teach();
             //Testings.Run_GA_Learn();
 
@@ -46,8 +49,12 @@ namespace TheGameNet
 
             Console.WriteLine(string.Format("{0,000} s ", performanceCounter.Elapsed.TotalSeconds));
             Console.WriteLine($"GC 0: {GC.CollectionCount(0),6} 1:{GC.CollectionCount(1),6} 2:{GC.CollectionCount(2),6}");
-            Trace.WriteLine(string.Format("{0,000} s ", performanceCounter.Elapsed.TotalSeconds));
-            Trace.WriteLine($"GC 0: {GC.CollectionCount(0),6} 1:{GC.CollectionCount(1),6} 2:{GC.CollectionCount(2),6}");
+
+            if (Trace.Listeners.Count > 0)
+            {
+                Trace.WriteLine(string.Format("{0,000} s ", performanceCounter.Elapsed.TotalSeconds));
+                Trace.WriteLine($"GC 0: {GC.CollectionCount(0),6} 1:{GC.CollectionCount(1),6} 2:{GC.CollectionCount(2),6}");
+            }
             //Console.Write("pressEnter#");
             //Console.ReadLine();
             

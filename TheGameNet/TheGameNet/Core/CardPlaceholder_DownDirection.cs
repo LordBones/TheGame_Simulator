@@ -97,7 +97,7 @@ namespace TheGameNet.Core
 
         private byte _phantomPeakCard;
 
-        private readonly PlayedCards _playedCards; 
+        private PlayedCards _playedCards; 
 
         public CardPlaceholder_DownDirection_Smart(PlayedCards playedCards) :base()
         {

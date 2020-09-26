@@ -152,7 +152,7 @@ namespace TheGameNet.Core.Players
 
             float featureReward = 0.0f;
             bool ignoreFeatureReward = false;
-            if (board.PlayersData[Id].CountNeedPlayCard >= 0)
+            if (board.Get_PlayerBoardData(Id).CountNeedPlayCard >= 0)
             {
                 featureReward = Get_QLearning_FeatureReward_Highest(boardMini, qGameStateIndex, possibleToPlay.GetSpan());
             }

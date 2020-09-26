@@ -6,6 +6,8 @@ using TheGameNet.Utils;
 using TheGameNet.Core.Players;
 using TheGameNet.Core.GameBoardMini_Solver;
 using BonesLib.Utils;
+using TheGameNet.Core.GameBoardMini;
+using System.Runtime.CompilerServices;
 
 namespace TheGameNet.Core
 {
@@ -19,6 +21,11 @@ namespace TheGameNet.Core
 
         private readonly PlayedCards _playedCards;
         public CardPlaceholder[] CardPlaceholders = new CardPlaceholder[4];
+       // public CardPlaceholderLight[] CardPlaceholdersLight = new CardPlaceholderLight[4];
+        public CardPlaceholderULight[] CardPlaceholdersULight = new CardPlaceholderULight[4];
+        
+
+
         //public PlayersHintsPlaceholder[] CardPlaceholdersHints = new PlayersHintsPlaceholder[4];
 
 
@@ -36,14 +43,16 @@ namespace TheGameNet.Core
         private int _totalCardsForPlay;
         public int TotalCardsForPlay { get { return _totalCardsForPlay; } set { _totalCardsForPlay = value; } }
 
-        public PlayerBoardData Get_PlayerBoardData(byte id)
+        public ref PlayerBoardData Get_PlayerBoardData(int id)
         {
-            foreach(var item in PlayersData)
+            for(int i = 0;i < PlayersData.Length; i++)
             {
-                if (item.Id == id) return item;
+                ref var item = ref PlayersData[i];
+            
+                if (item.Id == id) return ref item;
             }
 
-            return null;
+            throw new Exception("not allowed");
         }
         public int Get_CurrentMinCardForPlay { get { return (this.AvailableCards.Count > 0) ? this.MinCardForPlay : 1; } }
 
@@ -51,16 +60,37 @@ namespace TheGameNet.Core
         {
             _playedCards = new PlayedCards();
 
-            this.CardPlaceholders[0] = new CardPlaceholder_DownDirection_Smart(_playedCards);
-            this.CardPlaceholders[1] = new CardPlaceholder_DownDirection_Smart(_playedCards);
-            this.CardPlaceholders[2] = new CardPlaceholder_UpDirection_Smart(_playedCards);
-            this.CardPlaceholders[3] = new CardPlaceholder_UpDirection_Smart(_playedCards);
+            //this.CardPlaceholders[0] = new CardPlaceholder_DownDirection_Smart(_playedCards);
+            //this.CardPlaceholders[1] = new CardPlaceholder_DownDirection_Smart(_playedCards);
+            //this.CardPlaceholders[2] = new CardPlaceholder_UpDirection_Smart(_playedCards);
+            //this.CardPlaceholders[3] = new CardPlaceholder_UpDirection_Smart(_playedCards);
+
+            this.CardPlaceholders[0] = new CardPlaceholder_DownDirection();
+            this.CardPlaceholders[1] = new CardPlaceholder_DownDirection();
+            this.CardPlaceholders[2] = new CardPlaceholder_UpDirection();
+            this.CardPlaceholders[3] = new CardPlaceholder_UpDirection();
+
+            //this.CardPlaceholdersLight[0] = new CardPlaceholderLight_Down();
+            //this.CardPlaceholdersLight[1] = new CardPlaceholderLight_Down();
+            //this.CardPlaceholdersLight[2] = new CardPlaceholderLight_Up();
+            //this.CardPlaceholdersLight[3] = new CardPlaceholderLight_Up();
+
+            this.CardPlaceholdersULight[0] = new CardPlaceholderULight(false);
+            this.CardPlaceholdersULight[1] = new CardPlaceholderULight(false);
+            this.CardPlaceholdersULight[2] = new CardPlaceholderULight(true);
+            this.CardPlaceholdersULight[3] = new CardPlaceholderULight(true);
+
+
 
             _totalCardsForPlay = 98;
            
             
         }
 
+        public ref CardPlaceholderULight Get_PH_ULight(int index)
+        {
+            return ref CardPlaceholdersULight[index];
+        }
         
 
         public void InitPlayers(ICollection<Player> players)
@@ -95,20 +125,26 @@ namespace TheGameNet.Core
 
         public void Clear()
         {
-            for(int i = 0; i < CardPlaceholders.Length; i++)
+            CardPlaceholders[0].Clear();
+            CardPlaceholders[1].Clear();
+            CardPlaceholders[2].Clear();
+            CardPlaceholders[3].Clear();
+            //CardPlaceholdersLight[i].Clear();
+            Get_PH_ULight(0).Clear();
+            Get_PH_ULight(1).Clear();
+            Get_PH_ULight(2).Clear();
+            Get_PH_ULight(3).Clear();
+
+            for (int i = 0;i< this.Players.Length; i++)
             {
-                CardPlaceholders[i].Clear();
+                this.Players_Cards.Get(i).Clear();
             }
 
-            for(int i = 0;i< this.Players.Length; i++)
-            {
-                this.Players_Cards[i].Clear();
-            }
-
-            for (int i = 0; i < this.Players_Cards.PlayerCardsCount.Length; i++)
+            var pcc = this.Players_Cards.PlayerCardsCount;
+            for (int i = 0; i < pcc.Length; i++)
             {
 
-                this.Players_Cards.PlayerCardsCount[i] = 0;
+                pcc[i] = 0;
             }
 
             Player_Order.Clear();
@@ -118,12 +154,12 @@ namespace TheGameNet.Core
 
         public Span<byte> Get_PlayerHand(byte playerId)
         {
-            return this.Players_Cards[playerId];
+            return this.Players_Cards.Get(playerId);
         }
 
         public bool PlayerHand_IsEmpty(byte playerId)
         {
-            return this.Players_Cards[playerId].Length == 0;
+            return this.Players_Cards.Get(playerId).Length == 0;
         }
 
         public void Set_AvailableCardsDeck(byte [] deckCards)
@@ -209,8 +245,10 @@ namespace TheGameNet.Core
                 {
                     byte playerId = this.Players[p].Id;
 
-                    Span<byte> playerCards = this.Players_Cards[playerId];
-                    for(int c = 0;c< playerCards.Length; c++)
+                    Span<byte> playerCards = this.Players_Cards.Get(playerId);
+                    int playerCardsLength = playerCards.Length;
+
+                    for (int c = 0;c< playerCardsLength; c++)
                     {
                         int diff = placeholder.Get_CardDiff(playerCards[c]);
                         //RangeHint hint = DiffToRangeHint(diff);
@@ -236,18 +274,28 @@ namespace TheGameNet.Core
 
         public bool Can_PlayerPlay(byte playerId)
         {
-            Span<byte> hand = this.Players_Cards[playerId];
+            Span<byte> hand = this.Players_Cards.Get(playerId);
+            int handLength = hand.Length;
 
-            for(int i  = 0;i < hand.Length; i++)
+            for (int i = 0; i < handLength; i++)
             {
                 var card = hand[i];
 
-                for (int d = 0;d< this.CardPlaceholders.Length; d++)
+                if (this.Get_PH_ULight(0).CanPlaceCard(card))
                 {
-                    if (this.CardPlaceholders[d].CanPlaceCard(card))
-                    {
-                        return true;
-                    }
+                    return true;
+                }
+                if (this.Get_PH_ULight(1).CanPlaceCard(card))
+                {
+                    return true;
+                }
+                if (this.Get_PH_ULight(2).CanPlaceCard(card))
+                {
+                    return true;
+                }
+                if (this.Get_PH_ULight(3).CanPlaceCard(card))
+                {
+                    return true;
                 }
             }
 
@@ -263,12 +311,13 @@ namespace TheGameNet.Core
 
             result.Clear();
 
-
-            for (int d = 0; d < this.CardPlaceholders.Length; d++)
+            int handLength = hand.Length;
+            for (int d = 0; d < this.CardPlaceholdersULight.Length; d++)
             {
-                var cardPlaceholder = this.CardPlaceholders[d];
+                ref var cardPlaceholder = ref this.Get_PH_ULight(d);
 
-                for (int i = 0; i < hand.Length; i++)
+                
+                for (int i = 0; i < handLength; i++)
                 {
                     var cardHand = hand[i];
                     if (cardPlaceholder.CanPlaceCard(cardHand))
@@ -285,12 +334,12 @@ namespace TheGameNet.Core
         {
             int index = 0;
 
-
-            for (int d = 0; d < this.CardPlaceholders.Length; d++)
+            int handLength = hand.Length;
+            for (int d = 0; d < this.CardPlaceholdersULight.Length; d++)
             {
-                var cardPlaceholder = this.CardPlaceholders[d];
+                ref var cardPlaceholder = ref this.Get_PH_ULight(d);
 
-                for (int i = 0; i < hand.Length; i++)
+                for (int i = 0; i < handLength; i++)
                 {
                     var cardHand = hand[i];
                     if (cardPlaceholder.CanPlaceCard(cardHand))
@@ -306,23 +355,50 @@ namespace TheGameNet.Core
 
         public void Get_PossibleToPlay(Span<byte> hand, ref FixListSpan<MoveToPlay> result)
         {
-            for (int d = 0; d < this.CardPlaceholders.Length; d++)
-            {
-                var cardPlaceholder = this.CardPlaceholders[d];
+            int lengthHand = hand.Length;
 
-                for (int i = 0; i < hand.Length; i++)
+            for (int i = 0; i < lengthHand; i++)
+            {
+                var cardHand = hand[i];
+                if (Get_PH_ULight(0).CanPlaceCard(cardHand))
+                {
+                    result.Add(new MoveToPlay(cardHand, (sbyte)0));
+                }
+                if (Get_PH_ULight(1).CanPlaceCard(cardHand))
+                {
+                    result.Add(new MoveToPlay(cardHand, (sbyte)1));
+                }
+                if (Get_PH_ULight(2).CanPlaceCard(cardHand))
+                {
+                    result.Add(new MoveToPlay(cardHand, (sbyte)2));
+                }
+                if (Get_PH_ULight(3).CanPlaceCard(cardHand))
+                {
+                    result.Add(new MoveToPlay(cardHand, (sbyte)3));
+                }
+            }
+        }
+
+        public void Get_PossibleToPlayOld(Span<byte> hand, ref FixListSpan<MoveToPlay> result)
+        {
+            int lengthHand = hand.Length;
+            for (int d = 0; d < this.CardPlaceholdersULight.Length; d++)
+            {
+                ref var cardPlaceholder = ref this.Get_PH_ULight(d);
+
+                for (int i = 0; i < lengthHand; i++)
                 {
                     var cardHand = hand[i];
                     if (cardPlaceholder.CanPlaceCard(cardHand))
                     {
-                        result.Add( new MoveToPlay(cardHand, (sbyte)d));
-                        
+                        result.Add(new MoveToPlay(cardHand, (sbyte)d));
+
                     }
                 }
             }
         }
 
-        
+
 
         public bool Get_HasCard(List<byte> hand, byte card)
         {
@@ -336,7 +412,8 @@ namespace TheGameNet.Core
         }
         public bool Get_HasCard(Span<byte> hand, byte card)
         {
-            for (int i = 0; i < hand.Length; i++)
+            int handLength = hand.Length;
+            for (int i = 0; i < handLength; i++)
             {
                 if (hand[i] == card) return true;
 
@@ -350,13 +427,16 @@ namespace TheGameNet.Core
             try
             {
                 this.CardPlaceholders[move.DeckIndex].PlaceCard(move.Card);
+                //this.CardPlaceholdersLight[move.DeckIndex].PlaceCard(move.Card);
+                Get_PH_ULight(move.DeckIndex).PlaceCard(move.Card);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 int i = 0;
+                throw;
             }
 
-            int cardIndex = this.Players_Cards[player.Id].IndexOf(move.Card);
+            int cardIndex = this.Players_Cards.Get(player.Id).IndexOf(move.Card);
             
             this.Players_Cards.Remove(player.Id,cardIndex);
 
@@ -404,6 +484,8 @@ namespace TheGameNet.Core
 
             return result;
         }
+
+        
 
         internal BoardMini CreateBoardMini(byte playerId, BoardMini boardMini)
         {
@@ -474,7 +556,7 @@ namespace TheGameNet.Core
         }
     }
 
-   public class PlayerBoardData
+   public struct PlayerBoardData
     {
         public byte Id;
         public sbyte CountNeedPlayCard;
@@ -565,9 +647,16 @@ namespace TheGameNet.Core
             PlayerCardsCount = new byte[countPlayers];
         }
 
+
         public Span<byte> this[int i]
         {
             get { return cards.AsSpan(i * CONST_MaxCardsPerPlayer, PlayerCardsCount[i]); }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Span<byte> Get(int i)
+        {
+            return cards.AsSpan(i * CONST_MaxCardsPerPlayer, PlayerCardsCount[i]); 
         }
 
         public void Add(int playerIndex, byte card)

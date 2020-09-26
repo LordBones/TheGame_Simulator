@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BonesLib.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ using TheGameNet.Utils;
 
 namespace TheGameNet.Core
 {
-    internal class BoardMini
+    public class BoardMini
     {
         public CardPlaceholderLight[] CardPlaceholders = new CardPlaceholderLight[4];
 
@@ -147,6 +148,24 @@ namespace TheGameNet.Core
 
             result = min ;
             return result;
+        }
+
+        public void Get_PossibleToPlay(Span<byte> hand, ref FixListSpan<MoveToPlay> result)
+        {
+            for (int d = 0; d < this.CardPlaceholders.Length; d++)
+            {
+                var cardPlaceholder = this.CardPlaceholders[d];
+
+                for (int i = 0; i < hand.Length; i++)
+                {
+                    var cardHand = hand[i];
+                    if (cardPlaceholder.CanPlaceCard(cardHand))
+                    {
+                        result.Add(new MoveToPlay(cardHand, (sbyte)d));
+
+                    }
+                }
+            }
         }
     }
 }
