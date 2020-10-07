@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "ZhEZElq1itNf6EMW8SnEY3J/iWYMy3f3gRWdLBX4o5X++GXhPWtUvfdaTPfz4+JRsbXmQL69Zl2x2MRrJB46ow==",
+  "success": true,
+  "projectFilePath": "D:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNet\\BonesLib\\BonesLib.csproj",
+  "expectedPackageFiles": [
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512",
+    "C:\\Users\\bones\\.nuget\\packages\\system.buffers\\4.5.1\\system.buffers.4.5.1.nupkg.sha512",
+    "C:\\Users\\bones\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
+    "C:\\Users\\bones\\.nuget\\packages\\system.numerics.vectors\\4.4.0\\system.numerics.vectors.4.4.0.nupkg.sha512",
+    "C:\\Users\\bones\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\4.5.3\\system.runtime.compilerservices.unsafe.4.5.3.nupkg.sha512"
+  ],
+  "logs": []
+}

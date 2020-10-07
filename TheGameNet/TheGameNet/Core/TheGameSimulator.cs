@@ -4,6 +4,7 @@ using System.Text;
 using System.Diagnostics;
 using System.IO;
 using TheGameNet.Core.Players;
+using System.Runtime.Remoting.Messaging;
 
 namespace TheGameNet.Core
 {
@@ -15,6 +16,8 @@ namespace TheGameNet.Core
         private System.IO.StreamWriter _gameRunLog = null;
 
         public Player [] Players => _gameBoard.Players;
+
+        public GameBoard GameBoard => _gameBoard;
 
         public TheGameSimulator(System.IO.StreamWriter gameRunLog)
         {
@@ -58,9 +61,10 @@ namespace TheGameNet.Core
 
             int playersCardsCountTotal = 0;
             var pcc = this._gameBoard.Players_Cards.PlayerCardsCount;
-            foreach (var item in pcc)
+
+            for (int i=0; i < pcc.Length;i++ )
             {
-                playersCardsCountTotal += item;
+                playersCardsCountTotal += pcc[i];
             }
 
                 byte[] leftCards = new byte[playersCardsCountTotal + this._gameBoard.AvailableCards.Count+1];
@@ -82,9 +86,10 @@ namespace TheGameNet.Core
 
             gameResult += this._gameBoard.AvailableCards.Count;
 
-            foreach (var item in this._gameBoard.AvailableCards)
+            var acEnum = this._gameBoard.AvailableCards.GetEnumerator();
+            while (acEnum.MoveNext())
             {
-                leftCards[leftCardsIndex] = item;
+                leftCards[leftCardsIndex] = acEnum.Current;
                 leftCardsIndex++;
             }
 

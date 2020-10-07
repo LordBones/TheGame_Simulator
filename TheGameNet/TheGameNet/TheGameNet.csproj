@@ -85,6 +85,7 @@
     <Compile Include="Core\CardPlaceholder_DownDirection.cs" />
     <Compile Include="Core\CardPlaceholder_UpDirection.cs" />
     <Compile Include="Core\DeckGenerator.cs" />
+    <Compile Include="Core\DecksTestBatch.cs" />
     <Compile Include="Core\FNN\EvolveProgress.cs" />
     <Compile Include="Core\FNN\FlexibleFNN_Evolve.cs" />
     <Compile Include="Core\FNN\FNN_Evolve.cs" />

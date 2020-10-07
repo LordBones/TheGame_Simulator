@@ -47,12 +47,18 @@ namespace TheGameNet
             //Console.WriteLine("Hello World!");
             performanceCounter.Stop();
 
+            var upt = Process.GetCurrentProcess().UserProcessorTime.TotalSeconds;
+
             Console.WriteLine(string.Format("{0,000} s ", performanceCounter.Elapsed.TotalSeconds));
+            Console.WriteLine(string.Format("User {0,000} s ", upt));
+
             Console.WriteLine($"GC 0: {GC.CollectionCount(0),6} 1:{GC.CollectionCount(1),6} 2:{GC.CollectionCount(2),6}");
 
             if (Trace.Listeners.Count > 0)
             {
                 Trace.WriteLine(string.Format("{0,000} s ", performanceCounter.Elapsed.TotalSeconds));
+                Trace.WriteLine(string.Format("User {0,000} s ", upt));
+
                 Trace.WriteLine($"GC 0: {GC.CollectionCount(0),6} 1:{GC.CollectionCount(1),6} 2:{GC.CollectionCount(2),6}");
             }
             //Console.Write("pressEnter#");
