@@ -37,6 +37,8 @@ namespace TheGameNet
             //Testings.Run_FNN_Teach();
             Testings.Run_FlexibleFNN_Teach();
 
+            //TestingPerf.FlexibleFNN_Speed();
+
             //Testings.FlexibleFNN_Testing();
             //Testings.FNN_Testing();
 

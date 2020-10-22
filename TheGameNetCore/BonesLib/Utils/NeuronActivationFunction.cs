@@ -7,21 +7,22 @@ namespace BonesLib.Utils
 {
     public static class NeuronActivationFunction
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float ActivationFunction_ReLu(float sum)
-        {
-            return (sum < 0) ? 0.01f * sum : sum;
-
-        }
-
         //[MethodImpl(MethodImplOptions.AggressiveInlining)]
         //public static float ActivationFunction_ReLu(float sum)
         //{
-        //    return (sum < 0) ? 0.01f * sum : 
-        //        (sum > 1)?  sum*0.1f-1.0f : sum;
+        //    return (sum < 0) ? 0.01f * sum : sum;
 
         //}
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float ActivationFunction_ReLu(float sum)
+        {
+            return (sum < 0) ? 0.01f * sum :
+                (sum > 1) ? 1.0f+ (sum-1.0f) * 0.1f : sum;
+
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float ActivationFunction_tanh(float sum)
         {
             float eSum = FastExp(sum);
@@ -30,6 +31,7 @@ namespace BonesLib.Utils
             return ((eSum - eSumNeg) / (eSum + eSumNeg));
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float FastExp(float val)
         {
             float x = 1.0f + val / 1024;

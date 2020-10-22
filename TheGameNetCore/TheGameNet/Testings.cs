@@ -129,17 +129,17 @@ namespace TheGameNet
 
         public static void FlexibleFNN_Testing()
         {
-            FlexibleForwardNN fnn = new FlexibleForwardNN(100, 100);
-            fnn.Layers.Init(100, 100, 300, 30000);
+            FlexibleForwardNN fnn = new FlexibleForwardNN(100, 400);
+            fnn.Layers.Init(100, 400, 400, 30000);
             fnn.SetTopology(new short[] { 100,100,100 });
 
             FlexibleFNN_LayerManipulator manipulator = new FlexibleFNN_LayerManipulator(0);
-            manipulator.InitRandomWeights(fnn.Layers);
+            manipulator.InitRandomTopology(fnn.Layers);
 
             fnn.Inputs[0] = 0.05f;
             fnn.Inputs[3] = 0.08f;
 
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 10000; i++)
             {
                 fnn.Evaluate();
             }
@@ -231,7 +231,7 @@ namespace TheGameNet
         {
             //Run_QLearning_CompareWithOthers();
 
-            int countRounds = 800;
+            int countRounds = 300;
 
 
             var players1 = RoundSimulator.CreatePlayers<Player_FlexibleFNN>(namePlayers);

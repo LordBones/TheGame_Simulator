@@ -32,7 +32,7 @@ namespace TheGameNet.Core.FNN
 
         private EvolveProgress _evolveProgress = new EvolveProgress(10);
         // 0 - 1.0
-        private readonly double coefSelection = 1.0;
+        private readonly double coefSelection = 0.0;
         private float _learningRateInterval = 200;
         private float _learningRateCounter = 0;
 
@@ -52,7 +52,7 @@ namespace TheGameNet.Core.FNN
             _tgs_players = RoundSimulations.RoundSimulator.CreatePlayers<Player_FlexibleFNN>(namePlayers);
 
             var _deckGen = new DeckGenerator(100, 0);
-            _deckTestBatch = new DecksTestBatch(5, _deckGen);
+            _deckTestBatch = new DecksTestBatch(20, _deckGen);
 
         }
 
@@ -135,14 +135,21 @@ namespace TheGameNet.Core.FNN
                 = 1.0f;
                 //= 0.001f+ (1.0f-_learningRateCounter / (float)_learningRateInterval);
 
-            int countMutations =
-                 1;
+            int maxcountMutations =
+                 100;
+            int countMutations = 0;
              //(fnn.Layers.NeuronLinks.Length / 50) + 1;
 
-            for (int i = 0; i < countMutations; i++)
+            //for (int i = 0; i < countMutations; i++)
+            //{
+            //    _fnn_manipulator.MutateWeight(fnn.Layers,  learningRate);
+            //}
+
+            do
             {
-                _fnn_manipulator.MutateWeight(fnn.Layers,  learningRate);
-            }
+                _fnn_manipulator.MutateWeight(fnn.Layers, learningRate);
+                countMutations++;
+            } while (countMutations < maxcountMutations  && _rnd.GetRandomNumber(0, 100) < 30);
         }
 
         TheGameSimulator tgs = new TheGameSimulator(null);
@@ -154,7 +161,7 @@ namespace TheGameNet.Core.FNN
         public float Best_fitness { get => _best_fitness; set => _best_fitness = value; }
 
         
-        private int _deckBatchDurability = 100;
+        private int _deckBatchDurability = 2000; 
         private int _deckBatchDurabilityCounter = 0;
         private int _elitismCountPercent = 5;
         private int _discardWorsePercent = 0;

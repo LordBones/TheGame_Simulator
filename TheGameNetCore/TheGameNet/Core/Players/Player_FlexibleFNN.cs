@@ -57,7 +57,7 @@ namespace TheGameNet.Core.Players
             //board.Get_PossibleToPlay(handCards, ref possibleToPlay);
 
             FillNetInputs(board, handCards, this.Id);
-             _fnn.Evaluate();
+             _fnn.Layers.EvaluateFast();
 
             MoveToPlay resultMove //resultMove; 
             = GetNetOutput_Decision(board,handCards);
