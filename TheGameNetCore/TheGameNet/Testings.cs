@@ -231,7 +231,7 @@ namespace TheGameNet
         {
             //Run_QLearning_CompareWithOthers();
 
-            int countRounds = 300;
+            int countRounds = 1400;
 
 
             var players1 = RoundSimulator.CreatePlayers<Player_FlexibleFNN>(namePlayers);
@@ -246,7 +246,7 @@ namespace TheGameNet
             var evolveProgress = new StreamWriter($"FlexibleFNN_EvolveProgress_1P_log.txt");
             var evolutionDebug = new StreamWriter($"EvolutionDebug.txt");
 
-            FlexibleFNN_Evolve fe = new FlexibleFNN_Evolve(5, 100);
+            FlexibleFNN_Evolve fe = new FlexibleFNN_Evolve(5, 80);
             fe.Enable_Log(evolutionDebug);
             fe.RunEvolution(countRounds, playerFnn, evolveProgress);
             evolveProgress.Dispose();
@@ -322,6 +322,11 @@ namespace TheGameNet
 
 
             var players1 = RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers);
+            var players2 = RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers2);
+
+            var players3 = RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers3);
+            var players4 = RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers4);
+
             var players5 = RoundSimulator.CreatePlayers<Player_QLearning>(namePlayers5);
 
             var gpg = new List<GamePlayGroup>();
@@ -357,13 +362,22 @@ namespace TheGameNet
 
            
 
-            RoundSimulator.SimulateGameRounds(gpg.ToArray(), countRounds, true, 20, oneGlobalDeck: true);
+            RoundSimulator.SimulateGameRounds(gpg.ToArray(), countRounds, true, 20, oneGlobalDeck: false);
 
+            Core.QLearning.QTable qt = null;
 
-            foreach(var item in players1)
+            foreach (var item in players1)
             {
                 ((Player_QLearning)item).TeachingEnable = false;
+                qt = ((Player_QLearning)item).Get_QTable;
             }
+
+            SetPlayersQT(qt, players2);
+            SetPlayersQT(qt, players3);
+            SetPlayersQT(qt, players4);
+            SetPlayersQT(qt, players5);
+
+            
 
 
             StreamWriter playLog_p1_selfish = new StreamWriter("gamePlay_1p_qlearning_log.txt");
@@ -376,12 +390,24 @@ namespace TheGameNet
             //gp.Add(RoundSimulator.CreateGamePlay(RoundSimulator.CreatePlayers<Player_Soliter_PreserveMaxPossibilites>(namePlayers), "1 players pmp", groupName, true));
 
             gp.Add(RoundSimulator.CreateGamePlay(players1, "1 players", groupName+"_ControlTest", true));
-            //gp.Add(RoundSimulator.CreateGamePlay(players5, "5 players", groupName + "_ControlTest", true));
+            gp.Add(RoundSimulator.CreateGamePlay(players2, "2 players", groupName + "_ControlTest", true));
+            gp.Add(RoundSimulator.CreateGamePlay(players3, "3 players", groupName + "_ControlTest", true));
+            gp.Add(RoundSimulator.CreateGamePlay(players4, "4 players", groupName + "_ControlTest", true));
+            gp.Add(RoundSimulator.CreateGamePlay(players5, "5 players", groupName + "_ControlTest", true));
 
             gpg.Add(new GamePlayGroup(groupName + "_ControlTest", gp.ToArray()));
 
             RoundSimulator.SimulateGameRounds(gpg.ToArray(), 100, true, 0,  oneGlobalDeck:false);
 
+
+            void SetPlayersQT(Core.QLearning.QTable qt, List<Player> players)
+            {
+                foreach (var item in players)
+                {
+                    ((Player_QLearning)item).TeachingEnable = false;
+                    ((Player_QLearning)item).Set_QTable(qt);
+                }
+            }
         }
 
         private static void Run_QLearning_CompareWithOthers()

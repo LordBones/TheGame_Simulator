@@ -8,9 +8,11 @@ namespace BonesLib.FlexibleForwardNN
     public class FlexibleFNN_LayerManipulator
     {
         private RandomGen _rnd;
+        private FloatOperation _floatOperation;
         public FlexibleFNN_LayerManipulator(int randomSeed)
         {
             _rnd = new RandomGen(randomSeed);
+            _floatOperation = new FloatOperation(3, _rnd);
         }
 
         public void InitRandomWeights(FlexibleForwardNN.NNLayer nnls)
@@ -38,7 +40,7 @@ namespace BonesLib.FlexibleForwardNN
                     var nnlink = new FlexibleForwardNN.NNLink();
                     nnlink.NeuronIndex = (ushort)(_rnd.GetRandomNumber(nnls.InputCounts, nnls.NeuronInternalState.Length));
                     nnlink.BackNeuronIndex = (ushort)i;
-                    nnlink.Weight = (((float)_rnd.GetRandomNumberDouble()) ) ;// * sign;
+                    nnlink.Weight = ((_floatOperation.RndFloat(-1.0f,1.0f)) ) ;// * sign;
 
                     nnls.AddLink(nnlink);
 
@@ -56,7 +58,7 @@ namespace BonesLib.FlexibleForwardNN
                     var nnlink = new FlexibleForwardNN.NNLink();
                     nnlink.NeuronIndex = (ushort)(nnls.NOutputIndexStart+i);
                     nnlink.BackNeuronIndex = (ushort)(_rnd.GetRandomNumber(0, nnls.NOutputIndexStart)); 
-                    nnlink.Weight = (((float)_rnd.GetRandomNumberDouble()) );// * sign;
+                    nnlink.Weight = ((_floatOperation.RndFloat(-1.0f, 1.0f)) );// * sign;
 
                     nnls.AddLink(nnlink);
 
@@ -72,29 +74,19 @@ namespace BonesLib.FlexibleForwardNN
         }
 
 
-        Func<FlexibleForwardNN.NNLayer, float, bool>[] _mutators = new Func<FlexibleForwardNN.NNLayer, float, bool>[7];
+        List<Func<FlexibleForwardNN.NNLayer, float, bool>> _mutators = new List<Func<FlexibleForwardNN.NNLayer, float, bool>>(10);
         public void MutateWeight(FlexibleForwardNN.NNLayer nnl, float learningRate)
         {
-            int index = 0;
-            _mutators[index++] = Mutate_ChangeWeight;
-            _mutators[index++] = Mutate_RemoveLink;
-            _mutators[index++] = Mutate_AddLink;
-            _mutators[index++] = Mutate_ChangeLink;
-            _mutators[index++] = Mutate_RemoveNeuron;
-            _mutators[index++] = Mutate_SwapWeightSign;
-            _mutators[index++] = Mutate_AddNewNeuron;
-            
-
-
-
-
+            _mutators.Add( Mutate_ChangeWeight);
+            _mutators.Add(Mutate_SwapWeightSign);
+         
 
             bool mutationIsDone = false;
             int safeCounter = 255;
 
             while (!mutationIsDone && safeCounter > 0)
             {
-                int mindex = _rnd.GetRandomNumber(0, _mutators.Length);
+                int mindex = _rnd.GetRandomNumber(0, _mutators.Count);
                 mutationIsDone = _mutators[mindex].Invoke(nnl, learningRate);
 
                 safeCounter--;
@@ -105,92 +97,36 @@ namespace BonesLib.FlexibleForwardNN
 
             int chance = 15;
 
-            //change link
+          
+        }
 
-            if (false && _rnd.GetRandomNumber(0, 11) == 0)
+        public void MutateTopology(FlexibleForwardNN.NNLayer nnl, float learningRate)
+        {
+            _mutators.Add(Mutate_RemoveLink);
+            _mutators.Add(Mutate_AddLink);
+            _mutators.Add(Mutate_ChangeLink);
+            _mutators.Add(Mutate_RemoveNeuron);
+            _mutators.Add(Mutate_AddNewNeuron);
+
+
+
+            bool mutationIsDone = false;
+            int safeCounter = 255;
+
+            while (!mutationIsDone && safeCounter > 0)
             {
-                if (nnl.NeuronLinks.Length > 0)
-                {
-                    int linkIndex = _rnd.GetRandomNumber(0, nnl.NeuronLinks.Length );
-                    ref var nl = ref nnl.NeuronLinks[linkIndex];
+                int mindex = _rnd.GetRandomNumber(0, _mutators.Count);
+                mutationIsDone = _mutators[mindex].Invoke(nnl, learningRate);
 
-
-                    int countNWO = nnl.Get_CountNeuronsWithoutOutput(nl.NeuronIndex);
-
-                    int neuronOrder = _rnd.GetRandomNumber(0, countNWO)+1;
-
-                   int newIndex = nnl.Get_IndexOfNeuronWithouOutput(neuronOrder, nl.NeuronIndex);
-
-                    if (newIndex > 0)
-                    {
-                        nnl.ChangeBackNeuronLink((ushort)newIndex, linkIndex);
-
-                        //nl.BackNeuronIndex = (ushort)newLinkIndex;
-
-                        //int sign = _rnd.GetRandomNumber(0, 2) == 0 ? 1 : -1;
-                        nl.Weight = (((float)_rnd.GetRandomNumberDoubleGausisan())) * learningRate;// * sign;
-                    }
-
-                    Helper_Remove_AllOneInputsNeurons(nnl);
-                    Helper_Remove_NotConnectedNeurons(nnl);
-                    Helper_Remove_AllOneInputsNeurons(nnl);
-                    Helper_Remove_NotConnectedNeurons(nnl);
-                }
-                //return;
+                safeCounter--;
             }
 
 
+            return;
 
-            //add link
-            if (_rnd.GetRandomNumber(0, 2) == 0)
-            {
-                //NN_AddLink(nnl);
-                NN_AddLink_Inteligent(nnl, learningRate);
-                Helper_ExtendN_AtLeastTwoNeurons(nnl, learningRate);
-
-            }
-
-            //remove link
-            if (_rnd.GetRandomNumber(0, 10) == 0)
-            {
-                if (nnl.CanRemoveLink())
-                {
-                    int linkIndex = _rnd.GetRandomNumber(0, nnl.NeuronLinks.Length);
-                    nnl.RemoveLink(linkIndex);
-
-                    Helper_Remove_AllOneInputsNeurons(nnl);
-                    Helper_Remove_NotConnectedNeurons(nnl);
-                    Helper_Remove_AllOneInputsNeurons(nnl);
-                    Helper_Remove_NotConnectedNeurons(nnl);
-
-                }
-                //nnl.NeuronLinks[linkIndex].Weight = 0.0f;
-                // return;
-            }
-
-            // swap sign
-            //if (_rnd.GetRandomNumber(0, 2) == 0)
-            //{
-            //    if (nnl.NeuronLinks.Length > 0)
-            //    {
-            //        int linkIndex = _rnd.GetRandomNumber(0, nnl.NeuronLinks.Length);
-            //        nnl.NeuronLinks[linkIndex].Weight = -nnl.NeuronLinks[linkIndex].Weight ;
-            //    }
-            //    // return;
-            //}
+            int chance = 15;
 
 
-            if (nnl.NeuronLinks.Length > 0)
-            {
-                int linkIndex = _rnd.GetRandomNumber(0, nnl.NeuronLinks.Length );
-                float newWeight = (float)(((_rnd.GetRandomNumberDoubleGausisan() ) ));
-                 float learnRating = learningRate;
-                newWeight *= learnRating;
-                //nnls[level].NeuronLinks[linkIndex].Weight         -=
-                //(nnls[level].NeuronLinks[linkIndex].Weight - newWeight) * learnRating;
-
-                nnl.NeuronLinks[linkIndex].Weight = newWeight;
-            }
         }
 
         private bool Mutate_ChangeLink(FlexibleForwardNN.NNLayer nnl, float learningRate)
@@ -213,7 +149,7 @@ namespace BonesLib.FlexibleForwardNN
                 //nl.BackNeuronIndex = (ushort)newLinkIndex;
 
                 //int sign = _rnd.GetRandomNumber(0, 2) == 0 ? 1 : -1;
-                nl.Weight = (((float)_rnd.GetRandomNumberDoubleGausisan())) * 0.1f;// * sign;
+                //nl.Weight = (((float)_rnd.GetRandomNumberDoubleGausisan())) * 0.1f;// * sign;
             }
 
             Helper_Remove_AllOneInputsNeurons(nnl);
@@ -232,7 +168,7 @@ namespace BonesLib.FlexibleForwardNN
             if (nnl.NeuronLinks.Length == 0) return false;
 
             int linkIndex = _rnd.GetRandomNumber(0, nnl.NeuronLinks.Length);
-            float newWeight = (float)(((_rnd.GetRandomNumberDouble())));
+            float newWeight = (((_floatOperation.RndFloat())));
             float learnRating = learningRate;
             newWeight *= 1.5f;
        
@@ -264,7 +200,9 @@ namespace BonesLib.FlexibleForwardNN
             nnlink.NeuronIndex = (ushort)ni;
             
             nnlink.BackNeuronIndex = (ushort)bni;
-            nnlink.Weight = (((float)_rnd.GetRandomNumberDouble())) * 1.0f;// * learningRate;// * sign;
+            nnlink.Weight = ((_floatOperation.RndFloat())) * 1.0f;// * learningRate;// * sign;
+
+            nnl.SetNeuronBias(ni, (_floatOperation.RndFloat() * 2.0f) - 1.0f);
 
             bool result = nnl.AddLink(nnlink);
             if (!result)
@@ -451,7 +389,7 @@ namespace BonesLib.FlexibleForwardNN
                 nnlink.NeuronIndex = (ushort)(_rnd.GetRandomNumber(nnl.InputCounts, nnl.NeuronInternalState.Length) );
                 int bni = (nnl.IsNeuronOutput( nnlink.NeuronIndex)) ? nnl.NOutputIndexStart : nnlink.NeuronIndex;
                 nnlink.BackNeuronIndex = (ushort)_rnd.GetRandomNumber(0, bni);
-                nnlink.Weight = (((float)_rnd.GetRandomNumberDouble())) * 1.0f;// * learningRate;// * sign;
+                nnlink.Weight = ((_floatOperation.RndFloat())) * 1.0f;// * learningRate;// * sign;
 
                 bool result = nnl.AddLink(nnlink);
                 if (!result)
@@ -475,7 +413,7 @@ namespace BonesLib.FlexibleForwardNN
                 int bni = (nnl.IsNeuronOutput(nnlinkTmp.NeuronIndex)) ? nnl.NOutputIndexStart  : ni;
 
                 nnlinkTmp.BackNeuronIndex = (ushort)(_rnd.GetRandomNumber(0, bni));
-                nnlinkTmp.Weight = (((float)_rnd.GetRandomNumberDouble()) )*1.0f;// * learningRate;// * sign;
+                nnlinkTmp.Weight = ((_floatOperation.RndFloat()) )*1.0f;// * learningRate;// * sign;
 
                 nnl.AddLink(nnlinkTmp);
 
@@ -492,7 +430,7 @@ namespace BonesLib.FlexibleForwardNN
                 var nnlinkTmp = new FlexibleForwardNN.NNLink();
                 nnlinkTmp.NeuronIndex = (ushort)(_rnd.GetRandomNumber(ni+1, nnl.InputsPerNeuronList.Length));
                 nnlinkTmp.BackNeuronIndex = (ushort)ni;
-                nnlinkTmp.Weight = (((float)_rnd.GetRandomNumberDouble())) * 1.0f;// * learningRate;// * sign;
+                nnlinkTmp.Weight = ((_floatOperation.RndFloat())) * 1.0f;// * learningRate;// * sign;
 
                 nnl.AddLink(nnlinkTmp);
 
@@ -560,7 +498,7 @@ namespace BonesLib.FlexibleForwardNN
                 int bni =  ni;
 
                 nnlinkTmp.BackNeuronIndex = (ushort)(_rnd.GetRandomNumber(0, bni));
-                nnlinkTmp.Weight = (((float)_rnd.GetRandomNumberDoubleGausisan())) * 0.1f;// * learningRate;// * sign;
+                nnlinkTmp.Weight = ((_floatOperation.RndFloat())) ;// * learningRate;// * sign;
 
                 nnl.AddLink(nnlinkTmp);
 

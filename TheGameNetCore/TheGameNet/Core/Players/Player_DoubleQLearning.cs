@@ -166,7 +166,8 @@ namespace TheGameNet.Core.Players
 
             for (int i = 0; i < possibleToPlay.Count; i++)
             {
-                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTableA, boardMini, possibleToPlay[i]);
+                var mtp = possibleToPlay[i];
+                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTableA, boardMini,ref mtp);
 
                 if (!_qTableA.HasValue(qGameStateIndex, qActionIndex))
                 {
@@ -200,7 +201,8 @@ namespace TheGameNet.Core.Players
 
             for (int i = 0; i < possibleToPlay.Count; i++)
             {
-                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTableB, boardMini, possibleToPlay[i]);
+                var mtp = possibleToPlay[i];
+                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTableB, boardMini,ref mtp);
 
                 float reward = _qTableB.Get(qGameStateIndex, qActionIndex);
 

@@ -186,11 +186,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\BonesLib\\BonesLib.csproj",
+      "projectUniqueName": "d:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\BonesLib\\BonesLib.csproj",
       "projectName": "BonesLib",
-      "projectPath": "D:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\BonesLib\\BonesLib.csproj",
+      "projectPath": "d:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\BonesLib\\BonesLib.csproj",
       "packagesPath": "C:\\Users\\bones\\.nuget\\packages\\",
-      "outputPath": "D:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\BonesLib\\obj\\",
+      "outputPath": "d:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\BonesLib\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -208,6 +208,7 @@
       },
       "frameworks": {
         "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
           "projectReferences": {}
         }
       },
@@ -219,6 +220,7 @@
     },
     "frameworks": {
       "netstandard2.1": {
+        "targetAlias": "netstandard2.1",
         "dependencies": {
           "System.Buffers": {
             "target": "Package",
@@ -244,7 +246,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.403\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.302\\RuntimeIdentifierGraph.json"
       }
     }
   }

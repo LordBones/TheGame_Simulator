@@ -1,4 +1,5 @@
-﻿using BonesLib.Utils;
+﻿using BonesLib.ForwardNN;
+using BonesLib.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace BonesLib.FlexibleForwardNN
     public class FlexibleForwardNN
     {
         private const int CONST_MaxLinkPerNeuron = 10;
-        private const float CONST_Bias = 0.0f;
+        private const float CONST_Bias = 1.0f;
 
         public int InputsCount { get { return _nnLayer.InputCounts; } }
         public int OutputsCount { get { return _nnLayer.OutputCounts; } }
@@ -154,8 +155,8 @@ namespace BonesLib.FlexibleForwardNN
             int nlIndex = 0;
             StringBuilder sb = new StringBuilder();
 
-            float ni = _nnLayer.InputsPerNeuronList.Sum(x => x) / (float)_nnLayer.InputsPerNeuronList.Length;
-            float no = _nnLayer.OutputsPerNeuronList.Sum(x => x) / (float)_nnLayer.OutputsPerNeuronList.Length;
+            float ni = _nnLayer.InputsPerNeuronList.Where(x => x > 0).Sum(x => x) / (float)_nnLayer.InputsPerNeuronList.Where(x => x > 0).Count();
+            float no = _nnLayer.OutputsPerNeuronList.Where(x => x > 0).Sum(x => x) / (float)_nnLayer.OutputsPerNeuronList.Where(x => x > 0).Count();
 
             sb.Append($"avg N Inputs: {ni:F3}  Outputs: {no:F3}");
            
@@ -170,6 +171,9 @@ namespace BonesLib.FlexibleForwardNN
 
                 sb.Clear();
                 sb.AppendFormat("n: {0,6:D}  # ", n );
+
+                float bias = _nnLayer.NeuronBiases[n - InputsCount];
+                sb.AppendFormat("bias: {0,8:F5}  # ", bias);
 
                 for (int i = 0; i < countNLinks; i++)
                 {
@@ -234,11 +238,14 @@ namespace BonesLib.FlexibleForwardNN
             public int InputCounts;
             public int OutputCounts;
             public int PosibleNeuronCounts;
+            public float[] NeuronBiases;
             public float[] NeuronInternalState;
             public FixList<NNLink> NeuronLinks;
             public ushort[] OutputsPerNeuronList;
             public byte[] InputsPerNeuronList;
+            private static RandomGen _rnd = new RandomGen(0);
 
+           
 
             public Span<float> Inputs => NeuronInternalState.AsSpan(0, InputCounts);
             public Span<float> Outputs => NeuronInternalState.AsSpan(NeuronInternalState.Length-OutputCounts, OutputCounts);
@@ -254,6 +261,7 @@ namespace BonesLib.FlexibleForwardNN
                 this.NeuronLinks = new FixList<NNLink>(maxLinks);
                 this.InputsPerNeuronList = new byte[InputCounts + OutputCounts + PosibleNeuronCounts];
                 this.OutputsPerNeuronList = new ushort[InputCounts + OutputCounts + PosibleNeuronCounts];
+                this.NeuronBiases = new float[OutputCounts + PosibleNeuronCounts];
             }
 
             public bool IsNeuronOutput(int nIndex)
@@ -276,6 +284,10 @@ namespace BonesLib.FlexibleForwardNN
                 return this.OutputsPerNeuronList[nIndex] > 0;
             }
 
+            public void SetNeuronBias(int neuronIndex, float bias)
+            {
+                NeuronBiases[neuronIndex - InputCounts] = bias;
+            }
 
             public bool CanAddLink()
             {
@@ -297,6 +309,12 @@ namespace BonesLib.FlexibleForwardNN
                 if (ExistLink(link.NeuronIndex, link.BackNeuronIndex))
                     return false;
 
+                
+                if(InputsPerNeuronList[link.NeuronIndex] == 0)
+                {
+                    NeuronBiases[link.NeuronIndex - InputCounts] = (float)(_rnd.GetRandomNumberDouble() * 2.0f) - 1.0f;
+                }
+
                 Increment_InputPerNeuron(link.NeuronIndex);
                 
                 Increment_OutputPerNeuron(link.BackNeuronIndex);
@@ -304,13 +322,14 @@ namespace BonesLib.FlexibleForwardNN
                 // pridani vazby neuronu
                 NeuronLinks.Add(link);
 
+                var nl = NeuronLinks.GetSpan();
                 // addSorted
                 int index = NeuronLinks.Length - 1;
                 for (; index > 0; index--)
                 {
-                    if (link.NeuronIndex < NeuronLinks[index - 1].NeuronIndex)
+                    if (link.NeuronIndex < nl[index - 1].NeuronIndex)
                     {
-                        NeuronLinks[index] = NeuronLinks[index - 1];
+                        nl[index] = nl[index - 1];
                     }
                     else
                     {
@@ -319,16 +338,17 @@ namespace BonesLib.FlexibleForwardNN
 
                 }
 
-                NeuronLinks[index] = link;
+                nl[index] = link;
 
                 return true;
             }
 
             private bool ExistLink(int ni, int backNi)
             {
-                for(int i =0; i < this.NeuronLinks.Length; i++)
+                var nl = NeuronLinks.GetSpan();
+                for (int i =0; i < this.NeuronLinks.Length; i++)
                 {
-                    var link = NeuronLinks[i];
+                    var link = nl[i];
                     if (link.NeuronIndex == ni && link.BackNeuronIndex == backNi)
                         return true;
                 }
@@ -364,11 +384,12 @@ namespace BonesLib.FlexibleForwardNN
 
                 Decrement_OutputPerNeuron(neuronIndex);
 
+                var nl = NeuronLinks.GetSpan();
                 // odebrani vazby
 
                 for (int i = index + 1; i < NeuronLinks.Length; i++)
                 {
-                    NeuronLinks[i - 1] = NeuronLinks[i];
+                    nl[i - 1] = nl[i];
                 }
 
                 NeuronLinks.RemoveLast();
@@ -469,7 +490,7 @@ namespace BonesLib.FlexibleForwardNN
                 {
                     if (this.InputsPerNeuronList[i] == countInputs
                         
-                        && !IsNeuronOutput(i) && !IsNeuronInput(i))
+                        && !IsNeuronInput(i))
                     {
                         return i;
                     }
@@ -527,9 +548,10 @@ namespace BonesLib.FlexibleForwardNN
 
             public int Get_IndexLink_byBackN_First(int neuron)
             {
-                for(int i = 0;i < this.NeuronLinks.Length; i++)
+                var nl = this.NeuronLinks.GetSpan();
+                for (int i = 0;i < this.NeuronLinks.Length; i++)
                 {
-                    if (this.NeuronLinks[i].BackNeuronIndex == neuron)
+                    if (nl[i].BackNeuronIndex == neuron)
                         return i;
                 }
 
@@ -538,9 +560,10 @@ namespace BonesLib.FlexibleForwardNN
 
             public int Get_IndexLink_byN_First(int neuron)
             {
+                var nl = this.NeuronLinks.GetSpan();
                 for (int i = 0; i < this.NeuronLinks.Length; i++)
                 {
-                    if (this.NeuronLinks[i].NeuronIndex == neuron)
+                    if (nl[i].NeuronIndex == neuron)
                         return i;
                 }
 
@@ -562,7 +585,7 @@ namespace BonesLib.FlexibleForwardNN
                 {
                     int ni = nlSpan[nlIndex].NeuronIndex;
                     int countNLinks = InputsPerNeuronList[ni];
-                    float sumOutputs = CONST_Bias;
+                    float sumOutputs = NeuronBiases[ni- InputCounts];
 
                     for (int i = 0; i < countNLinks; i++)
                     {
@@ -596,7 +619,7 @@ namespace BonesLib.FlexibleForwardNN
                 {
                     ref var link = ref nlSpan[nlIndex];
                     int ni = link.NeuronIndex;
-                    float sumOutputs = CONST_Bias;
+                    float sumOutputs = NeuronBiases[ni - InputCounts];
 
                     sumOutputs += NeuronInternalState[link.BackNeuronIndex] * link.Weight;
                     nlIndex++;
@@ -636,7 +659,7 @@ namespace BonesLib.FlexibleForwardNN
 
             }
 
-            public void EvaluateFastOld6()
+            public void EvaluateFastold6()
             {
                 Internals.Fill(0.0f);
                 Outputs.Fill(0.0f);
@@ -699,7 +722,7 @@ namespace BonesLib.FlexibleForwardNN
 
             }
 
-            public void EvaluateFastOlder()
+            public void EvaluateFastold()
             {
                 Internals.Fill(0.0f);
                 Outputs.Fill(0.0f);
@@ -737,12 +760,17 @@ namespace BonesLib.FlexibleForwardNN
 
             }
 
+
             
+
+           
 
             
 
             
-            
+
+
+
             /// <summary>
             /// najde nejblizsi predchazejici neuron jeho posledni link
             /// </summary>
@@ -781,6 +809,8 @@ namespace BonesLib.FlexibleForwardNN
 
                 InputsPerNeuronList.CopyTo(dest.InputsPerNeuronList.AsSpan());
                 OutputsPerNeuronList.CopyTo(dest.OutputsPerNeuronList.AsSpan());
+                NeuronBiases.CopyTo(dest.NeuronBiases.AsSpan());
+
             }
 
             public bool IsEqualTopology(NNLayer fnn)
@@ -806,7 +836,7 @@ namespace BonesLib.FlexibleForwardNN
             public ushort BackNeuronIndex;
             public ushort NeuronIndex;
             public float Weight;
-            public float BackNeuronValue;
+           
 
             public override string ToString()
             {
@@ -819,6 +849,8 @@ namespace BonesLib.FlexibleForwardNN
 
                 return internalStateNeuron[BackNeuronIndex] * Weight;
             }
+
+            
         }
 
 

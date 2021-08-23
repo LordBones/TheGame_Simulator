@@ -59,7 +59,7 @@ namespace TheGameNet.Core
         {
             //Array.Clear(arrayForHashState, 0, arrayForHashState.Length);
 
-            Span<byte> arrayForHashState = stackalloc byte[8];
+            Span<byte> arrayForHashState = stackalloc byte[5];
             arrayForHashState.Fill(0);
             int arrayForHashIndex = 0;
 
@@ -105,7 +105,7 @@ namespace TheGameNet.Core
         }
 
         public static byte[] arrayForHashAction = new byte[10];
-        public static int QLearning_ActionIndex(QTable qTable, BoardMini boardMini, MoveToPlay moveToPlay)
+        public static int QLearning_ActionIndex(QTable qTable, BoardMini boardMini, ref  MoveToPlay moveToPlay)
         {
 
             return moveToPlay.Card + (moveToPlay.DeckIndex * 100);

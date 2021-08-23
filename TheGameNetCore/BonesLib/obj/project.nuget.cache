@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "+pdPrR35Jo5gIgFE57KdmTTy4LhxWDJWB0Gi64TWhhR4fyTfhIgpItxlouE91wOks0J4CBw5gAjwAg0BS2kjtw==",
+  "dgSpecHash": "cF+HSajVszzlI09+DzURsiGKiFmkD1KrU2PKgyzfvruNIT3dFDRkrQISKiH43CRzMysTnToIbOIrOp7zCGKDdQ==",
   "success": true,
-  "projectFilePath": "D:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\BonesLib\\BonesLib.csproj",
+  "projectFilePath": "d:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\BonesLib\\BonesLib.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\bones\\.nuget\\packages\\system.buffers\\4.5.1\\system.buffers.4.5.1.nupkg.sha512",
     "C:\\Users\\bones\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",

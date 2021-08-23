@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "8vl/qQ8rcT3/wK1cyV4vHZU8qCaKdqi6kYCHqIcFN3FHeriBE+zRWnj/whrg+xD1553CM7UYl8X7Ay59j4yqNg==",
+  "dgSpecHash": "8Bh+aQVxaxpZY+DXdxnZvdXDOkieVvXrqTjupipYdnxOPXIQ5hPEU8jwdlOUxtNQVNyR7YULiuf9JokzrCyJ8A==",
   "success": true,
-  "projectFilePath": "D:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\TheGameNet\\TheGameNet.csproj",
+  "projectFilePath": "d:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\TheGameNet\\TheGameNet.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\bones\\.nuget\\packages\\hashdepot\\2.0.3\\hashdepot.2.0.3.nupkg.sha512",
     "C:\\Users\\bones\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.1\\microsoft.netcore.platforms.1.1.1.nupkg.sha512",

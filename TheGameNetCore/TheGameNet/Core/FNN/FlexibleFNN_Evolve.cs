@@ -23,6 +23,8 @@ namespace TheGameNet.Core.FNN
         private FlexibleForwardNN _best_fnn;
 
         private float[] _pop_Fitness;
+        private float[] _pop_Fitness_tmp;
+
         private int[] _pop_CountCards;
         
         private FlexibleForwardNN[] _pop_generation;
@@ -43,6 +45,7 @@ namespace TheGameNet.Core.FNN
             _mutationChance = mutation;
             _populationSize = populationSize;
             _pop_Fitness = new float[populationSize];
+            _pop_Fitness_tmp = new float[populationSize];
             _pop_generation = new FlexibleForwardNN[populationSize];
             _pop_generation_tmp = new FlexibleForwardNN[populationSize];
             _pop_CountCards = new int[populationSize];
@@ -52,7 +55,7 @@ namespace TheGameNet.Core.FNN
             _tgs_players = RoundSimulations.RoundSimulator.CreatePlayers<Player_FlexibleFNN>(namePlayers);
 
             var _deckGen = new DeckGenerator(100, 0);
-            _deckTestBatch = new DecksTestBatch(20, _deckGen);
+            _deckTestBatch = new DecksTestBatch(4, _deckGen);
 
         }
 
@@ -67,17 +70,20 @@ namespace TheGameNet.Core.FNN
             _evolveProgress.Clear();
             _best_fitness = int.MaxValue;
             _deckBatchDurabilityCounter = _deckBatchDurability;
+            tgs.SetPlayers(_tgs_players);
 
             CreatePoolFnn(fnn);
 
             InitStartPop(fnn);
+            CheckAndGensDeck();
             ComputeFitnesses();
             UpdateStats();
 
-            for (int i = 0; i < generations; i++)
+            for (int i = 1; i < generations; i++)
             {
+                CheckAndGensDeck();
                 GenerateNewPop();
-                ComputeFitnesses();
+                //ComputeFitnesses();
                 UpdateStats();
                 if (_learningRateInterval <= _learningRateCounter)
                     _learningRateCounter = 0;
@@ -133,10 +139,10 @@ namespace TheGameNet.Core.FNN
             float learningRate
 
                 = 1.0f;
-                //= 0.001f+ (1.0f-_learningRateCounter / (float)_learningRateInterval);
+            //= 0.001f+ (1.0f-_learningRateCounter / (float)_learningRateInterval);
 
-            int maxcountMutations =
-                 100;
+            int maxcountMutations = _rnd.GetRandomNumber(0, 3)+1;
+                 //100;
             int countMutations = 0;
              //(fnn.Layers.NeuronLinks.Length / 50) + 1;
 
@@ -145,11 +151,17 @@ namespace TheGameNet.Core.FNN
             //    _fnn_manipulator.MutateWeight(fnn.Layers,  learningRate);
             //}
 
+
+
             do
             {
-                _fnn_manipulator.MutateWeight(fnn.Layers, learningRate);
+                if(_rnd.GetRandomNumber(0,100) < 11)
+                 _fnn_manipulator.MutateTopology(fnn.Layers, learningRate);
+                else
+                    _fnn_manipulator.MutateWeight(fnn.Layers, learningRate);
+                
                 countMutations++;
-            } while (countMutations < maxcountMutations  && _rnd.GetRandomNumber(0, 100) < 30);
+            } while (countMutations < maxcountMutations  );
         }
 
         TheGameSimulator tgs = new TheGameSimulator(null);
@@ -161,7 +173,7 @@ namespace TheGameNet.Core.FNN
         public float Best_fitness { get => _best_fitness; set => _best_fitness = value; }
 
         
-        private int _deckBatchDurability = 2000; 
+        private int _deckBatchDurability = 3000; 
         private int _deckBatchDurabilityCounter = 0;
         private int _elitismCountPercent = 5;
         private int _discardWorsePercent = 0;
@@ -170,7 +182,10 @@ namespace TheGameNet.Core.FNN
 
         private int Helper_GetElitsmCount()
         {
-            return (_populationSize * _elitismCountPercent) / 100;
+            int count = (_populationSize * _elitismCountPercent) / 100;
+            if (_elitismCountPercent > 0 && count == 0)
+                return 1;
+            return count;
         }
 
         private int Helper_GetDiscardCount()
@@ -179,39 +194,44 @@ namespace TheGameNet.Core.FNN
         }
         private void ComputeFitnesses()
         {
-            CheckAndGensDeck();
+            //CheckAndGensDeck();
 
-          //  var players = RoundSimulations.RoundSimulator.CreatePlayers<Player_FlexibleFNN>(namePlayers);
-            tgs.SetPlayers(_tgs_players);
+            //  var players = RoundSimulations.RoundSimulator.CreatePlayers<Player_FlexibleFNN>(namePlayers);
+            //tgs.SetPlayers(_tgs_players);
 
-            var decks = _deckTestBatch.Decks;
-
+            
             //var deck = deckGen.Get_CreatedSuffledDeck();
             for (int i = 0; i < _populationSize; i++)
             {
-                foreach (var player in _tgs_players)
-                {
-                    ((Player_FlexibleFNN)player).Fnn = _pop_generation[i];
-                }
-
-                int fittness = 0;
-
-                for (int deckIndex = 0; deckIndex < decks.Length; deckIndex++)
-                {
-                    var deck = decks[deckIndex];
-                    var resultGame = tgs.Simulate(deck);
-                    int rest = 0;
-                    rest += tgs.GameBoard.CardPlaceholdersULight[0].Get_CardDiff_FromBase(tgs.GameBoard.CardPlaceholdersULight[0].GetPeakCard());
-                    rest += tgs.GameBoard.CardPlaceholdersULight[1].Get_CardDiff_FromBase(tgs.GameBoard.CardPlaceholdersULight[1].GetPeakCard());
-                    rest += tgs.GameBoard.CardPlaceholdersULight[2].Get_CardDiff_FromBase(tgs.GameBoard.CardPlaceholdersULight[2].GetPeakCard());
-                    rest += tgs.GameBoard.CardPlaceholdersULight[3].Get_CardDiff_FromBase(tgs.GameBoard.CardPlaceholdersULight[3].GetPeakCard());
-
-                    fittness += resultGame.Rest_Cards* resultGame.Rest_Cards ;
-                }
-
-                float f = fittness / (float)decks.Length;
-                _pop_Fitness[i] = f;
+                _pop_Fitness[i] =  ComputeFitness(_pop_generation[i]);
             }
+        }
+
+        private float ComputeFitness(FlexibleForwardNN fnn)
+        {
+            var decks = _deckTestBatch.Decks;
+            foreach (var player in _tgs_players)
+            {
+                ((Player_FlexibleFNN)player).Fnn = fnn;
+            }
+
+            int fittness = 0;
+
+            for (int deckIndex = 0; deckIndex < decks.Length; deckIndex++)
+            {
+                var deck = decks[deckIndex];
+                var resultGame = tgs.Simulate(deck);
+                int rest = 0;
+                rest += tgs.GameBoard.CardPlaceholdersULight[0].Get_CardDiff_FromBase(tgs.GameBoard.CardPlaceholdersULight[0].GetPeakCard());
+                rest += tgs.GameBoard.CardPlaceholdersULight[1].Get_CardDiff_FromBase(tgs.GameBoard.CardPlaceholdersULight[1].GetPeakCard());
+                rest += tgs.GameBoard.CardPlaceholdersULight[2].Get_CardDiff_FromBase(tgs.GameBoard.CardPlaceholdersULight[2].GetPeakCard());
+                rest += tgs.GameBoard.CardPlaceholdersULight[3].Get_CardDiff_FromBase(tgs.GameBoard.CardPlaceholdersULight[3].GetPeakCard());
+
+                fittness += resultGame.Rest_Cards * resultGame.Rest_Cards;
+            }
+
+            float f = fittness / (float)decks.Length;
+            return f;
         }
 
         private void CheckAndGensDeck()
@@ -316,6 +336,7 @@ namespace TheGameNet.Core.FNN
                 ApplyMutation(tmpFnn);
 
                 _pop_generation_tmp[p] = tmpFnn;
+                _pop_Fitness_tmp[p] = ComputeFitness(tmpFnn);
             }
 
             for (int i = 0; i < _pop_generation.Length; i++)
@@ -325,6 +346,8 @@ namespace TheGameNet.Core.FNN
                 _pop_generation[i] = _pop_generation_tmp[i];
                 _pop_generation_tmp[i] = null;
             }
+
+            _pop_Fitness_tmp.CopyTo(_pop_Fitness,0);
 
         }
 
@@ -353,6 +376,15 @@ namespace TheGameNet.Core.FNN
                 var tmpFnn = _fnn_pool.Pop();
                 _pop_generation[popIndexs[i]].CopyTo(tmpFnn);
                 _pop_generation_tmp[i] = tmpFnn;
+
+                if (_deckBatchDurabilityCounter == 1)
+                {
+                    _pop_Fitness_tmp[i] = ComputeFitness(tmpFnn);
+                }
+                else
+                {
+                    _pop_Fitness_tmp[i] = _pop_Fitness[popIndexs[i]];
+                }
             }
 
         }

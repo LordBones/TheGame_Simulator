@@ -30,6 +30,11 @@ namespace BonesLib.Utils
             Length = 0;
         }
 
+        public void Set_Length(int length)
+        {
+            Length = length;
+        }
+
         public void Clear()
         {
             Length = 0;

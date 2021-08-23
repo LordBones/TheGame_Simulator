@@ -16,14 +16,18 @@ namespace TheGameNet.Core.Players
     {
         private QTable _qTable;
         private QNode _lastQNode;
-        private QLearningCompute _qLearningCompute = new QLearningCompute(0.1f, 1.0f);
-        private float _qExplorationPolicy = 0.01f;
+        private QLearningCompute _qLearningCompute = new QLearningCompute(0.01f, 0.8f);
+        private float _qExplorationPolicy = 0.05f;
 
 
         private QTHistoryItem[] _qHistoryMoves = new QTHistoryItem[100];
         private int _qHistoryMovesIndex = 0;
 
         public bool TeachingEnable = true;
+
+        public QTable Get_QTable => _qTable;
+        public void Set_QTable(QTable qt) { _qTable = qt; }
+
 
         struct QNode
         {
@@ -71,7 +75,7 @@ namespace TheGameNet.Core.Players
 
         private void Init()
         {
-            _qTable = new QTable(10000 - 1, 399, 200.0f);
+            _qTable = new QTable(2 - 1, 399, 1.0f);
             _lastQNode = new QNode(0, 0);// QNode.Default;
         }
 
@@ -210,7 +214,7 @@ namespace TheGameNet.Core.Players
 
             var qhmi = _qHistoryMoves[_qHistoryMovesIndex - 1];
 
-            float currentReward = -board.Count_AllRemaindPlayCards;
+            float currentReward = -1;// board.Count_AllRemaindPlayCards;
                 //(98 - (board.Count_AllRemaindPlayCards));
 
             float qCurrentReward = _qTable.Get(qhmi.qNode.StateIndex, qhmi.qNode.ActionIndex);
@@ -221,10 +225,8 @@ namespace TheGameNet.Core.Players
                 currentReward);
 
             _qTable.Set(qhmi.qNode.StateIndex, qhmi.qNode.ActionIndex, 
-                //newReward
-                //currentReward
-                //0.0f
-                currentReward
+                newReward
+               
                 );
 
 
@@ -238,9 +240,8 @@ namespace TheGameNet.Core.Players
                 newReward = //currentReward;
                     _qLearningCompute.Q_Compute(qCurrentReward,
                     //0.0f,
-                    1.0f,
-                    //currentReward,
-                    //qhmi.FutureExpectedReward
+                    0.0f,
+                   
                     fer
                     );
 
@@ -299,10 +300,10 @@ namespace TheGameNet.Core.Players
 
             if (TeachingEnable && _qExplorationPolicy > RandomGen.Default.GetRandomNumberDouble())
             {
-                return Get_QLearning_BestAction_Proportional(boardMini, qGameStateIndex,ref possibleToPlay);
+                //return Get_QLearning_BestAction_Proportional(boardMini, qGameStateIndex,ref possibleToPlay);
                 int possibleToPlayIndex = RandomGen.Default.GetRandomNumber(0, possibleToPlay.Length);
 
-                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini, possibleToPlay[possibleToPlayIndex]);
+                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini,ref possibleToPlay[possibleToPlayIndex]);
 
                 qActionIndexBest = qActionIndex;
                 moveBest = possibleToPlay[possibleToPlayIndex];
@@ -310,7 +311,7 @@ namespace TheGameNet.Core.Players
             }
             else
             {
-                (float reward, int qActionIndex, MoveToPlay move) kk = Get_QLearning_BestAction_Best(boardMini, qGameStateIndex, possibleToPlay);
+                (float reward, int qActionIndex, MoveToPlay move) kk = Get_QLearning_BestAction_Best(boardMini, qGameStateIndex,ref possibleToPlay);
                 //(float reward, int qActionIndex, MoveToPlay move) kk = Get_QLearning_BestAction_Better(boardMini, qActionIndexBest, possibleToPlay);
 
                 rewardBest = kk.reward;
@@ -324,7 +325,7 @@ namespace TheGameNet.Core.Players
 
         }
 
-        (float reward, int qActionIndex, MoveToPlay move) Get_QLearning_BestAction_Best(BoardMini boardMini, int qGameStateIndex, FixListSpan<MoveToPlay> possibleToPlay)
+        (float reward, int qActionIndex, MoveToPlay move) Get_QLearning_BestAction_Best(BoardMini boardMini, int qGameStateIndex,ref FixListSpan<MoveToPlay> possibleToPlay)
         {
             float rewardBest = float.MinValue;
             int qActionIndexBest = 0;
@@ -333,7 +334,7 @@ namespace TheGameNet.Core.Players
           //  Trace.Write($"{qGameStateIndex,7} - {possibleToPlay.Count,2} line: ");
             for (int i = 0; i < possibleToPlay.Length; i++)
             {
-                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini, possibleToPlay[i]);
+                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini,ref possibleToPlay[i]);
 
                 if (!_qTable.HasValue(qGameStateIndex, qActionIndex))
                 {
@@ -368,7 +369,7 @@ namespace TheGameNet.Core.Players
 
             for (int i = 0; i < possibleToPlay.Length; i++)
             {
-                int qai = qActionIndex[i] = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini, possibleToPlay[i]);
+                int qai = qActionIndex[i] = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini,ref possibleToPlay[i]);
                 var tmp = _qTable.Get_detectIfExist(qGameStateIndex, qai);
 
                 if (tmp.empty)
@@ -432,7 +433,8 @@ namespace TheGameNet.Core.Players
 
             for (int i = 0; i < possibleToPlay.Count; i++)
             {
-                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini, possibleToPlay[i]);
+                var mtp = possibleToPlay[i];
+                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini, ref mtp);
 
                 float reward = _qTable.Get(qGameStateIndex, qActionIndex);
 
@@ -495,7 +497,7 @@ namespace TheGameNet.Core.Players
 
             for (int i = 0; i < possibleToPlay.Length; i++)
             {
-                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini, possibleToPlay[i]);
+                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini,ref possibleToPlay[i]);
 
                 float reward = _qTable.Get(qGameStateIndex, qActionIndex);
 
@@ -527,7 +529,7 @@ namespace TheGameNet.Core.Players
 
             for (int i = 0; i < possibleToPlay.Length; i++)
             {
-                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini, possibleToPlay[i]);
+                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini,ref possibleToPlay[i]);
 
                 qActions[i] = qActionIndex;
             }
@@ -551,7 +553,8 @@ namespace TheGameNet.Core.Players
 
             for (int i = 0; i < possibleToPlay.Count; i++)
             {
-                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini, possibleToPlay[i]);
+                var mtp = possibleToPlay[i];
+                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini,ref mtp);
 
                 float reward = _qTable.Get(qGameStateIndex, qActionIndex);
 
@@ -591,7 +594,8 @@ namespace TheGameNet.Core.Players
 
             for (int i = 0; i < possibleToPlay.Count; i++)
             {
-                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini, possibleToPlay[i]);
+                var mtp = possibleToPlay[i];
+                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini,ref mtp);
 
                 float reward = _qTable.Get(qGameStateIndex, qActionIndex);
 

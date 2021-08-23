@@ -29,9 +29,15 @@ namespace TheGameNet.Core.Players
 
         private void Init()
         {
-            _fnn = new FlexibleForwardNN(105, 98 * 4);
+            //_fnn = new FlexibleForwardNN(105, 98 * 4);
+            //var topology = new short[] { 1 };
+            //_fnn.Layers.Init(105, 98 * 4, topology.Sum(x => x) + 800, 30000);
+
+
+            _fnn = new FlexibleForwardNN(32+5, 32);
             var topology = new short[] { 1 };
-            _fnn.Layers.Init(105, 98 * 4, topology.Sum(x => x) + 800, 30000);
+            _fnn.Layers.Init(32+5, 32, topology.Sum(x => x) + 300, 30000);
+
             //_fnn.SetTopology(topology);
 
             FlexibleFNN_LayerManipulator flm = new FlexibleFNN_LayerManipulator(0);
@@ -56,8 +62,9 @@ namespace TheGameNet.Core.Players
             //FixListSpan<MoveToPlay> possibleToPlay = new FixListSpan<MoveToPlay>(flsa);
             //board.Get_PossibleToPlay(handCards, ref possibleToPlay);
 
+            return D_CTP(board, handCards);
             FillNetInputs(board, handCards, this.Id);
-             _fnn.Layers.EvaluateFast();
+             _fnn.Layers.Evaluate();
 
             MoveToPlay resultMove //resultMove; 
             = GetNetOutput_Decision(board,handCards);
@@ -69,6 +76,30 @@ namespace TheGameNet.Core.Players
 
             if (resultMove.IsNotMove)
             {
+               // resultMove = GetWorse_Decision(board, handCards);
+                //resultMove = GetBest_Decision(board, handCards);
+                //resultMove = GetBest_Decision2(board, ref possibleToPlay);
+            }
+
+            return resultMove;
+        }
+
+        private MoveToPlay D_CTP(GameBoard board, Span<byte> handCards)
+        {
+            FillNetInputs_new(board, handCards, this.Id);
+            _fnn.Layers.EvaluateFast();
+
+            MoveToPlay resultMove //resultMove; 
+            = GetNetOutput_Decision_New(board, handCards);
+
+            //if (resultMove.IsNotMove)
+            //{
+            //    resultMove = GetWorse_Decision(board, ref possibleToPlay);
+            //}
+
+            if (resultMove.IsNotMove)
+            {
+                // resultMove = GetWorse_Decision(board, handCards);
                 //resultMove = GetBest_Decision(board, handCards);
                 //resultMove = GetBest_Decision2(board, ref possibleToPlay);
             }
@@ -127,6 +158,130 @@ namespace TheGameNet.Core.Players
                 inputs[handCards[i] + index] = 1.0f;
             }
         }
+
+        private BoardMini bm = null;
+        private void FillNetInputs_new(GameBoard board, Span<byte> handCards, byte playerId)
+        {
+            var inputs = _fnn.Inputs;
+            inputs.Fill(0.0f);
+
+            inputs[0] = (100 - board.Get_PH_ULight(0).Get_CardDiff_ToEnd(board.Get_PH_ULight(0).Get_TopCard())) / 100.0f;
+            inputs[1] = (100 - board.Get_PH_ULight(1).Get_CardDiff_ToEnd(board.Get_PH_ULight(1).Get_TopCard())) / 100.0f;
+            inputs[2] = (100 - board.Get_PH_ULight(2).Get_CardDiff_ToEnd(board.Get_PH_ULight(2).Get_TopCard())) / 100.0f;
+            inputs[3] = (100 - board.Get_PH_ULight(3).Get_CardDiff_ToEnd(board.Get_PH_ULight(3).Get_TopCard())) / 100.0f;
+
+
+            inputs[4] = (byte)board.Get_PlayerBoardData(playerId).CountNeedPlayCard / 2.0f;
+
+
+            int inputsIndex = 5;
+
+            if(bm == null)
+                bm = board.CreateBoardMini(playerId);
+            else
+                board.CreateBoardMini(playerId, bm);
+
+            BoardMini bm_tmp = bm.Clone();
+            for(int hi =0;hi< handCards.Length; hi++)
+            {
+                byte card = handCards[hi];
+
+                for (int di = 0; di < 4; di++) {
+                    bm_tmp.CopyFrom(bm);
+                    if (bm_tmp.CanPlay((byte)di, card))
+                    {
+                        bm_tmp.ApplyCard((sbyte)di, card);
+
+                        inputs[inputsIndex] = (100-bm_tmp.CardPlaceholders[di].Get_CardDiff_ToEnd(card))*2.0f / 100.0f;
+                      
+                        inputsIndex++;
+                    }
+                }
+            }
+        }
+
+        private MoveToPlay GetNetOutput_Decision_New(GameBoard board, Span<byte> handCards)
+        {
+            MoveToPlay result = new MoveToPlay(0, -1);
+            float bestValue = float.MinValue;
+            //float.Epsilon;
+            var fnnOutputs = _fnn.Outputs;
+
+            int index = 0;
+            int lengthHand = handCards.Length;
+            for (int i = 0; i < lengthHand; i++)
+            {
+                var card = handCards[i];
+
+                for (int ind = 0; ind < 4; ind++)
+                {
+                    if (board.Get_PH_ULight(ind).CanPlaceCard(card))
+                    {
+
+                        float valCoef = fnnOutputs[index];
+                        //if (valCoef <= float.Epsilon)
+                        //    valCoef = 0;
+
+                        if (valCoef > float.Epsilon && bestValue < valCoef)
+                        {
+                            result = new MoveToPlay(card, (sbyte)ind);
+                            bestValue = valCoef;
+                        }
+
+                        index++;
+                    }
+                }
+
+                //if (board.Get_PH_ULight(1).CanPlaceCard(card))
+                //{
+                //    int index = 1 * 98 + card - 2;
+
+                //    float valCoef = fnnOutputs[index];
+                //    //if (valCoef < 0.0f)
+                //    //    valCoef = 0;
+
+                //    if (valCoef > float.Epsilon && bestValue < valCoef)
+                //    {
+                //        result = new MoveToPlay(card, 1);
+                //        bestValue = valCoef;
+                //    }
+                //}
+
+                //if (board.Get_PH_ULight(2).CanPlaceCard(card))
+                //{
+                //    int index = 2 * 98 + card - 2;
+
+                //    float valCoef = fnnOutputs[index];
+                //    //if (valCoef < 0.0f)
+                //    //    valCoef = 0;
+
+                //    if (valCoef > float.Epsilon && bestValue < valCoef)
+                //    {
+                //        result = new MoveToPlay(card, 2);
+                //        bestValue = valCoef;
+                //    }
+                //}
+
+                //if (board.Get_PH_ULight(3).CanPlaceCard(card))
+                //{
+                //    int index = 3 * 98 + card - 2;
+
+                //    float valCoef = fnnOutputs[index];
+                //    //if (valCoef < 0.0f)
+                //    //    valCoef = 0;
+
+                //    if (valCoef > float.Epsilon && bestValue < valCoef)
+                //    {
+                //        result = new MoveToPlay(card, 3);
+                //        bestValue = valCoef;
+                //    }
+                //}
+
+            }
+
+            return result;
+        }
+
 
         private MoveToPlay GetNetOutput_Decision(GameBoard board, Span<byte> handCards)
         {
@@ -379,6 +534,129 @@ namespace TheGameNet.Core.Players
                     int diff = cardPlaceholder.Get_CardDiff(card);
 
                     if (bestValue > diff)
+                    {
+                        result = new MoveToPlay(card, (sbyte)deckIndex);
+                        bestValue = diff;
+                    }
+                }
+
+            }
+
+            return result;
+        }
+
+        private MoveToPlay GetWorse_Decision(GameBoard board, Span<byte> handCards)
+        {
+            MoveToPlay result = new MoveToPlay(0, -1);
+            int bestValue = int.MinValue;
+            int lengthHand = handCards.Length;
+
+            //for (int d = 0; d < board.CardPlaceholdersULight.Length; d++)
+            {
+                //ref var cardPlaceholder = ref board.Get_PH_ULight(d);
+
+                for (int i = 0; i < lengthHand; i++)
+                {
+                    var card = handCards[i];
+
+                    if (board.Get_PH_ULight(0).CanPlaceCard(card))
+                    {
+                        int diff = board.Get_PH_ULight(0).Get_CardDiff(card);
+
+                        if (bestValue < diff)
+                        {
+                            result = new MoveToPlay(card, (sbyte)0);
+                            bestValue = diff;
+                        }
+                    }
+
+                    if (board.Get_PH_ULight(1).CanPlaceCard(card))
+                    {
+                        int diff = board.Get_PH_ULight(1).Get_CardDiff(card);
+
+                        if (bestValue < diff)
+                        {
+                            result = new MoveToPlay(card, (sbyte)1);
+                            bestValue = diff;
+                        }
+                    }
+                    if (board.Get_PH_ULight(2).CanPlaceCard(card))
+                    {
+                        int diff = board.Get_PH_ULight(2).Get_CardDiff(card);
+
+                        if (bestValue < diff)
+                        {
+                            result = new MoveToPlay(card, (sbyte)2);
+                            bestValue = diff;
+                        }
+                    }
+                    if (board.Get_PH_ULight(3).CanPlaceCard(card))
+                    {
+                        int diff = board.Get_PH_ULight(3).Get_CardDiff(card);
+
+                        if (bestValue < diff)
+                        {
+                            result = new MoveToPlay(card, (sbyte)3);
+                            bestValue = diff;
+                        }
+                    }
+
+                    //functionCheckCompare(0, cardHand);
+                    //functionCheckCompare(1, cardHand);
+                    //functionCheckCompare(2, cardHand);
+                    //functionCheckCompare(3, cardHand);
+
+                    //ref GameBoardMini.CardPlaceholderULight cardPlaceholder = ref board.Get_PH_ULight(0);
+                    //if (cardPlaceholder.CanPlaceCard(cardHand))
+                    //{
+                    //    int diff = cardPlaceholder.Get_CardDiff(cardHand);
+                    //    functionCheckCompare(diff, ref bestValue);
+                    //}
+
+                    //cardPlaceholder = ref board.Get_PH_ULight(1);
+                    //if (cardPlaceholder.CanPlaceCard(cardHand))
+                    //{
+                    //    int diff = cardPlaceholder.Get_CardDiff(cardHand);
+                    //    functionCheckCompare(diff, ref bestValue);
+                    //}
+
+                    //cardPlaceholder = ref board.Get_PH_ULight(2);
+                    //if (cardPlaceholder.CanPlaceCard(cardHand))
+                    //{
+                    //    int diff = cardPlaceholder.Get_CardDiff(cardHand);
+                    //    functionCheckCompare(diff, ref bestValue);
+                    //}
+
+                    //cardPlaceholder = ref board.Get_PH_ULight(3);
+                    //if (cardPlaceholder.CanPlaceCard(cardHand))
+                    //{
+                    //    int diff = cardPlaceholder.Get_CardDiff(cardHand);
+                    //    functionCheckCompare(diff, ref bestValue);
+                    //}
+                    //if (board.Get_PH_ULight(1).CanPlaceCard(cardHand))
+                    //{
+                    //    functionCheckCompare(1, cardHand, ref bestValue);
+                    //}
+                    //if (board.Get_PH_ULight(2).CanPlaceCard(cardHand))
+                    //{
+                    //    functionCheckCompare(2, cardHand, ref bestValue);
+                    //}
+                    //if (board.Get_PH_ULight(3).CanPlaceCard(cardHand))
+                    //{
+                    //    functionCheckCompare(3, cardHand, ref bestValue);
+                    //}
+                }
+            }
+
+            void functionCheckCompare(int deckIndex, byte card)
+            {
+                ref GameBoardMini.CardPlaceholderULight cardPlaceholder = ref board.Get_PH_ULight(deckIndex);
+
+                if (cardPlaceholder.CanPlaceCard(card))
+                {
+                    int diff = cardPlaceholder.Get_CardDiff(card);
+
+                    if (bestValue < diff)
                     {
                         result = new MoveToPlay(card, (sbyte)deckIndex);
                         bestValue = diff;
