@@ -397,7 +397,7 @@ namespace TheGameNet
 
             gpg.Add(new GamePlayGroup(groupName + "_ControlTest", gp.ToArray()));
 
-            RoundSimulator.SimulateGameRounds(gpg.ToArray(), 100, true, 0,  oneGlobalDeck:false);
+            RoundSimulator.SimulateGameRounds(gpg.ToArray(), 1000, true, 0,  oneGlobalDeck:false);
 
 
             void SetPlayersQT(Core.QLearning.QTable qt, List<Player> players)

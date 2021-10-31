@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,20 +11,29 @@ using TheGameNet.Utils;
 
 namespace TheGameNet.Core.QLearning
 {
+
+
+
+
     class QTable
     {
-        private Dictionary<int, float>[] _HashQTable;
+        const float CONST_EmptyElement = float.NegativeInfinity;
+        const int maxActionSize = 1024;
+        private float[][] _HashQTable;
         private int _hashActionSize;
         private float _defaultValue;
 
-        public QTable(int hashTableSize, int hashActionSize, float defaultValue)
+        public QTable(int hashTableSize, int maxActionLength, float defaultValue)
         {
-            _hashActionSize = hashActionSize;
-            _HashQTable = new Dictionary<int,float>[hashTableSize];
+            _hashActionSize = maxActionLength;
+            _HashQTable = new float[hashTableSize][];
 
-            for(int i = 0; i < _HashQTable.Length; i++)
+            for (int i = 0; i < _HashQTable.Length; i++)
             {
-                _HashQTable[i] = new Dictionary<int, float>();
+                _HashQTable[i] = new float[_hashActionSize];
+
+                for (int k = 0; k < _hashActionSize; k++)
+                    _HashQTable[i][k] = CONST_EmptyElement;
             }
 
             _defaultValue = defaultValue;
@@ -47,10 +57,10 @@ namespace TheGameNet.Core.QLearning
             //uint tmp = HashDepot.XXHash.Hash32(state.Array.AsSpan(state.Offset, state.Count));
             tmp &= 0x7fffffff;
 
-            return (int) tmp % _HashQTable.Length;
+            return (int)tmp % _HashQTable.Length;
         }
 
-        public int CreateKey_IndexState(Span<byte> state)
+        public int CreateKey_IndexState(ReadOnlySpan<byte> state)
         {
             //  _hash.Compute()
             //  xxHashSharp.xxHash.CalculateHash(state,)
@@ -63,11 +73,12 @@ namespace TheGameNet.Core.QLearning
             //uint tmp = (uint)((result[0] << 24) | (result[1] << 16) | (result[2] << 8) | (result[3]));
             //uint tmp = (uint)resLong;
 
-            uint tmp = (uint)HashDepot.XXHash.Hash64(state);
-            //uint tmp = HashDepot.XXHash.Hash32(state.Array.AsSpan(state.Offset, state.Count));
-            tmp &= 0x7fffffff;
+            //uint tmp = (uint)HashDepot.XXHash.Hash64(state);
+            //uint tmp = (uint)FastHash(state);
+            uint tmp = HashDepot.XXHash.Hash32(state);
+            // tmp &= 0x7fffffff;
 
-            return (int)tmp % _HashQTable.Length;
+            return (int)(tmp % _HashQTable.Length);
         }
 
         public int CreateKey_IndexAction(Span<byte> action)
@@ -75,6 +86,7 @@ namespace TheGameNet.Core.QLearning
 
 
             uint tmp = (uint)HashDepot.XXHash.Hash64(action);
+
             //uint tmp = HashDepot.XXHash.Hash32(state.Array.AsSpan(state.Offset, state.Count));
             tmp &= 0x7fffffff;
 
@@ -83,7 +95,7 @@ namespace TheGameNet.Core.QLearning
 
         public int CreateKey_IndexAction(ArraySegmentEx_Struct<byte> action)
         {
-            
+
 
             uint tmp = (uint)HashDepot.XXHash.Hash64(action.Array.AsSpan(action.Offset, action.Count));
             //uint tmp = HashDepot.XXHash.Hash32(state.Array.AsSpan(state.Offset, state.Count));
@@ -93,46 +105,52 @@ namespace TheGameNet.Core.QLearning
         }
 
 
+
         public bool HasValue(int indexState, int actionState)
         {
-            return _HashQTable[indexState].Keys.Contains(actionState);
+            return _HashQTable[indexState][actionState] != CONST_EmptyElement;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
         public (float val, bool empty) Get_detectIfExist(int indexState, int actionState)
         {
             var dicActions = _HashQTable[indexState];
 
-            if(dicActions.TryGetValue(actionState, out float val))
+
+            if (dicActions[actionState] != CONST_EmptyElement)
             {
-                return (val,true);
+                return (dicActions[actionState], true);
             }
 
             return (_defaultValue, false);
         }
 
+        //[MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+
         public float Get(int indexState, int actionState)
         {
             var dicActions = _HashQTable[indexState];
 
-            if (dicActions.TryGetValue(actionState, out float val))
+            if (dicActions[actionState] == CONST_EmptyElement)
             {
-                return val ;
+                return _defaultValue;
             }
 
-            return _defaultValue;
+            return dicActions[actionState];
         }
 
-        public (float val, int state) Get_Highest(int indexState, Span<int> actionStates)
+        public (float val, int state) Get_Highest(int indexState, ReadOnlySpan<int> actionStates)
         {
             float biggestVal = float.MinValue;
             int state = -1;
 
             var dicActions = _HashQTable[indexState];
 
-            for(int i = 0;i < actionStates.Length; i++)
+            for (int i = 0; i < actionStates.Length; i++)
             {
-
-                if (dicActions.TryGetValue(actionStates[i], out float val))
+                float val = dicActions[actionStates[i]];
+                if (val != CONST_EmptyElement)
                 {
                     if (biggestVal < val)
                     {
@@ -150,18 +168,12 @@ namespace TheGameNet.Core.QLearning
             return (biggestVal, state);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveOptimization | MethodImplOptions.AggressiveInlining)]
+
         public void Set(int indexState, int actionState, float value)
         {
-            var dicActions = _HashQTable[indexState];
-            if (dicActions.ContainsKey(actionState))
-            {
-                dicActions[actionState] = value;
-                
-            }
-            else
-            {
-                dicActions.Add(actionState, value);
-            }
+            var actions = _HashQTable[indexState];
+            actions[actionState] = value;
         }
 
         public void PrintTable(TextWriter tw)
@@ -195,108 +207,124 @@ namespace TheGameNet.Core.QLearning
         {
             tw.Write($"{"",10};");
 
-            foreach(var row in rows)
+            foreach (var row in rows)
             {
-                tw.Write($"{row.ToString("X"), 10};");
+                tw.Write($"{row.ToString("X"),10};");
             }
 
             tw.Write("\n");
         }
 
-        StringBuilder sb = new StringBuilder(4096);
-        char[] buffer = new char[1024];
-        private  void PrintTableData(TextWriter tw, Span<int> rows)
-        {
-            
+        
 
-            for(int i = 0;i < _HashQTable.Length;i++ )
+        private void PrintTableData(TextWriter tw, Span<int> rows)
+        {
+            StringBuilder sb = new StringBuilder(8096);
+            const int CONST_Flush = 8024;
+
+            for (int i = 0; i < _HashQTable.Length; i++)
             {
-                if(sb.Length > 512)
+                if (sb.Length > CONST_Flush)
                 {
-                    sb.CopyTo(0, buffer, 0, sb.Length);
-                    tw.Write(buffer, 0, sb.Length);
+                    foreach (var item in sb.GetChunks())
+                    {
+                        tw.Write(item.Span);
+                    }
+
                     sb.Clear();
                 }
-                
-                sb.Append($"{i.ToString(),10};");
+
+                sb.AppendFormat("{0,10};", i);
+
 
                 var data = _HashQTable[i];
                 foreach (var col in rows)
                 {
-                    if (data.TryGetValue(col,out float qValue))
+                    if (data[col] != CONST_EmptyElement)
                     {
-                        
-                        sb.AppendFormat("{0,10};", qValue.ToString("0.###"));
+                        sb.AppendFormat("{0,10:0.###};", data[col]);
                     }
                     else
                     {
                         sb.Append($"{"",10};");
                     }
 
-                    if (sb.Length > 512)
+                    if (sb.Length > CONST_Flush)
                     {
-                        sb.CopyTo(0, buffer, 0, sb.Length);
-                        tw.Write(buffer, 0, sb.Length);
+
+                        foreach (var item in sb.GetChunks())
+                        {
+                            tw.Write(item.Span);
+                        }
+
                         sb.Clear();
                     }
                 }
 
                 sb.AppendLine();
-                
+
             }
 
-            sb.CopyTo(0, buffer, 0, sb.Length);
-            tw.Write(buffer, 0, sb.Length);
-            sb.Clear();
-            //tw.Write(sb.ToString());
-        }
-
-        private void PrintTableData2(TextWriter tw, Span<int> rows)
-        {
-
-            for (int i = 0; i < _HashQTable.Length; i++)
+            foreach (var item in sb.GetChunks())
             {
-                if (sb.Length > 2048)
-                {
-                    tw.Write(sb.ToString());
-                    sb.Clear();
-                }
-
-                sb.Append($"{i,10};");
-
-                var data = _HashQTable[i];
-                foreach (var col in rows)
-                {
-                    if (data.TryGetValue(col, out float qValue))
-                    {
-                        
-                        sb.AppendFormat("{0,10};", qValue.ToString("0.###"));
-                    }
-                    else
-                    {
-                        sb.Append($"{"",10};");
-                    }
-                }
-
-                sb.AppendLine();
-
+                tw.Write(item.Span);
             }
-
-            tw.Write(sb.ToString());
+            //sb.Clear();
         }
 
-        private int [] GetAllRows()
+
+        /* private void PrintTableData2(TextWriter tw, Span<int> rows)
+         {
+
+             for (int i = 0; i < _HashQTable.Length; i++)
+             {
+                 if (sb.Length > 2048)
+                 {
+                     tw.Write(sb.ToString());
+                     sb.Clear();
+                 }
+
+                 sb.Append($"{i,10};");
+
+                 var data = _HashQTable[i];
+                 foreach (var col in rows)
+                 {
+                     if (data[col] != CONST_EmptyElement)
+                     {
+
+                         sb.AppendFormat("{0,10};", data[col].ToString("0.###"));
+                     }
+                     else
+                     {
+                         sb.Append($"{"",10};");
+                     }
+                 }
+
+                 sb.AppendLine();
+
+             }
+
+             tw.Write(sb.ToString());
+         }
+        */
+        private int[] GetAllRows()
         {
             HashSet<int> result = new HashSet<int>(400);
             foreach (var row in _HashQTable)
             {
-                foreach(var col in row)
+                for (int i = 0; i < row.Length; i++)
                 {
-                    result.Add(col.Key);
+                    if (row[i] == CONST_EmptyElement)
+                        continue;
+
+                    result.Add(i);
                 }
+
             }
 
             return result.ToArray();
         }
+
+
     }
 }

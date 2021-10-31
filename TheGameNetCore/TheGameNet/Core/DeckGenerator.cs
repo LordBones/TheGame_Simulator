@@ -13,13 +13,56 @@ namespace TheGameNet.Core
         private int _maxCard;
         private RandomGen _rng;
 
+        public int CardMaxCount => _maxCard - 2;
+
         public DeckGenerator(int maxCard, int randomSeed)
         {
             _rng = new RandomGen(randomSeed);
             _maxCard = maxCard;
         }
 
-        public  byte[] Get_CreatedSuffledDeck()
+
+
+
+
+        public byte[] Get_CreatedSuffledDeck()
+        {
+            byte[] result = new byte[CardMaxCount];
+            Get_CreatedSuffledDeck(result.AsSpan());
+            return result;
+        }
+
+        public void Get_CreatedSuffledDeck(Span<byte> result)
+        {
+            if (result.Length != CardMaxCount)
+                throw new Exception("forbiden");
+
+
+
+
+
+            int index = 0;
+            for (byte i = 2; i < _maxCard; i++, index++)
+            {
+                result[index] = i;
+            }
+
+            int endIndex = result.Length - 1;
+
+            while (endIndex > 0)
+            {
+                int tmpIndex = _rng.GetRandomNumber(0, endIndex + 1);
+
+                // swap
+                result[tmpIndex] ^= result[endIndex];
+                result[endIndex] ^= result[tmpIndex];
+                result[tmpIndex] ^= result[endIndex];
+
+                endIndex--;
+            }
+        }
+
+        public byte[] Get_CreatedSuffledDeck2()
         {
 
             int countCards = _maxCard - 2;

@@ -262,7 +262,15 @@ namespace TheGameNet.Core
             sb.Append($"{_gameBoard.Get_PH_ULight(3).Get_TopCard().ToString(),3} ");
 
             _gameRunLog.WriteLine("DeckCards: ");
-            _gameRunLog.WriteLine(sb.ToString());
+
+            foreach (var item in sb.GetChunks())
+            {
+                _gameRunLog.Write(item.Span);
+            }
+
+            _gameRunLog.WriteLine();
+
+            
         }
 
         private void Log_PlayerCards()
@@ -304,7 +312,15 @@ namespace TheGameNet.Core
                 sb.AppendLine(markNewLine);
             }
 
-            _gameRunLog.WriteLine(sb.ToString());
+            foreach(var item in sb.GetChunks())
+            {
+                _gameRunLog.Write(item.Span);
+            }
+
+            _gameRunLog.WriteLine();
+            //_gameRunLog.WriteLine(sb.ToString());
+
+            sb.Clear();
         }
         #endregion
     }

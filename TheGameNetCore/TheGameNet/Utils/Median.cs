@@ -77,7 +77,14 @@ namespace TheGameNet.Utils
                 double percent = item.Count*100 / (double)baseForPercent;
                 string percentStr = string.Format("{0:###.00} %", percent).PadLeft(8);
 
-                console.WriteLine($"{item.Key,3} : {percentStr} - {item.Count,6}   | {sb.ToString()}");
+                console.Write($"{item.Key,3} : {percentStr} - {item.Count,6}   | ");
+
+                foreach (var item2 in sb.GetChunks())
+                {
+                    console.Write(item2.Span);
+                }
+
+                console.WriteLine();
             }
         }
 

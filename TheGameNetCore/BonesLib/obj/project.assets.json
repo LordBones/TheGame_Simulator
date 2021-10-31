@@ -186,11 +186,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\BonesLib\\BonesLib.csproj",
+      "projectUniqueName": "D:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\BonesLib\\BonesLib.csproj",
       "projectName": "BonesLib",
-      "projectPath": "d:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\BonesLib\\BonesLib.csproj",
+      "projectPath": "D:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\BonesLib\\BonesLib.csproj",
       "packagesPath": "C:\\Users\\bones\\.nuget\\packages\\",
-      "outputPath": "d:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\BonesLib\\obj\\",
+      "outputPath": "D:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\BonesLib\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -246,7 +246,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.302\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.402\\RuntimeIdentifierGraph.json"
       }
     }
   }

@@ -34,13 +34,13 @@ namespace TheGameNet.RoundSimulations
             //byte[] newGameDeck = _testGameDeck;
             DeckGenerator deckGen = new DeckGenerator(100, 0);
 
-            byte[] newGameDeck = Array.Empty<byte>();
+            byte[] newGameDeck = new byte[deckGen.CardMaxCount] ;
             if (oneGlobalDeck)
-                newGameDeck = deckGen.Get_CreatedSuffledDeck();
+                deckGen.Get_CreatedSuffledDeck(newGameDeck.AsSpan());
             for (int r = 0; r < rounds; r++)
             {
                 if (!oneGlobalDeck)
-                    newGameDeck = deckGen.Get_CreatedSuffledDeck();
+                    deckGen.Get_CreatedSuffledDeck(newGameDeck.AsSpan());
 
                 SimulateGameplays(gamePlayes, newGameDeck);
                 
@@ -187,7 +187,7 @@ namespace TheGameNet.RoundSimulations
 
         public GameStat GameStat = new GameStat();
 
-        public GameProgress GameProgress = new GameProgress(1000);
+        public GameProgress GameProgress = new GameProgress(4000);
 
         public GamePlay(List<Player> players, string title, StreamWriter playLog)
         {
@@ -204,7 +204,7 @@ namespace TheGameNet.RoundSimulations
         {
             Utils.MedianResult<byte> medianResult = this.GameStat.computeMedian.Get_Median();
 
-            string text = $"{Title}:  Avg. cards: {this.GameStat.sum / (double)this.GameStat.countRounds:0.###} Med. : { medianResult.Median,3} MostCount: {medianResult.MostCount,3} Best score: {this.GameStat.bestGameScore,3}";
+            string text = $"{Title}:  Avg. cards: {this.GameStat.sum / (double)this.GameStat.countRounds:0.###} Med. : { medianResult.Median,3} MostCount: {medianResult.MostCount.ToString(),3} Best score: {this.GameStat.bestGameScore.ToString(),3}";
             return text;
         }
     }

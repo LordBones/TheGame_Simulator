@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using TheGameNet.Core.GameBoardMini;
@@ -16,7 +17,7 @@ namespace TheGameNet.Core.Players
     {
         private QTable _qTable;
         private QNode _lastQNode;
-        private QLearningCompute _qLearningCompute = new QLearningCompute(0.01f, 0.8f);
+        private QLearningCompute _qLearningCompute = new QLearningCompute(0.001f, 0.99f);
         private float _qExplorationPolicy = 0.05f;
 
 
@@ -75,7 +76,7 @@ namespace TheGameNet.Core.Players
 
         private void Init()
         {
-            _qTable = new QTable(2 - 1, 399, 1.0f);
+            _qTable = new QTable(102 - 1, 400, 1.0f);
             _lastQNode = new QNode(0, 0);// QNode.Default;
         }
 
@@ -178,28 +179,7 @@ namespace TheGameNet.Core.Players
             _qHistoryMovesIndex++;
 
             return;
-            /*
-
-            Span<MoveToPlay> possibleToPlay = stackalloc MoveToPlay[40];
-            int possibleToPlayCount = board.Get_PossibleToPlay(handCards,possibleToPlay);
-
-            //List<MoveToPlay> possibleToPlay = board.Get_PossibleToPlay(handCards);
-
-            int qGameStateIndex = QLearning_HashTransform.QLearning_StateIndex(_qTable, boardMini,board, handCards);
-
-            //var currentBestMove = Get_QLearning_BestAction(boardMini, qGameStateIndex, possibleToPlay);
-
-            float featureReward = Get_QLearning_FeatureReward_Highest(boardMini, qGameStateIndex, possibleToPlay.Slice(0,possibleToPlayCount));
-            //float featureReward = Get_QLearning_FeatureReward(boardMini, qGameStateIndex, possibleToPlay.Slice(0, possibleToPlayCount));
-
-
-            float currentReward = (QLearning_CurrentReward(board,boardMini, handCards));
-            float qCurrentReward = _qTable.Get(_lastQNode.StateIndex, _lastQNode.ActionIndex);
-
-            float newReward = _qLearningCompute.Q_Compute(qCurrentReward, currentReward, featureReward);
-
-            _qTable.Set(_lastQNode.StateIndex, _lastQNode.ActionIndex,newReward);
-            */
+            
         }
 
         public void PrintQTable(TextWriter tw)
@@ -214,7 +194,8 @@ namespace TheGameNet.Core.Players
 
             var qhmi = _qHistoryMoves[_qHistoryMovesIndex - 1];
 
-            float currentReward = -1;// board.Count_AllRemaindPlayCards;
+            float currentReward = //-1;//
+                                     - board.Count_AllRemaindPlayCards;
                 //(98 - (board.Count_AllRemaindPlayCards));
 
             float qCurrentReward = _qTable.Get(qhmi.qNode.StateIndex, qhmi.qNode.ActionIndex);
@@ -229,9 +210,14 @@ namespace TheGameNet.Core.Players
                
                 );
 
-
+            int counter = 20;
             for (int index = _qHistoryMovesIndex - 2; index >= 0; index--)
-            {
+                //for (int index =0; index < _qHistoryMovesIndex - 1; index++)
+                {
+                if (counter == 0)
+                    break;
+
+                counter--;
                 qhmi = _qHistoryMoves[index];
 
                 qCurrentReward = _qTable.Get(qhmi.qNode.StateIndex, qhmi.qNode.ActionIndex);
@@ -239,8 +225,9 @@ namespace TheGameNet.Core.Players
 
                 newReward = //currentReward;
                     _qLearningCompute.Q_Compute(qCurrentReward,
-                    //0.0f,
                     0.0f,
+                    //0.01f  
+                    //(index/1000.0f),
                    
                     fer
                     );
@@ -265,30 +252,7 @@ namespace TheGameNet.Core.Players
             Trace.WriteLine(sb.ToString());
         }
 
-        //public override void EndGame(GameBoard board, List<byte> handCards)
-        //{
-        //    if (_lastQNode.IsDefault()) return;
-
-        //    //var boardMini = board.CreateBoardMini(this.Id);
-
-
-        //    //int qGameStateIndex = QLearning_HashTransform.QLearning_StateIndex(_qTable, boardMini,board, handCards);
-
-        //    float currentReward = 98 - (board.Count_AllRemaindPlayCards);
-             
-             
-        //    float qCurrentReward = _qTable.Get(_lastQNode.StateIndex, _lastQNode.ActionIndex);
-
-
-
-        //    float newReward = //currentReward;
-        //        _qLearningCompute.Q_Compute(qCurrentReward, 
-        //        currentReward, 
-        //        currentReward);
-
-        //    _qTable.Set(_lastQNode.StateIndex, _lastQNode.ActionIndex, newReward);
-
-        //}
+        
 
 
 
@@ -482,47 +446,7 @@ namespace TheGameNet.Core.Players
 
             return (reward: resultPA.reward, qActionIndex: resultPA.qai, move: resultPA.move);
         }
-
-
         
-
-            private float Get_QLearning_FeatureReward(BoardMini boardMini, int qGameStateIndex, Span<MoveToPlay> possibleToPlay)
-        {
-            float rewardBest = float.MinValue;
-
-            float rewardSum = 0.0f;
-            int rewardCount = 0;
-            int qActionIndexBest = 0;
-
-
-            for (int i = 0; i < possibleToPlay.Length; i++)
-            {
-                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini,ref possibleToPlay[i]);
-
-                float reward = _qTable.Get(qGameStateIndex, qActionIndex);
-
-                rewardSum += reward;
-                rewardCount++;
-
-                if (reward > rewardBest)
-                {
-                    rewardBest = reward;
-                    qActionIndexBest = qActionIndex;
-                }
-            }
-
-
-
-            if (rewardBest == float.MinValue) rewardBest = 0.0f;
-
-            //if(rewardCount > 0)
-            //{
-            //    rewardBest = rewardSum / rewardCount;
-            //}
-
-            return rewardBest;
-        }
-
         private float Get_QLearning_FeatureReward_Highest(BoardMini boardMini, int qGameStateIndex, Span<MoveToPlay> possibleToPlay)
         {
             Span<int> qActions = stackalloc int[possibleToPlay.Length];
@@ -542,44 +466,7 @@ namespace TheGameNet.Core.Players
             return result.val; 
         }
 
-        private float Get_QLearning_FeatureReward(BoardMini boardMini, int qGameStateIndex, List<MoveToPlay> possibleToPlay)
-        {
-            float rewardBest = float.MinValue;
-
-            float rewardSum = 0.0f;
-            int rewardCount = 0;
-            int qActionIndexBest = 0;
-            
-
-            for (int i = 0; i < possibleToPlay.Count; i++)
-            {
-                var mtp = possibleToPlay[i];
-                int qActionIndex = QLearning_HashTransform.QLearning_ActionIndex(_qTable, boardMini,ref mtp);
-
-                float reward = _qTable.Get(qGameStateIndex, qActionIndex);
-
-                rewardSum += reward;
-                rewardCount++;
-
-                if (reward > rewardBest)
-                {
-                    rewardBest = reward;
-                    qActionIndexBest = qActionIndex;
-                }
-            }
-
-
-
-            if (rewardBest == float.MinValue) rewardBest = 0.0f;
-
-            //if(rewardCount > 0)
-            //{
-            //    rewardBest = rewardSum / rewardCount;
-            //}
-
-            return rewardBest;
-        }
-
+        
         private float Get_QLearning_FeatureReward2(BoardMini boardMini, int qGameStateIndex, List<MoveToPlay> possibleToPlay)
         {
             if (possibleToPlay.Count == 0) return -1.0f;
@@ -642,42 +529,11 @@ namespace TheGameNet.Core.Players
             //}
 
 
-            int countCanPlayCard = Helper_GetCountPlayCards(boardMini,handCards);
+            //int countCanPlayCard = Helper_GetCountPlayCards(boardMini,handCards);
 
             //fSum += countCanPlayCard+(board.MaxCardInHands-handCards.Count);
             //fSum += 100;
             //fSum += countCanPlayCard;
-
-            //fSum +=  (98 -  board.Count_AllRemaindPlayCards);
-            // board.Count_AllRemaindPlayCards ;
-
-//                - ((handCards.Count - countCanPlayCard) - _LastState_tmpCantPlayCards ) ;// + (board.MaxCardInHands - handCards.Count);
-
-            //int[] tmpArray = new int[100];
-            //float fIncrement = 1.0f;
-
-            //foreach (var item in boardMini.CardPlaceholders)
-            //{
-            //    int countToEnd = item.Get_CardDiff_ToEnd(item.Get_TopCard());
-            //    for (int i = 0; i < countToEnd; i++)
-            //    {
-            //        tmpArray[i] ++;
-            //    }
-
-
-            //}
-
-            //for (int i = 0; i < tmpArray.Length; i++)
-            //{
-            //    int countCard = tmpArray[i];
-            //    float tmpIncrement = fIncrement;
-            //    for (int c = 0; c < countCard; c++)
-            //    {
-            //        fSum += tmpIncrement;
-            //        tmpIncrement /= 10.0f;
-            //    }
-
-            //}
 
             return fSum;
            
@@ -686,8 +542,9 @@ namespace TheGameNet.Core.Players
         private int Helper_GetCountPlayCards(BoardMini boardMini, List<byte> handCards)
         {
             int countCanPlayCard = 0;
-            foreach (var card in handCards)
+            for (int i =0;i < handCards.Count;i++)
             {
+                var card = handCards[i];
                 foreach (var placeholder in boardMini.CardPlaceholders)
                 {
                     if (placeholder.CanPlaceCard(card))
