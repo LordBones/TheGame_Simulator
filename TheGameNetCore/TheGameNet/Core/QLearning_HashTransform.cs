@@ -178,6 +178,7 @@ namespace TheGameNet.Core
         public static int QLearning_ActionIndex(QTable qTable, BoardMini boardMini, ref  MoveToPlay moveToPlay)
         {
 
+
             return moveToPlay.Card + (moveToPlay.DeckIndex * 100);
             Span<byte> arrayForHashAction = stackalloc byte[3];
             //arrayForHashAction.Fill(0);
@@ -204,6 +205,14 @@ namespace TheGameNet.Core
 
             // var dataForHash = new ArraySegmentEx_Struct<byte>(arrayForHashAction, 0, arrayForHashIndex);
             return qTable.CreateKey_IndexAction(arrayForHashAction.AsSpan(0, arrayForHashIndex));
+        }
+
+        public static int QLearning_ActionIndex3(QTable qTable, BoardMini boardMini, ref MoveToPlay moveToPlay)
+        {
+
+            int isUp = boardMini.CardPlaceholders[moveToPlay.DeckIndex].UpDirection ? 1 : 0;
+            return moveToPlay.Card + (isUp * 100);
+          
         }
 
     }
