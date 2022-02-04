@@ -127,7 +127,18 @@ namespace TheGameNet.RoundSimulations
 
                     }
 
-                   
+                    if (p is Player_QLearning_2)
+                    {
+                        string fileName = groupTitle + "_" + item.Title + "_" + p.Name + "_QTable_log.txt";
+
+                        using (Stream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.Read, 32000, FileOptions.SequentialScan))
+                        using (TextWriter tw = new StreamWriter(fs, Encoding.UTF8))
+                        {
+                            ((Player_QLearning_2)p).PrintQTable(tw);
+                        }
+
+                    }
+
 
                     if (p is Player_DoubleQLearning)
                     {

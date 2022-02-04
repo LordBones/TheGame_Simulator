@@ -23,6 +23,7 @@ namespace TheGameNet.Core.QLearning
         private int _hashActionSize;
         private float _defaultValue;
 
+        public int HashTableSize => _HashQTable.Length;
         public QTable(int hashTableSize, int maxActionLength, float defaultValue)
         {
             _hashActionSize = maxActionLength;

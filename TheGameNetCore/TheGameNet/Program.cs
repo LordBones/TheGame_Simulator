@@ -42,7 +42,8 @@ namespace TheGameNet
             //Testings.FlexibleFNN_Testing();
             //Testings.FNN_Testing();
 
-            Testings.Run_QLearning_Teach();
+            //Testings.Run_QLearning_Teach();
+            Testings.Run_QLearning_Teach_2();
             //Testings.Run_GA_Learn();
 
 

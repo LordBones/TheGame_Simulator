@@ -8,7 +8,7 @@ namespace TheGameNet.Core
 {
     public class PlayedCards
     {
-        private byte [] _cards ;
+        private byte[] _cards;
         private byte _count;
 
         public PlayedCards()
@@ -16,9 +16,29 @@ namespace TheGameNet.Core
             _cards = new byte[14];
             _count = 0;
         }
-        
 
-        public int Count => _count;
+
+        public int Count
+        {
+            get
+            {
+                int sum = 0;
+                for(int i = 0; i < _cards.Length; i++)
+                {
+                    byte cards = _cards[i];
+                    sum += cards & 1;
+                    sum += (cards >> 1) & 1;
+                    sum += (cards >> 2) & 1; 
+                    sum += (cards >> 3) & 1; 
+                    sum += (cards >> 4) & 1;
+                    sum += (cards >> 5) & 1;
+                    sum += (cards >> 6) & 1;
+                    sum += (cards >> 7) & 1;
+                }
+
+                return sum;
+            }
+        }
 
         public void Clear()
         {
