@@ -155,9 +155,9 @@ namespace TheGameNet.Core.FNN
 
             do
             {
-                if(_rnd.GetRandomNumber(0,100) < 11)
-                 _fnn_manipulator.MutateTopology(fnn.Layers, learningRate);
-                else
+                //if(_rnd.GetRandomNumber(0,100) < 11)
+                // _fnn_manipulator.MutateTopology(fnn.Layers, learningRate);
+                //else
                     _fnn_manipulator.MutateWeight(fnn.Layers, learningRate);
                 
                 countMutations++;
@@ -313,7 +313,7 @@ namespace TheGameNet.Core.FNN
                 _progressLog.WriteLine("gen");
                 for (int i = 0; i < popIndexs.Length; i++)
                 {
-                    _progressLog.Write($"{_pop_Fitness[popIndexs[i]],6:F3}  ");
+                    _progressLog.Write("{0:6F3}",_pop_Fitness[popIndexs[i]]);
                 }
                 _progressLog.WriteLine();
 

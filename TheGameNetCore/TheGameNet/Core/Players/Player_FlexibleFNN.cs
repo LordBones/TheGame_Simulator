@@ -36,7 +36,7 @@ namespace TheGameNet.Core.Players
 
             _fnn = new FlexibleForwardNN(32+5, 32);
             var topology = new short[] { 1 };
-            _fnn.Layers.Init(32+5, 32, topology.Sum(x => x) + 300, 30000);
+            _fnn.Layers.Init(32+5, 32, topology.Sum(x => x) + 3000, 30000);
 
             //_fnn.SetTopology(topology);
 

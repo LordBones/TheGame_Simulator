@@ -198,7 +198,7 @@ namespace TheGameNet.RoundSimulations
 
         public GameStat GameStat = new GameStat();
 
-        public GameProgress GameProgress = new GameProgress(4000);
+        public GameProgress GameProgress = new GameProgress(100);
 
         public GamePlay(List<Player> players, string title, StreamWriter playLog)
         {

@@ -293,11 +293,11 @@ namespace TheGameNet.Core
                 
                 sb//.Append($"{markNewLine}{markPlayNow,1} P{i} {playerName,15}: ")
                   .Append(markNewLine)
-                  .Append($"{ markPlayNow,1}")
+                  .AppendFormat("{0:1}", markPlayNow)
                   .Append(" P")
                   .Append(i)
                   .Append(" ")
-                  .Append($"{playerName,15}")
+                  .AppendFormat("{0:15}",playerName)
                   .Append(": ")
                   ;
 
@@ -305,7 +305,7 @@ namespace TheGameNet.Core
 
                 for(int c = 0; c < cards.Length; c++)
                 {
-                    sb.Append($"{cards[c].ToString(),3}, ");
+                    sb.AppendFormat("{0,3}, ",cards[c].ToString());
                 }
 
 

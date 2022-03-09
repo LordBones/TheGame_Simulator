@@ -210,7 +210,7 @@ namespace TheGameNet.Core.QLearning
 
             foreach (var row in rows)
             {
-                tw.Write($"{row.ToString("X"),10};");
+                tw.Write("{0:10X}",row);
             }
 
             tw.Write("\n");

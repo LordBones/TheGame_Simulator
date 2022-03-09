@@ -43,10 +43,12 @@ namespace TheGameNet
             //Testings.FNN_Testing();
 
             //Testings.Run_QLearning_Teach();
-            Testings.Run_QLearning_Teach_2();
+            //Testing.Testings.Run_QLearning_Teach_2();
             //Testings.Run_GA_Learn();
 
-
+            //Testing.Testing_FixedNN.BasicEvaluation();
+            Testing.Testing_FixedNN.Run_FixedNN_Teach();
+            //Testing.Testing_FixedNN.Bench();
 
             //Console.WriteLine("Hello World!");
             performanceCounter.Stop();

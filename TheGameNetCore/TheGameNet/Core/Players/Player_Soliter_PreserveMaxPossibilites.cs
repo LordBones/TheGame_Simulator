@@ -79,7 +79,7 @@ namespace TheGameNet.Core.Players
                 if (minDepthSearch <= 0) minDepthSearch = 1;
 
 
-                int maxDepthSearch = 6;
+                int maxDepthSearch = 4;
 
                 if (_tempHand == null || _tempHand.Length < handCards.Length) _tempHand = new byte[handCards.Length];
 
