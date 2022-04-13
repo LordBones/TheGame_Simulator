@@ -29,21 +29,31 @@ namespace TheGameNet.RoundSimulations
             return new GamePlay(players, title, playLog);
         }
 
-        public static void SimulateGameRounds(GamePlayGroup[] gamePlayes, int rounds, bool enablePrintResults = true, int seed = 0, bool oneGlobalDeck = true)
+        public static void SimulateGameRounds(GamePlayGroup[] gamePlayes, int rounds, bool enablePrintResults = true, int seed = 0, bool oneGlobalDeck = true, int batchDeckSize = -1)
         {
             //byte[] newGameDeck = _testGameDeck;
-            DeckGenerator deckGen = new DeckGenerator(100, 0);
+            DeckGenerator deckGen = new DeckGenerator(100, seed);
 
             byte[] newGameDeck = new byte[deckGen.CardMaxCount] ;
             if (oneGlobalDeck)
                 deckGen.Get_CreatedSuffledDeck(newGameDeck.AsSpan());
+
+            int deckCount = batchDeckSize;
             for (int r = 0; r < rounds; r++)
             {
                 if (!oneGlobalDeck)
                     deckGen.Get_CreatedSuffledDeck(newGameDeck.AsSpan());
 
+                if(batchDeckSize>0 && deckCount <= 0)
+                {
+                    deckGen.ResetSeed(0);
+                    deckCount = batchDeckSize;
+                }
+
                 SimulateGameplays(gamePlayes, newGameDeck);
-                
+
+                if(batchDeckSize > 0)
+                    deckCount--;
             }
 
             if (enablePrintResults)

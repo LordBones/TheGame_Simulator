@@ -10,38 +10,40 @@ using TheGameNet.Core.GameBoardMini_Solver;
 
 namespace TheGameNet.Core.Players
 {
-    internal class Player_FixedNN : Player
+    internal class Player_FIxedNN_MultiOutput : Player
     {
         private FixedForwardNN _fnn;
 
         private BoardMini _tmpBoardMini = null;
 
-        private float _alphaLearning = 0.005f;
-        private float _chooseRandomPolicy = 0.005f;
-        private float _moment = 0.90f;
+        private float _alphaLearning = 0.0001f;
+        private float _chooseRandomPolicy = 0.01f;
+        private float _moment = 0.9f;
         private float _lastReward;
+        private MoveToPlay _lastMoveToPlay;
         private ArrayWrapper<float> _lastBestNNInputs;
 
         private HistoryItem[] _qHistoryMoves = new HistoryItem[100];
         private int _qHistoryMovesIndex = 0;
 
         public bool TeachingEnable = true;
-        
+
 
         public FixedForwardNN Fnn { get => _fnn; set => _fnn = value; }
 
         struct HistoryItem
         {
             public ArrayWrapper<float> _NNInputs;
-            public float Reward;
+            public MoveToPlay moveToPlay;
+           
         }
 
-        public Player_FixedNN()
+        public Player_FIxedNN_MultiOutput()
         {
             Init();
         }
 
-        public Player_FixedNN(string name) : base(name)
+        public Player_FIxedNN_MultiOutput(string name) : base(name)
         {
             Init();
         }
@@ -53,9 +55,9 @@ namespace TheGameNet.Core.Players
             //_fnn.Layers.Init(105, 98 * 4, topology.Sum(x => x) + 800, 30000);
 
 
-            _fnn = new FixedForwardNN(9, 1);
+            _fnn = new FixedForwardNN(9, 98*4);
             //var topology = new short[] { 60,30,20,10 };
-            var topology = new short[] { 40,40,40  };
+            var topology = new short[] { 144,144,400  };
             _fnn.SetTopology(topology);
             _fnn.InitBaseWeights();
             //_fnn.SetTopology(topology);
@@ -70,7 +72,7 @@ namespace TheGameNet.Core.Players
 
         public override void StartPlay(GameBoard board, Span<byte> handCards)
         {
-           
+
         }
 
         public override void AfterCardPlay_ResultMove(GameBoard board, Span<byte> handCards, bool isEndOfGame)
@@ -78,7 +80,7 @@ namespace TheGameNet.Core.Players
             if (_lastBestNNInputs.Count == 0) return;
             if (!TeachingEnable) return;
 
-            _qHistoryMoves[_qHistoryMovesIndex] = new HistoryItem() { Reward = _lastReward, _NNInputs=_lastBestNNInputs};
+            _qHistoryMoves[_qHistoryMovesIndex] = new HistoryItem() { _NNInputs = _lastBestNNInputs, moveToPlay = _lastMoveToPlay };
             _qHistoryMovesIndex++;
         }
 
@@ -90,10 +92,11 @@ namespace TheGameNet.Core.Players
             FixListSpan<MoveToPlay> possibleToPlay = new FixListSpan<MoveToPlay>(flsa);
             board.Get_PossibleToPlay(handCards, ref possibleToPlay);
 
-            (float reward, ArrayWrapper<float> bestNNInputs, MoveToPlay move) bestAction = Get_BestAction_Best(boardMini,board.Count_AllRemaindPlayCards,ref possibleToPlay);
+            (float reward, ArrayWrapper<float> bestNNInputs, MoveToPlay move) bestAction = Get_BestAction_Best(boardMini, board.Count_AllRemaindPlayCards, ref possibleToPlay);
 
             _lastBestNNInputs = bestAction.bestNNInputs;
             _lastReward = bestAction.reward;
+            _lastMoveToPlay = bestAction.move;
 
             return bestAction.move;
         }
@@ -109,8 +112,8 @@ namespace TheGameNet.Core.Players
             if (_lastBestNNInputs.Count == 0) return;
             if (!TeachingEnable) return;
 
-            Span<float> rewards = stackalloc  float[1];
-            //float realReward =  (98 - (board.Count_AllRemaindPlayCards)) / 100.0f;
+            Span<float> rewards = stackalloc float[_fnn.Outputs.Length];
+            //float realReward = (98 - (board.Count_AllRemaindPlayCards)) / 100.0f;
             //rewards[0] = realReward;
 
             float coef = 1.0f;
@@ -119,18 +122,21 @@ namespace TheGameNet.Core.Players
                 //1.0f / 98;
                 1.0f / (98 - (board.Count_AllRemaindPlayCards));
 
-            for (int i = _qHistoryMovesIndex-1; i >=0;  i--)
+            for (int i = _qHistoryMovesIndex - 1; i >= 0; i--)
             {
-                float realReward = (_qHistoryMovesIndex - i) / 100.0f;
-                rewards[0] = realReward;
-
-                // rewards[0] = (_qHistoryMovesIndex - i) / 100.0f;
                 var move = _qHistoryMoves[i];
 
+                // rewards[0] = (_qHistoryMovesIndex - i) / 100.0f;
+                float realReward = (_qHistoryMovesIndex - i) / 100.0f;
                 move._NNInputs.AsSpan().CopyTo(_fnn.Inputs);
                 _fnn.Evaluate();
-                _fnn.BackPropagate(_alphaLearning, rewards,_moment, coef);
-                coef-=coefStep;
+
+                _fnn.Outputs.CopyTo(rewards);
+                //rewards.Fill(0.0f);
+                rewards[GetOutputIndex(move.moveToPlay)] = realReward;
+
+                _fnn.BackPropagate(_alphaLearning, rewards, _moment, coef);
+               // coef -= coefStep;
                 //coef *= coefStep;
 
             }
@@ -138,10 +144,10 @@ namespace TheGameNet.Core.Players
         }
 
 
-        (float reward, ArrayWrapper<float> bestNNInputs, MoveToPlay move) Get_BestAction_Best(BoardMini boardMini,int countRemaindCards, ref FixListSpan<MoveToPlay> possibleToPlay)
+        (float reward, ArrayWrapper<float> bestNNInputs, MoveToPlay move) Get_BestAction_Best(BoardMini boardMini, int countRemaindCards, ref FixListSpan<MoveToPlay> possibleToPlay)
         {
             float rewardBest = float.MinValue;
-            
+
 
             MoveToPlay moveBest = MoveToPlay.GetNotMove();
             ArrayWrapper<float> bestNNInputs = new ArrayWrapper<float>();
@@ -153,12 +159,13 @@ namespace TheGameNet.Core.Players
 
                 var indexPosToPlay = RandomGen.Default.GetRandomNumber(0, possibleToPlay.Length);
 
-                PrepareFNNInputs(tmpArray.AsSpan(), boardMini, countRemaindCards, ref possibleToPlay[indexPosToPlay]);
+                PrepareFNNInputs(tmpArray.AsSpan(), boardMini, countRemaindCards);
                 tmpArray.AsSpan().CopyTo(_fnn.Inputs);
 
                 _fnn.Evaluate();
-                float outputVal = _fnn.Outputs[0];
-                //outputVal = (outputVal < 0) ? 0.0f : outputVal;
+
+
+                float outputVal = _fnn.Outputs[GetOutputIndex(possibleToPlay[indexPosToPlay])];
 
                 moveBest = possibleToPlay[indexPosToPlay];
                 bestNNInputs.FreePooledArray();
@@ -170,21 +177,22 @@ namespace TheGameNet.Core.Players
             else
             {
                 //  Trace.Write($"{qGameStateIndex,7} - {possibleToPlay.Count,2} line: ");
-                for (int i = 0; i < possibleToPlay.Length; i++)
-                {
-                    PrepareFNNInputs(tmpArray.AsSpan(), boardMini, countRemaindCards, ref possibleToPlay[i]);
+                    PrepareFNNInputs(tmpArray.AsSpan(), boardMini, countRemaindCards);
                     tmpArray.AsSpan().CopyTo(_fnn.Inputs);
 
                     _fnn.Evaluate();
-                    float outputVal = _fnn.Outputs[0];
-                    //outputVal = (outputVal < 0) ? 0.0f : outputVal;
+
+                for (int i = 0; i < possibleToPlay.Length; i++)
+                {
+
+                    float outputVal = _fnn.Outputs[GetOutputIndex(possibleToPlay[i])];
 
                     if (rewardBest < outputVal)
                     {
                         moveBest = possibleToPlay[i];
-                        bestNNInputs.FreePooledArray();
+                        //bestNNInputs.FreePooledArray();
                         bestNNInputs = tmpArray;
-                        tmpArray = Helper_GetPooledArray<float>(_fnn.Inputs.Length);
+                        //tmpArray = Helper_GetPooledArray<float>(_fnn.Inputs.Length);
                         rewardBest = outputVal;
                     }
                 }
@@ -194,7 +202,12 @@ namespace TheGameNet.Core.Players
             return (reward: rewardBest, bestNNInputs: bestNNInputs, move: moveBest);
         }
 
-        private void PrepareFNNInputs(Span<float> inputs, BoardMini boardMini,int countRemainsCards, ref MoveToPlay moveToPlay)
+        private int GetOutputIndex(MoveToPlay mtp)
+        {
+            return mtp.DeckIndex * 98 + mtp.Card - 2;
+        }
+
+        private void PrepareFNNInputs(Span<float> inputs, BoardMini boardMini, int countRemainsCards)
         {
             inputs.Clear();
             //inputs[0] = moveToPlay.Card / 100.0f;
@@ -208,9 +221,7 @@ namespace TheGameNet.Core.Players
             inputs[1] = GetNormalizedTopDeck(boardMini.CardPlaceholders[1]) / 100.0f;
             inputs[2] = GetNormalizedTopDeck(boardMini.CardPlaceholders[2]) / 100.0f;
             inputs[3] = GetNormalizedTopDeck(boardMini.CardPlaceholders[3]) / 100.0f;
-            
 
-            inputs[4+ moveToPlay.DeckIndex] = GetNormalizedCard(boardMini.CardPlaceholders[moveToPlay.DeckIndex], moveToPlay.Card) / 100.0f;
             //inputs[4 ] = moveToPlay.Card / 100.0f;
 
             inputs[8] = countRemainsCards / 100.0f;
@@ -220,8 +231,10 @@ namespace TheGameNet.Core.Players
 
         private byte GetNormalizedTopDeck(CardPlaceholderLight cpl)
         {
+           
             byte card = cpl.Get_TopCard();
-            if(cpl.UpDirection)
+            return card;
+            if (cpl.UpDirection)
             {
                 return card;
             }
@@ -231,7 +244,7 @@ namespace TheGameNet.Core.Players
 
         private byte GetNormalizedCard(CardPlaceholderLight cpl, byte card)
         {
-           
+
             if (cpl.UpDirection)
             {
                 return card;
@@ -252,10 +265,10 @@ namespace TheGameNet.Core.Players
 
             public Span<T> AsSpan()
             {
-                return Data.AsSpan(0,Count);
+                return Data.AsSpan(0, Count);
             }
 
-            public ArrayWrapper(T [] data, int count)
+            public ArrayWrapper(T[] data, int count)
             {
                 Data = data;
                 Count = count;

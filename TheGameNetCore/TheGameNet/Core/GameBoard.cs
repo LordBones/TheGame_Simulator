@@ -516,6 +516,8 @@ namespace TheGameNet.Core
         }
 
         public bool IsNotMove { get { return DeckIndex < 0; } }
+
+        public static MoveToPlay GetNotMove() { return new MoveToPlay(0,-1); }
     }
 
 

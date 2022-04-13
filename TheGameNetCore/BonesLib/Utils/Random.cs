@@ -29,8 +29,13 @@ namespace BonesLib.Utils
         public RandomGen(int seed)
         {
             random = new Random(seed);
+            
         }
 
+        public void ResetSeed(int seed)
+        {
+            random = new Random(seed);
+        }
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -277,5 +282,12 @@ namespace BonesLib.Utils
             x *= x; x *= x;
             return x;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float FastTanh(float val)
+        {
+            return 2 * (1 / (1 + FastExp(-2 * val))) - 1;
+        }
+        
     }
 }

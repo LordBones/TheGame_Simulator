@@ -21,7 +21,10 @@ namespace TheGameNet.Core
             _maxCard = maxCard;
         }
 
-
+        public void ResetSeed(int seed)
+        {
+            _rng.ResetSeed(seed);
+        }
 
 
 
@@ -54,9 +57,9 @@ namespace TheGameNet.Core
                 int tmpIndex = _rng.GetRandomNumber(0, endIndex + 1);
 
                 // swap
-                result[tmpIndex] ^= result[endIndex];
-                result[endIndex] ^= result[tmpIndex];
-                result[tmpIndex] ^= result[endIndex];
+                var tmp  = result[endIndex];
+                result[endIndex] = result[tmpIndex];
+                result[tmpIndex] = tmp;
 
                 endIndex--;
             }
