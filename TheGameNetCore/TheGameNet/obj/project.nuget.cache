@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "4D2ngT2bePqhOYEsfwHmSezc2+y4obtmK3sWmnVr70YcC+AIVWHyuJiyOoCMsWo3AmFEKZ7U1mv6fPtYp3HVbA==",
+  "dgSpecHash": "/Ex/YuGQ/mIItnM6CHA7sQ5GWGDaxhrTBTIJ/vQgKJKpI2oH/sJ8evJBLyvitn1rOF8QbZi0TekGdX+jZIFsdQ==",
   "success": true,
   "projectFilePath": "D:\\programovani\\c#\\TheGameSimulator\\TheGame_Simulator\\TheGameNetCore\\TheGameNet\\TheGameNet.csproj",
   "expectedPackageFiles": [
@@ -9,6 +9,7 @@
     "C:\\Users\\Bones\\.nuget\\packages\\microsoft.netcore.targets\\1.1.3\\microsoft.netcore.targets.1.1.3.nupkg.sha512",
     "C:\\Users\\Bones\\.nuget\\packages\\system.buffers\\4.5.1\\system.buffers.4.5.1.nupkg.sha512",
     "C:\\Users\\Bones\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
+    "C:\\Users\\Bones\\.nuget\\packages\\system.numerics.vectors\\4.5.0\\system.numerics.vectors.4.5.0.nupkg.sha512",
     "C:\\Users\\Bones\\.nuget\\packages\\system.runtime\\4.3.1\\system.runtime.4.3.1.nupkg.sha512",
     "C:\\Users\\Bones\\.nuget\\packages\\zstring\\2.4.2\\zstring.2.4.2.nupkg.sha512"
   ],

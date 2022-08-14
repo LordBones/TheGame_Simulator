@@ -4,6 +4,7 @@
 /BitmapTracer.CoreTests/obj
 /BitmapTracer/bin
 /BitmapTracer/obj
+obj
 /*.suo
 /.vs/
 Debug

@@ -2,15 +2,15 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace BonesLib.FixedForwardNN
+namespace BonesLib2.FixedForwardNN
 {
-    public class FixedForwardNN
+    public class FixedForwardNNTest
     {
         private const float CONST_Bias = 1.0f;
 
@@ -29,7 +29,7 @@ namespace BonesLib.FixedForwardNN
         public int GetTotalWeighs()
         {
             int sum = 0;
-            for(int i = 0; i < _layersNN.LayersDef.Length; i++)
+            for (int i = 0; i < _layersNN.LayersDef.Length; i++)
             {
                 sum += _layersNN.GetWeights(i).Length;
             }
@@ -38,20 +38,20 @@ namespace BonesLib.FixedForwardNN
         }
 
 
-        public FixedForwardNN(short countInputs, short countOutputs)
+        public FixedForwardNNTest(short countInputs, short countOutputs)
         {
             _inputsPadding = ComputePaddingLenth(countInputs);
             _outputsPadding = ComputePaddingLenth(countOutputs);
             _outputs = new float[countOutputs + _outputsPadding];
-            _inputs = new float[countInputs+_inputsPadding];
+            _inputs = new float[countInputs + _inputsPadding];
 
         }
 
-        public FixedForwardNN Clone()
+        public FixedForwardNNTest Clone()
         {
-            var result = new FixedForwardNN( (short)Inputs.Length, (short)Outputs.Length);
+            var result = new FixedForwardNNTest((short)Inputs.Length, (short)Outputs.Length);
             result.Topology = new short[Topology.Length];
-            Topology.CopyTo(result.Topology,0);
+            Topology.CopyTo(result.Topology, 0);
 
             result._layersNN = LayersNN.Clone();
             return result;
@@ -62,10 +62,10 @@ namespace BonesLib.FixedForwardNN
             Topology = topology.ToArray();
 
             for (int i = 0; i < Topology.Length; i++)
-                Topology[i] = (short)(Topology[i]+ComputePaddingLenth(Topology[i]));
+                Topology[i] = (short)(Topology[i] + ComputePaddingLenth(Topology[i]));
 
             LayersNN.LayersDef = new LayerDef[topology.Length + 1];
-      
+
             int totalCountN = TotalCountN_FromTopology(Topology);
             int totalCountW = TotalCountWeights_FromTopology(Topology);
 
@@ -95,10 +95,10 @@ namespace BonesLib.FixedForwardNN
                     , (short)topologyPadding
                     );
 
-            
-                lastBiasesIndex +=Topology[i];
 
-                lastWeightsIndex += countLastNeurons* Topology[i];
+                lastBiasesIndex += Topology[i];
+
+                lastWeightsIndex += countLastNeurons * Topology[i];
 
 
                 linksPerNeuron = Topology[i];
@@ -118,9 +118,9 @@ namespace BonesLib.FixedForwardNN
         private int TotalCountN_FromTopology(short[] topology)
         {
             int sum = 0;
-            for(int i = 0; i < topology.Length; i++)
+            for (int i = 0; i < topology.Length; i++)
             {
-                sum+=topology[i];
+                sum += topology[i];
             }
             sum += _outputs.Length;
             return sum;
@@ -132,10 +132,10 @@ namespace BonesLib.FixedForwardNN
             int sum = 0;
             for (int i = 0; i < topology.Length; i++)
             {
-                sum += lastLayerSize* topology[i];
+                sum += lastLayerSize * topology[i];
                 lastLayerSize = topology[i];
             }
-            sum += topology[topology.Length-1] * _outputs.Length;
+            sum += topology[topology.Length - 1] * _outputs.Length;
             return sum;
         }
 
@@ -154,15 +154,15 @@ namespace BonesLib.FixedForwardNN
                 //* GetRandSign()
                 //)+float.Epsilon;
                 //        //(float)(RandomGen.Default.GetRandomNumberDoubleGausisan() * scale
-                        ;
+                ;
 
                 var tmpBias = LayersNN.GetBias(l);
                 for (int i = 0; i < tmpBias.Length; i++)
                     tmpBias[i] = //0.0f
-                //0.1f;
-                 (float)(RandomGen.Default.GetRandomNumberDouble())* //*0.1)
+                                 //0.1f;
+                 (float)(RandomGen.Default.GetRandomNumberDouble()) * //*0.1)
                   (1.0f / (LayersNN.LayersDef[l].CountWPerN))//scale//* GetRandSign()
-                  //+ float.Epsilon
+                                                             //+ float.Epsilon
                   ;
 
                 float maxSumW = GetMaxWeightSumBy_ActivationFunction(LayersNN.LayersDef[l].typeAF);
@@ -172,25 +172,25 @@ namespace BonesLib.FixedForwardNN
                 int wIndex = 0;
                 for (int i = 0; i < Ns.Length; i++)
                 {
-                    Helper_RandomSequences.SequenceEqualsOne(RandomGen.Default, tmpBuff,maxSumW 
+                    Helper_RandomSequences.SequenceEqualsOne(RandomGen.Default, tmpBuff, maxSumW
                         //- tmpBias[i]
                         );
 
-                    for(int j = 0; j < tmpBuff.Length; j++)
+                    for (int j = 0; j < tmpBuff.Length; j++)
                     {
-                        tmp[wIndex++] = (float)tmpBuff[j] ;// * GetRandSign(0.4);
+                        tmp[wIndex++] = (float)tmpBuff[j];// * GetRandSign(0.4);
                     }
                 }
 
-                
+
             }
         }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private float GetRandSign(double coefMinus)
-    {
-        return (RandomGen.Default.GetRandomNumberDouble() < coefMinus) ? -1.0f : 1.0f;
-    }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private float GetRandSign(double coefMinus)
+        {
+            return (RandomGen.Default.GetRandomNumberDouble() < coefMinus) ? -1.0f : 1.0f;
+        }
         private float GetWeightScaleBy_ActivationFunction(LayerDef.eActivationFunction eAF, int countLInput, int countLOutput)
         {
             if (eAF == LayerDef.eActivationFunction.Sigmoid)//|| eAF == LayerDef.eActivationFunction.Tanh)
@@ -207,16 +207,16 @@ namespace BonesLib.FixedForwardNN
 
         private float GetMaxWeightSumBy_ActivationFunction(LayerDef.eActivationFunction eAF)
         {
-            if(eAF == LayerDef.eActivationFunction.Sigmoid )//|| eAF == LayerDef.eActivationFunction.Tanh)
+            if (eAF == LayerDef.eActivationFunction.Sigmoid)//|| eAF == LayerDef.eActivationFunction.Tanh)
                 return 4.0f;
 
-            if ( eAF == LayerDef.eActivationFunction.Tanh)
+            if (eAF == LayerDef.eActivationFunction.Tanh)
                 return 2.0f;
 
             if (eAF == LayerDef.eActivationFunction.Logmoid)
                 return 2.0f;
 
-            return  1.0f;
+            return 1.0f;
         }
 
         public void Evaluate()
@@ -224,7 +224,7 @@ namespace BonesLib.FixedForwardNN
             EvaluateFirstLevel();
             EvaluateOtherLevels();
 
-            var neurons = this.LayersNN.GetNOuts(this.LayersNN.LayersDef.Length-1);
+            var neurons = this.LayersNN.GetNOuts(this.LayersNN.LayersDef.Length - 1);
 
             neurons.CopyTo(this._outputs);
             //Array.Copy(neurons, this.Outputs, this.Outputs.Length);
@@ -241,18 +241,18 @@ namespace BonesLib.FixedForwardNN
         /// <param name="alpha"></param>
         /// <param name="expectOutput"></param>
         /// <param name="outputCoef"></param>
-        public void BackPropagate(float alpha, Span<float> expectOutput,float moment, float outputCoef)
+        public void BackPropagate(float alpha, Span<float> expectOutput, float moment, float outputCoef)
         {
             float[] expOutputExtend = ArrayPool<float>.Shared.Rent(_outputs.Length);
             _outputs.CopyTo(expOutputExtend.AsSpan());
             expectOutput.CopyTo(expOutputExtend);
-            
 
-            float [] oGradsSource = ArrayPool<float>.Shared.Rent(_outputs.Length);
-            var oGrads = oGradsSource.AsSpan(0,_outputs.Length);
+
+            float[] oGradsSource = ArrayPool<float>.Shared.Rent(_outputs.Length);
+            var oGrads = oGradsSource.AsSpan(0, _outputs.Length);
             int lastLIndex = this.LayersNN.LayersDef.Length - 1;
-            
-            BP_ComputeGradFromOutput(oGrads, expOutputExtend.AsSpan(0,_outputs.Length), outputCoef);
+
+            BP_ComputeGradFromOutput(oGrads, expOutputExtend.AsSpan(0, _outputs.Length), outputCoef);
             ArrayPool<float>.Shared.Return(expOutputExtend);
 
 
@@ -264,7 +264,7 @@ namespace BonesLib.FixedForwardNN
                 float[] hGradsSource = ArrayPool<float>.Shared.Rent(lastLNM1.Length);
                 var hGrads = hGradsSource.AsSpan(0, lastLNM1.Length);
 
-                
+
 
                 BP_UpdateWeights(oGrads, lAsInputIndex, alpha, moment);
 
@@ -287,22 +287,22 @@ namespace BonesLib.FixedForwardNN
 
             int countInputs = _inputs.Length;
 
-            for(int i = 0;i < this.LayersNN.LayersDef.Length; i++)
+            for (int i = 0; i < this.LayersNN.LayersDef.Length; i++)
             {
                 var lNS = this.LayersNN.GetNOuts(i);
                 var weights = this.LayersNN.GetWeights(i);
                 var bias = this.LayersNN.GetBias(i);
 
-                tw.WriteLine("Layer: {0}  Inputs:{1} Outputs: {2} \n",i, countInputs, lNS.Length);
+                tw.WriteLine("Layer: {0}  Inputs:{1} Outputs: {2} \n", i, countInputs, lNS.Length);
                 tw.Write("# ");
                 int biasIndex = 0;
                 tw.Write("b: {0,7:0.0000}, ", bias[biasIndex++]);
 
                 int counter = countInputs;
-                
-                for(int j = 0;j < weights.Length; j++)
+
+                for (int j = 0; j < weights.Length; j++)
                 {
-                    if(counter == 0)
+                    if (counter == 0)
                     {
                         tw.WriteLine();
                         tw.Write("# ");
@@ -319,7 +319,7 @@ namespace BonesLib.FixedForwardNN
                 countInputs = lNS.Length;
             }
 
-         
+
         }
 
         private void BP_ComputeGradFromOutput(Span<float> grads, Span<float> expectOutput, float outputCoef)
@@ -332,7 +332,7 @@ namespace BonesLib.FixedForwardNN
             for (int i = 0; i < grads.Length; ++i)
             {
                 float derivative = derivativeF(lastLayerSums[i]);
-                grads[i] = derivative * ((expectOutput[i] - _outputs[i])*outputCoef);
+                grads[i] = derivative * ((expectOutput[i] - _outputs[i]) * outputCoef);
             }
         }
 
@@ -340,7 +340,7 @@ namespace BonesLib.FixedForwardNN
         {
             var asInuptN = this.LayersNN.GetNOuts(indexLayerAsInput);
             var asInuptSumsN = this.LayersNN.GetNSumss(indexLayerAsInput);
-            var lastLNMWeights = this.LayersNN.GetWeights(indexLayerAsInput+1);
+            var lastLNMWeights = this.LayersNN.GetWeights(indexLayerAsInput + 1);
 
             var derivateF = this.LayersNN.LayersDef[indexLayerAsInput].FuncActivateReverseDeleg;
             // 2. compute hidden gradients. assumes tanh!
@@ -355,20 +355,20 @@ namespace BonesLib.FixedForwardNN
                 float sum2 = 0.0f;
                 float sum3 = 0.0f;
                 float sum4 = 0.0f;
-                for (; j < oGrads.Length-3; j+=4)
+                for (; j < oGrads.Length - 3; j += 4)
                 {  // each hidden delta is the sum of numOutput terms
                     sum4 += oGrads[j + 3] * lastLNMWeights[indexWeight + asInuptN.Length * 3];
-                    sum1 += oGrads[j] * lastLNMWeights[indexWeight] ;
-                    sum2 +=  oGrads[j + 1] * lastLNMWeights[indexWeight + asInuptN.Length] ;
-                    sum3 +=  oGrads[j + 2] * lastLNMWeights[indexWeight + asInuptN.Length * 2] ;
-                   
+                    sum1 += oGrads[j] * lastLNMWeights[indexWeight];
+                    sum2 += oGrads[j + 1] * lastLNMWeights[indexWeight + asInuptN.Length];
+                    sum3 += oGrads[j + 2] * lastLNMWeights[indexWeight + asInuptN.Length * 2];
 
-                    indexWeight += asInuptN.Length*4;
+
+                    indexWeight += asInuptN.Length * 4;
                 }// each downstream gradient * outgoing weight
 
                 sum += sum1 + sum2 + sum3 + sum4;
 
-                while ( j < oGrads.Length)
+                while (j < oGrads.Length)
                 {  // each hidden delta is the sum of numOutput terms
                     sum += oGrads[j] * lastLNMWeights[indexWeight];
                     indexWeight += asInuptN.Length;
@@ -382,7 +382,7 @@ namespace BonesLib.FixedForwardNN
 
         private void BP_UpdateWeights_AtStartInputs(Span<float> oGrads, float alpha, float moment)
         {
-            
+
             var LNMWeights = this.LayersNN.GetWeights(0);
             var LNBias = this.LayersNN.GetBias(0);
             var LNMWeightsDelta = this.LayersNN.GetWeightsDelta(0);
@@ -397,7 +397,7 @@ namespace BonesLib.FixedForwardNN
                 {
                     float delta = alphaTimesOGrad * _inputs[j];  // hOutputs are inputs to next layer
                     LNMWeights[weightIndex] += delta + moment * LNMWeightsDelta[weightIndex]; ;
-                    
+
                     LNMWeightsDelta[weightIndex] = delta;
                     weightIndex++;
                 }
@@ -408,8 +408,8 @@ namespace BonesLib.FixedForwardNN
 
         private void BP_UpdateWeights(Span<float> oGrads, int indexLayerAsInput, float alpha, float moment)
         {
-            var  LNAsInput = this.LayersNN.GetNOuts(indexLayerAsInput);
-            var LNMWeights = this.LayersNN.GetWeights(indexLayerAsInput+1);
+            var LNAsInput = this.LayersNN.GetNOuts(indexLayerAsInput);
+            var LNMWeights = this.LayersNN.GetWeights(indexLayerAsInput + 1);
             var LNMWeightsDelta = this.LayersNN.GetWeightsDelta(indexLayerAsInput + 1);
             var LNBias = this.LayersNN.GetBias(indexLayerAsInput + 1);
 
@@ -429,7 +429,7 @@ namespace BonesLib.FixedForwardNN
 
                 int j = 0;
                 float alphaTimesOGrad = alpha * oGrad;
-                for (; j < LNAsInput.Length-3; j+=4) // 0..1 (2)
+                for (; j < LNAsInput.Length - 3; j += 4) // 0..1 (2)
                 {
                     float delta4 = alphaTimesOGrad * LNAsInput[j + 3];  // hOutputs are inputs to next layer
                     LNMWeights[weightIndex + 3] += delta4 + moment * LNMWeightsDelta[weightIndex + 3];
@@ -437,22 +437,22 @@ namespace BonesLib.FixedForwardNN
                     float delta = alphaTimesOGrad * LNAsInput[j];  // hOutputs are inputs to next layer
                     LNMWeights[weightIndex] += delta + moment * LNMWeightsDelta[weightIndex];
                     LNMWeightsDelta[weightIndex] = delta;
-                    float delta2 = alphaTimesOGrad * LNAsInput[j+1];  // hOutputs are inputs to next layer
-                    LNMWeights[weightIndex+1] += delta2 + moment * LNMWeightsDelta[weightIndex + 1];
+                    float delta2 = alphaTimesOGrad * LNAsInput[j + 1];  // hOutputs are inputs to next layer
+                    LNMWeights[weightIndex + 1] += delta2 + moment * LNMWeightsDelta[weightIndex + 1];
                     LNMWeightsDelta[weightIndex + 1] = delta2;
-                    float delta3 = alphaTimesOGrad * LNAsInput[j+2];  // hOutputs are inputs to next layer
-                    LNMWeights[weightIndex + 2] += delta3 + moment * LNMWeightsDelta[weightIndex+2];
-                    LNMWeightsDelta[weightIndex+2] = delta3;
-                 
-                    weightIndex +=4;
+                    float delta3 = alphaTimesOGrad * LNAsInput[j + 2];  // hOutputs are inputs to next layer
+                    LNMWeights[weightIndex + 2] += delta3 + moment * LNMWeightsDelta[weightIndex + 2];
+                    LNMWeightsDelta[weightIndex + 2] = delta3;
+
+                    weightIndex += 4;
                 }
 
-                while ( j < LNAsInput.Length) // 0..1 (2)
+                while (j < LNAsInput.Length) // 0..1 (2)
                 {
                     float delta = alphaTimesOGrad * LNAsInput[j];  // hOutputs are inputs to next layer
                     LNMWeights[weightIndex] += delta + moment * LNMWeightsDelta[weightIndex];
                     LNMWeightsDelta[weightIndex] = delta;
-                    weightIndex ++;
+                    weightIndex++;
                     j++;
                 }
 
@@ -463,8 +463,8 @@ namespace BonesLib.FixedForwardNN
         private void EvaluateFirstLevel()
         {
             var lnn = this.LayersNN;
-            var layerDef =  lnn.LayersDef[0];
-          //  var countWPerN = layerDef.CountWPerN;
+            var layerDef = lnn.LayersDef[0];
+            //  var countWPerN = layerDef.CountWPerN;
             var layerW = lnn.GetWeights(0);
             var layerN = lnn.GetNOuts(0);
             var layerNSums = lnn.GetNSumss(0);
@@ -477,38 +477,13 @@ namespace BonesLib.FixedForwardNN
                 float sum = 0.0f;
                 int inLenght = inputs.Length;
 
-                //float sum1 = 0.0f;
-                //float sum2 = 0.0f;
-                //float sum3 = 0.0f;
-                //float sum4 = 0.0f;
-                //for (; w < countWPerN-3; w += 4)
-                //{
+               
 
-                //    sum1 += inputs[w] * layerW[wIndex] ;
-                //    sum2 +=  inputs[w + 1] * layerW[wIndex + 1] ;
-                //    sum3 += inputs[w + 2] * layerW[wIndex + 2] ;
-                //    sum4 += inputs[w + 3] * layerW[wIndex + 3];
-                //    wIndex += 4;
-                //}
-
-                //sum += sum1+sum2+sum3 + sum4;
-                ////for (; w < countWPerN - 3; w += 4)
-                ////{
-                ////    sum += inputs[w] * layerW[wIndex] + inputs[w + 1] * layerW[wIndex + 1] +
-                ////        inputs[w + 2] * layerW[wIndex + 2] + inputs[w + 3] * layerW[wIndex + 3];
-                ////    wIndex += 4;
-                ////}
-
-                //while (w < countWPerN )
-                //{
-                //    sum += inputs[w] * layerW[wIndex];
-                //    w++; wIndex++;
-                //}
-
-                sum += SumNeuronInputs(inputs, layerW.Slice(wIndex, inLenght));
+                sum += Utils.FastDotProduct.Pure(inputs, layerW.Slice(wIndex, inLenght));
+                    
                 wIndex += inLenght;
                 //sum += layerBias[n];
-                layerNSums[n] = sum + layerBias[n] ;
+                layerNSums[n] = sum + layerBias[n];
                 layerN[n] = layerDef.FuncActivateDeleg(layerNSums[n]);
             }
         }
@@ -520,20 +495,26 @@ namespace BonesLib.FixedForwardNN
             var ld = lnn.LayersDef;
             for (int L = 1; L < ld.Length; L++)
             {
-                 var layerDef =   ld[L];
+                var layerDef = ld[L];
                 var countPerW = layerDef.CountWPerN;
                 var lDeleg = layerDef.FuncActivateDeleg;
                 var layerW = lnn.GetWeights(L);
                 var layerN = lnn.GetNOuts(L);
                 var layerNSums = lnn.GetNSumss(L);
                 var layerBias = lnn.GetBias(L);
-                
+
 
 
                 int wIndex = 0;
                 for (int n = 0; n < layerN.Length; n++)
                 {
-                    float sum = SumNeuronInputs(layerNInputs, layerW.Slice(wIndex, countPerW));
+                    float sum //= //0.0f;
+                        = (layerNInputs.Length > 8) ?
+                        Utils.FastDotProduct.Vector8r1(layerNInputs, layerW.Slice(wIndex, countPerW))
+                        :
+                        Utils.FastDotProduct.PureUnroll(layerNInputs, layerW.Slice(wIndex, countPerW))
+                        ;
+
                     wIndex += countPerW;
 
                     sum += layerBias[n];
@@ -569,16 +550,16 @@ namespace BonesLib.FixedForwardNN
                 int wIndex = 0;
                 for (int n = 0; n < layerN.Length; n++)
                 {
-                    float sum = SumNeuronInputsFast(layerNInputsVec, layerWVec.Slice(wIndex, countPerW>>2));
-                    wIndex += countPerW>>2;
+                    float sum = SumNeuronInputsFast(layerNInputsVec, layerWVec.Slice(wIndex, countPerW >> 2));
+                    wIndex += countPerW >> 2;
 
-                    sum += layerBias[n] ;
+                    sum += layerBias[n];
                     layerNSums[n] = sum;
                     layerN[n] = lDeleg(sum);
 
                 }
 
-                layerNInputsVec =  MemoryMarshal.Cast<float, System.Numerics.Vector4>(layerN);
+                layerNInputsVec = MemoryMarshal.Cast<float, System.Numerics.Vector4>(layerN);
                 layerNInputs = layerN;
             }
         }
@@ -603,7 +584,7 @@ namespace BonesLib.FixedForwardNN
                 sum3 += layerNInputs[w + 2] * layerW[w + 2];
             }
 
-        
+
 
 
             sum += sum1 + sum2 + sum3 + sum4;
@@ -624,9 +605,9 @@ namespace BonesLib.FixedForwardNN
 
             int w = 0;
 
-            ReadOnlySpan<System.Numerics.Vector4> v = MemoryMarshal.Cast<float, System.Numerics.Vector4> (layerNInputs);
+            ReadOnlySpan<System.Numerics.Vector4> v = MemoryMarshal.Cast<float, System.Numerics.Vector4>(layerNInputs);
             ReadOnlySpan<System.Numerics.Vector4> v2 = MemoryMarshal.Cast<float, System.Numerics.Vector4>(layerW);
-            for (int k =0; k < v.Length ; k += 1)
+            for (int k = 0; k < v.Length; k += 1)
             {
                 sum += System.Numerics.Vector4.Dot(v[k], v2[k]);
             }
@@ -664,7 +645,7 @@ namespace BonesLib.FixedForwardNN
             return sum;
         }
 
-       
+
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private float SumNeuronInputsFaster(Span<float> layerNInputs, Span<float> layerW)
@@ -676,10 +657,10 @@ namespace BonesLib.FixedForwardNN
             int len = layerNInputs.Length - (layerNInputs.Length & 1);
             ReadOnlySpan<System.Numerics.Vector2> v = MemoryMarshal.Cast<float, System.Numerics.Vector2>(layerNInputs.Slice(0, len));
             ReadOnlySpan<System.Numerics.Vector2> v2 = MemoryMarshal.Cast<float, System.Numerics.Vector2>(layerW.Slice(0, len));
-            for (int k = 0; k+1 < v.Length; k += 2)
+            for (int k = 0; k + 1 < v.Length; k += 2)
             {
                 sum += System.Numerics.Vector2.Dot(v[k], v2[k]);
-                sum2 += System.Numerics.Vector2.Dot(v[k+1], v2[k+1]);
+                sum2 += System.Numerics.Vector2.Dot(v[k + 1], v2[k + 1]);
             }
 
             //while (w < layerW.Length)
@@ -693,7 +674,7 @@ namespace BonesLib.FixedForwardNN
 
         private static int ComputePaddingLenth(int arrayLenght)
         {
-            int incr = ((arrayLenght& 3) > 0) ? 4 : 0;
+            int incr = ((arrayLenght & 3) > 0) ? 4 : 0;
             return (arrayLenght & (~3)) + incr - arrayLenght;
         }
 
@@ -701,8 +682,8 @@ namespace BonesLib.FixedForwardNN
         {
             public LayerDef[] LayersDef;
 
-            
-            public float [] Biases;
+
+            public float[] Biases;
             public float[] NOuts;
             public float[] NSumss;
 
@@ -718,7 +699,7 @@ namespace BonesLib.FixedForwardNN
 
                 result.Biases = new float[Biases.Length];
                 this.Biases.CopyTo(result.Biases, 0);
-          
+
                 result.NOuts = new float[NOuts.Length];
                 this.NOuts.CopyTo(result.NOuts, 0);
                 result.NSumss = new float[NSumss.Length];
@@ -738,14 +719,14 @@ namespace BonesLib.FixedForwardNN
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Span<float> GetWeights(int layerIndex)
             {
-                ref  var  ld = ref LayersDef[layerIndex];
+                ref var ld = ref LayersDef[layerIndex];
                 return Weights.AsSpan(ld.WeightMomentIndexStart, ld.WeightMomentCount);
 
                 //return Layers[IndexWeight(layerIndex)];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public  Span<float> GetWeightsDelta(int layerIndex)
+            public Span<float> GetWeightsDelta(int layerIndex)
             {
                 ref readonly var ld = ref LayersDef[layerIndex];
                 return WeightsLastDelta.AsSpan(ld.WeightMomentIndexStart, ld.WeightMomentCount);
@@ -756,7 +737,7 @@ namespace BonesLib.FixedForwardNN
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Span<float> GetNOuts(int layerIndex)
             {
-                ref  var ld = ref LayersDef[layerIndex];
+                ref var ld = ref LayersDef[layerIndex];
                 return NOuts.AsSpan(ld.BiasNIndexStart, ld.BiasNCount);
 
                 //return Layers[IndexN(layerIndex)];
@@ -774,32 +755,32 @@ namespace BonesLib.FixedForwardNN
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Span<float> GetBias(int layerIndex)
             {
-                ref  var ld = ref LayersDef[layerIndex];
+                ref var ld = ref LayersDef[layerIndex];
                 return Biases.AsSpan(ld.BiasNIndexStart, ld.BiasNCount);
 
                 //return Layers[IndexBias(layerIndex)];
             }
         }
 
-        public  struct LayerDef
+        public struct LayerDef
         {
-            public enum eActivationFunction:byte {None, Relu,Elu,Sigmoid,Swish, Tanh, Logmoid, Mish}
-            public  short CountN;
-            public  short CountWPerN;
+            public enum eActivationFunction : byte { None, Relu, Elu, Sigmoid, Swish, Tanh, Logmoid, Mish }
+            public short CountN;
+            public short CountWPerN;
             public short Padding;
 
-            public  int WeightMomentIndexStart;
-            public  int WeightMomentCount;
+            public int WeightMomentIndexStart;
+            public int WeightMomentCount;
 
-            public  int BiasNIndexStart;
-            public  int BiasNCount;
+            public int BiasNIndexStart;
+            public int BiasNCount;
 
             public eActivationFunction typeAF;
             public delegate float FuncActivate(float x);
             public delegate float FuncActivateReverse(float x);
 
-            public  FuncActivate FuncActivateDeleg;
-            public  FuncActivateReverse FuncActivateReverseDeleg;
+            public FuncActivate FuncActivateDeleg;
+            public FuncActivateReverse FuncActivateReverseDeleg;
             public LayerDef(short countN, short countWPerN, eActivationFunction eAF,
                 int weightMomentIndexStart, int weightMomentCount, int biasNIndexStart, int biasNCount, short padding)
             {
@@ -814,12 +795,12 @@ namespace BonesLib.FixedForwardNN
                 this.BiasNCount = biasNCount;
                 this.Padding = padding;
                 SetAFunc(eAF);
-               
+
             }
 
             private void SetAFunc(eActivationFunction eAF)
             {
-                if(eAF== eActivationFunction.Sigmoid)
+                if (eAF == eActivationFunction.Sigmoid)
                 {
                     this.FuncActivateDeleg = FA_Sigmoid;
                     this.FuncActivateReverseDeleg = FAR_Sigmoid;
@@ -859,14 +840,14 @@ namespace BonesLib.FixedForwardNN
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static float FA_RELU(float x)
             {
-                
+
                 return (x < 0.0f) ? 0.01f * x : x;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static float FAR_RELU(float x)
             {
-                return (x < 0.0f)? 0.01f : 1.0f;
+                return (x < 0.0f) ? 0.01f : 1.0f;
             }
 
             private const float eluAlpha = 1.0f;
@@ -874,7 +855,7 @@ namespace BonesLib.FixedForwardNN
             public static float FA_ELU(float x)
             {
 
-                return (x < 0.0f) ? eluAlpha*(
+                return (x < 0.0f) ? eluAlpha * (
                     //MathF.Exp(x)
                     RandomGen.FastExp(x)
                     - 1.0f) : x;
@@ -883,7 +864,7 @@ namespace BonesLib.FixedForwardNN
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static float FAR_ELU(float x)
             {
-              
+
                 return (x < 0.0f) ? FA_ELU(x) + eluAlpha : 1.0f;
             }
 
@@ -895,21 +876,21 @@ namespace BonesLib.FixedForwardNN
                 else if (x > 45.0f) return 1.0f;
 
 
-                return 1.0f / (1.0f + MathF.Exp( -x));
+                return 1.0f / (1.0f + MathF.Exp(-x));
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static float FAR_Sigmoid(float x)
             {
-               float sigm = FA_Sigmoid(x);
-                return sigm * (1- sigm);
+                float sigm = FA_Sigmoid(x);
+                return sigm * (1 - sigm);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static float FA_Swish(float x)
             {
                 const float alpha = 1.0f;
-                return x / (alpha + MathF.Exp( -x));
+                return x / (alpha + MathF.Exp(-x));
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -919,7 +900,7 @@ namespace BonesLib.FixedForwardNN
                 var tmp = FA_Swish(x);
                 var sig = FA_Sigmoid(x);
 
-                return tmp +sig*(alpha - tmp);
+                return tmp + sig * (alpha - tmp);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -929,7 +910,7 @@ namespace BonesLib.FixedForwardNN
                 //float e_x = MathF.Pow(MathF.E, -x);
 
                 //return (ex-e_x)/(ex + e_x);
-                return 2 * (1 / (1 + MathF.Exp( -2*x)))-1;
+                return 2 * (1 / (1 + MathF.Exp(-2 * x))) - 1;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -937,7 +918,7 @@ namespace BonesLib.FixedForwardNN
             {
                 float tanh = FA_Tanh(x);
 
-                return 1-
+                return 1 -
                     tanh * tanh;
             }
 
@@ -963,26 +944,26 @@ namespace BonesLib.FixedForwardNN
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static float FA_Mish(float x)
             {
-                return x*
+                return x *
                     //MathF.Tanh
                     RandomGen.FastTanh
-                    (MathF.Log(1+
+                    (MathF.Log(1 +
                     //MathF.Exp(x)
                     RandomGen.FastExp(x)
-                    )) ;
+                    ));
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static float FAR_Mish(float x)
             {
                 float expX = MathF.Exp(x);
-                float gama =(4*(x+1)+4*MathF.Exp(2*x)+  MathF.Exp(3 * x)+ expX * (4*x+6));
+                float gama = (4 * (x + 1) + 4 * MathF.Exp(2 * x) + MathF.Exp(3 * x) + expX * (4 * x + 6));
                 float fi = expX + MathF.Exp(2 * x) + 2;
 
                 return expX * gama / (fi * fi);
             }
 
-            
+
         }
     }
 }
